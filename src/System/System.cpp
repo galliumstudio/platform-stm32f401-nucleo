@@ -46,6 +46,7 @@
 #include "CompositeActInterface.h"
 #include "SimpleActInterface.h"
 #include "DemoInterface.h"
+#include "UserLedInterface.h"
 #include "SensorInterface.h"
 #include "bsp.h"
 #include <vector>
@@ -121,8 +122,10 @@ QState System::Root(System * const me, QEvt const * const e) {
         Fw::Post(evt);
         evt = new DemoStartReq(DEMO, SYSTEM, 0);
         Fw::Post(evt);
-        evt = new SensorStartReq(IKS01A1, SYSTEM, 0);
+        evt = new UserLedStartReq(USER_LED, SYSTEM, 0);
         Fw::Post(evt);
+        //evt = new SensorStartReq(IKS01A1, SYSTEM, 0);
+        //Fw::Post(evt);
 
         // Test only.
         /*
@@ -143,7 +146,7 @@ QState System::Root(System * const me, QEvt const * const e) {
         //EVENT(e);
 
         // Test only.
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+        //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 
         /*
         static int testcount = 10000;
@@ -158,7 +161,8 @@ QState System::Root(System * const me, QEvt const * const e) {
     case SENSOR_START_CFM:
     case SIMPLE_ACT_START_CFM:
     case COMPOSITE_ACT_START_CFM:
-    case DEMO_START_CFM: {
+    case DEMO_START_CFM:
+    case USER_LED_START_CFM: {
         EVENT(e);
         return Q_HANDLED();
     }

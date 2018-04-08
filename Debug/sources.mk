@@ -60,6 +60,7 @@ src/Template/SimpleReg \
 src/UartAct \
 src/UartAct/UartIn \
 src/UartAct/UartOut \
+src/UserLed \
 src/WifiSt \
 src \
 system/BSP/STM32F4xx-Nucleo \

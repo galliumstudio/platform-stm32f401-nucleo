@@ -39,104 +39,73 @@
 #include <string.h>
 #include "fw_log.h"
 #include "fw_assert.h"
-#include "fw_macro.h"
-#include "fw_timer.h"
 #include "Console.h"
-#include "ConsoleInterface.h"
-#include "UartOutInterface.h"
-#include "ConsoleCmd.h"
-#include "SystemCmd.h"
-#include "WifiStCmd.h"
-#include "DemoCmd.h"
+#include "UserLedInterface.h"
 #include "UserLedCmd.h"
 
-FW_DEFINE_THIS_FILE("ConsoleCmd.cpp")
+FW_DEFINE_THIS_FILE("UserLedCmd.cpp")
 
 namespace APP {
 
 static CmdStatus Test(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
-            Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
-            console.PutStr("ConsoleCmd Test\n\r");
-            console.Print("Command = %s\n\r", ind.Argv(0));
-            if (ind.Argc() > 1) {
-                console.Print("%d arguments:\n\r", ind.Argc() - 1);
-                for (uint32_t i = 1; i < ind.Argc(); i++) {
-                    console.Print("[%d] %s\n\r", i, ind.Argv(i));
-                }
-            }
+            console.PutStr("UserLedCmd Test\n\r");
             break;
         }
     }
     return CMD_DONE;
 }
 
-static CmdStatus Timer(Console &console, Evt const *e) {
+static CmdStatus On(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
             Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
-            if (ind.Argc() < 2) {
-                console.PutStr("timer period_ms - timer test\n\r");
-                return CMD_DONE;
+            if (ind.Argc() >= 2) {
+                uint32_t pattern = STRING_TO_NUM(ind.Argv(1), 0);
+                bool repeat = true;
+                if (ind.Argc() >= 3 && STRING_EQUAL(ind.Argv(2), "0")) {
+                    repeat = false;
+                }
+                console.Print("pattern = %d, repeat = %d\n\r", pattern, repeat);
+                Evt *evt = new UserLedPatternReq(USER_LED, console.GetHsmn(), console.GenSeq(), pattern, repeat);
+                Fw::Post(evt);
+                break;
             }
-            uint32_t period = STRING_TO_NUM(ind.Argv(1), 0);
-            console.Print("period = %d\n\r", period);
-            console.GetTimer().Start(period, Timer::PERIODIC);
-            console.Var(0) = 0;
-            break;
+            console.Print("led on <pattern idx> [0=once,*other=repeat]\n\r");
+            return CMD_DONE;
         }
-        case Console::CONSOLE_TIMER: {
-            console.Print("timeout %d\n\r", console.Var(0)++);
-            break;
+        case USER_LED_PATTERN_CFM: {
+            ErrorEvt const &cfm = ERROR_EVT_CAST(*e);
+            console.PrintErrorEvt(&cfm);
+            return CMD_DONE;
         }
     }
     return CMD_CONTINUE;
 }
 
-CmdStatus Fibonacci(Console &console, Evt const *e) {
-    uint32_t &prev2 = console.Var(0);
-    uint32_t &prev1 = console.Var(1);
-    uint32_t &count = console.Var(2);
+static CmdStatus Off(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
-            prev2 = 1;
-            prev1 = 1;
-            count = 0;
-            console.Print("[%d] %d\n\r", count++, prev2);
-            console.Print("[%d] %d\n\r", count++, prev1);
+            Evt *evt = new UserLedOffReq(USER_LED, console.GetHsmn(), console.GenSeq());
+            Fw::Post(evt);
             break;
         }
-        case UART_OUT_EMPTY_IND: {
-            while (1) {
-                uint32_t curr = prev2 + prev1;
-                prev2 = prev1;
-                prev1 = curr;
-                uint32_t result = console.Print("[%d] %lu\n\r", count, curr);
-                if (result == 0) {
-                    break;
-                }
-                if (++count > 45) {
-                    prev2 = 1;
-                    prev1 = 1;
-                    count = 2;
-                }
-            }
-            break;
+        case USER_LED_OFF_CFM: {
+            ErrorEvt const &cfm = ERROR_EVT_CAST(*e);
+            console.PrintErrorEvt(&cfm);
+            return CMD_DONE;
         }
     }
     return CMD_CONTINUE;
 }
+
 
 static CmdStatus List(Console &console, Evt const *e);
 static CmdHandler const cmdHandler[] = {
     { "test",       Test,       "Test function", 0 },
-    { "timer",      Timer,      "Timer test function", 0 },
-    { "fib",        Fibonacci,  "Fibonacci generator", 0 },
-    { "sys",        SystemCmd,  "System", 0 },
-    { "wifi",       WifiStCmd,  "Wifi(stm32) control", 0 },
-    { "demo",       DemoCmd,    "Demo from Psicc", 0 },
-    { "led",        UserLedCmd, "User LED control", 0 },
+    { "on",         On,         "Start a pattern", 0 },
+    { "off",        Off,        "Stop a pattern", 0 },
     { "?",          List,       "List commands", 0 },
 };
 
@@ -144,8 +113,8 @@ static CmdStatus List(Console &console, Evt const *e) {
     return console.ListCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler));
 }
 
-CmdStatus ConsoleCmd(Console &console, Evt const *e) {
-    return console.HandleCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler), true);
+CmdStatus UserLedCmd(Console &console, Evt const *e) {
+    return console.HandleCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler));
 }
 
 }

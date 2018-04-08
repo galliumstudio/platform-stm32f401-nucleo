@@ -91,6 +91,7 @@
 #include "SimpleAct.h"
 #include "SimpleActInterface.h"
 #include "Demo.h"
+#include "UserLed.h"
 #include "UartAct.h"
 #include "UartActInterface.h"
 #include "SystemInterface.h"
@@ -127,6 +128,7 @@ static Console consoleUart1(CONSOLE_UART1, "CONSOLE_UART1", "CMD_INPUT_UART1", "
 static CompositeAct compositeAct;
 static SimpleAct simpleAct;
 static Demo demo;
+static UserLed userLed;
 static GpioInAct gpioInAct;
 static UartAct uartAct2(UART2_ACT, "UART2_ACT", "UART2_IN", "UART2_OUT");
 static UartAct uartAct1(UART1_ACT, "UART1_ACT", "UART1_IN", "UART1_OUT");
@@ -143,6 +145,7 @@ static void Error_Handler(void);
   * @brief   Main program
   * @param  None
   * @retval None
+  *
   */
 int main(void)
 {
@@ -177,6 +180,7 @@ int main(void)
     compositeAct.Start(PRIO_COMPOSITE_ACT);
     simpleAct.Start(PRIO_SIMPLE_ACT);
     demo.Start(PRIO_DEMO);
+    userLed.Start(PRIO_USER_LED);
     gpioInAct.Start(PRIO_GPIO_IN_ACT);
     uartAct2.Start(PRIO_UART2_ACT);
     uartAct1.Start(PRIO_UART1_ACT);
@@ -195,8 +199,8 @@ int main(void)
     evt = new SystemStartReq(SYSTEM, HSM_UNDEF, 0);
     Fw::Post(evt);
     // CONSOLE_UART1 must not be started.
-    evt = new WifiStStartReq(WIFI_ST, HSM_UNDEF, 0, UART1_ACT);
-    Fw::Post(evt);
+    //evt = new WifiStStartReq(WIFI_ST, HSM_UNDEF, 0, UART1_ACT);
+    //Fw::Post(evt);
     return QP::QF::run();
 }
 

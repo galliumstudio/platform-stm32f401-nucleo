@@ -51,6 +51,7 @@ enum Error {
     ERROR_HSMN,         // Invalid HSMN.
     ERROR_STATE,        // Invalid state.
     ERROR_UNAVAIL,      // Resource unavailable, busy.
+    ERROR_PARAM,        // Invalid parameter, out of range.
 };
 
 // HSM specific reason code to explain why an error code has occurred.

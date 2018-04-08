@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.2.0">
+<diagram program="umlet" version="14.2">
   <help_text>// Uncomment the following line to change the fontsize and font:
 fontsize=11
 fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
@@ -35,8 +35,8 @@ fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
     </coordinates>
     <panel_attributes>UartOut::Root
 --
-UART_OUT_START_REG/ UART_OUT_START_CFM(STATE)
-UART_OUT_WRITE_REG/ UART_OUT_WRITE_CFM(STATE)
+UART_OUT_START_REG/ ^UART_OUT_START_CFM(STATE)
+UART_OUT_WRITE_REG/ ^UART_OUT_WRITE_CFM(STATE)
 valign=top
 </panel_attributes>
     <additional_attributes/>
@@ -66,7 +66,7 @@ valign=top
     <panel_attributes>Stopped
 --
 UART_OUT_STOP_REQ/
-UART_OUT_STOP_CFM(SUCCESS)
+^UART_OUT_STOP_CFM(SUCCESS)
 
 valign=top
 </panel_attributes>
@@ -104,7 +104,7 @@ valign=top
     </coordinates>
     <panel_attributes>UART_OUT_START_REQ(fifo, uart handle, client)
 / save fifo, reset fifo, save client
-  UART_OUT_START_CFM(SUCCESS)
+  ^UART_OUT_START_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -117,7 +117,7 @@ style=wordwrap</panel_attributes>
       <h>50</h>
     </coordinates>
     <panel_attributes>UART_OUT_STOP_REQ
-/ UART_OUT_STOP_CFM(SUCCESS)
+/ ^UART_OUT_STOP_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -252,7 +252,7 @@ entry
   writeCount = contiguous block length
   
 UART_OUT_WRITE_REQ
-/ UART_OUT_WRITE_CFM(SUCCESS)
+/ ^UART_OUT_WRITE_CFM(SUCCESS)
 
 DMA_DONE
 / increment read fifo index by writeCount
@@ -307,7 +307,7 @@ style=wordwrap</panel_attributes>
       <h>50</h>
     </coordinates>
     <panel_attributes>ACTIVE_TIMER, HW_FAIL
-/ UART_OUT_FAIL_IND(error, origin, reason)
+/ ^UART_OUT_FAIL_IND(error, origin, reason)
   to container
 style=wordwrap</panel_attributes>
     <additional_attributes/>

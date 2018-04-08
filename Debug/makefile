@@ -15,6 +15,7 @@ RM := rm -rf
 -include system/src/cmsis/subdir.mk
 -include system/BSP/STM32F4xx-Nucleo/subdir.mk
 -include src/WifiSt/subdir.mk
+-include src/UserLed/subdir.mk
 -include src/UartAct/UartOut/subdir.mk
 -include src/UartAct/UartIn/subdir.mk
 -include src/UartAct/subdir.mk

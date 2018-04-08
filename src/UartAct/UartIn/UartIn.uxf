@@ -35,7 +35,7 @@ fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
     </coordinates>
     <panel_attributes>UartIn::Root
 --
-UART_IN_START_REQ/ UART_IN_START_CFM(STATE)
+UART_IN_START_REQ/ ^UART_IN_START_CFM(STATE)
 valign=top
 </panel_attributes>
     <additional_attributes/>
@@ -69,7 +69,7 @@ valign=top
     <panel_attributes>Stopped
 --
 UART_IN_STOP_REQ
-/ UART_IN_STOP_CFM(SUCCESS)
+/ ^UART_IN_STOP_CFM(SUCCESS)
 
 valign=top
 </panel_attributes>
@@ -95,7 +95,7 @@ valign=top
       <h>55</h>
     </coordinates>
     <panel_attributes>UART_IN_STOP_REQ
-/ UART_IN_STOP_CFM(SUCCESS)
+/ ^UART_IN_STOP_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -138,7 +138,7 @@ DMA_RECV
   dmaCurrIndex = fifo.bufSize - dmaRemainCount;
   dmaRxCount = offset from dmaCurrIndex to fifo.writeIdx
   if (dmaRxCount &gt; 0)
-    if (dmaRxCount &gt; fifo.availCount) ^OVERFLOW
+    if (dmaRxCount &gt; fifo.availCount) ^^OVERFLOW
     else fifo.IncWriteIndex(dmaRxCount), ^UART_IN_DATA_IND    
 
 valign=top
@@ -155,7 +155,7 @@ valign=top
     </coordinates>
     <panel_attributes>UART_IN_START_REQ
 / save fifo, reset fifo,
-  UART_IN_START_CFM(SUCCESS)
+  ^UART_IN_START_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>

@@ -63,6 +63,8 @@ public:
     void Start(uint8_t prio);
     void Add(Region *reg);
     Hsm &GetHsm() { return m_hsm; }
+    Hsmn GetHsmn() const { return m_hsm.GetHsmn(); }
+    Sequence GenSeq() { return m_hsm.GenSeq(); }
 
     virtual void dispatch(QP::QEvt const * const e);
 

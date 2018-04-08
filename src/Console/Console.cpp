@@ -118,14 +118,20 @@ uint32_t Console::PrintItem(uint32_t index, uint32_t minWidth, uint32_t itemPerL
 uint32_t Console::PrintEvent(QP::QEvt const *e) {
     if (IS_EVT_HSMN_VALID(e->sig) && !IS_TIMER_EVT(e->sig)) {
         Evt const *evt = static_cast<Evt const *>(e);
-        Hsmn to = evt->GetTo();
         Hsmn from = evt->GetFrom();
-        return Log::Print(m_outIfHsmn, "%lu %s to %s(%d) from %s(%d) seq=%d\n\r",
-                          GetSystemMs(), Log::GetEvtName(e->sig), Log::GetHsmName(to), to,
-                          Log::GetHsmName(from), from, evt->GetSeq());
+        return Log::Print(m_outIfHsmn, "%lu Received %s from %s(%d) seq=%d\n\r",
+                          GetSystemMs(), Log::GetEvtName(e->sig), Log::GetHsmName(from), from, evt->GetSeq());
     } else {
-        return Log::Print(m_outIfHsmn, "%lu %s\n\r", GetSystemMs(), Log::GetEvtName(e->sig));
+        return Log::Print(m_outIfHsmn, "%lu Received %s\n\r", GetSystemMs(), Log::GetEvtName(e->sig));
     }
+}
+
+uint32_t Console::PrintErrorEvt(ErrorEvt const *e) {
+    Hsmn from = e->GetFrom();
+    Hsmn origin = e->GetOrigin();
+    return Log::Print(m_outIfHsmn, "%lu Received %s from %s(%d) seq=%u error=%u origin=%s(%u) reason=%u\n\r",
+                      GetSystemMs(), Log::GetEvtName(e->sig), Log::GetHsmName(from), from, e->GetSeq(),
+                      e->GetError(), Log::GetHsmName(origin), origin, e->GetReason());
 }
 
 // Returns length of formatted string written, which can be > lineLen due to formatting.

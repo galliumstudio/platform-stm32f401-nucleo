@@ -49,8 +49,8 @@ using namespace QP;
 
 namespace FW {
 
-// The timer signal does not matter here, since the hsmn is undefined.
-// The event will be discarded by Active::dispatch().
+// The timer signal is set to Q_USER_SIG which is associated with an undefined HSM.
+// It will be discarded by Active::dispatch().
 // The signal is set to Q_USER_SIG in case the QTimeEvt constructor asserts (signal >= Q_USER_SIG).
 Timer const CANCELED_TIMER(HSM_UNDEF, Q_USER_SIG);
 

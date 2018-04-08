@@ -65,6 +65,8 @@ public:
     void Init(Active *container);
     void Init(XThread *container);
     Hsm &GetHsm() { return m_hsm; }
+    Hsmn GetHsmn() const { return m_hsm.GetHsmn(); }
+    Sequence GenSeq() { return m_hsm.GenSeq(); }
 
     virtual void dispatch(QP::QEvt const * const e);
 

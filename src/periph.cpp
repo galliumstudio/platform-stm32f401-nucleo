@@ -84,16 +84,16 @@ void Periph::SetupNormal() {
 
     // Initialize TIM2 for PWM (shared by LED2...).
     HAL_StatusTypeDef status;
-    m_tim1Hal.Instance = TIM2;
-    m_tim1Hal.Init.Prescaler = (TIM2CLK / TIM2_COUNTER_CLK) - 1;
-    m_tim1Hal.Init.Period = (TIM2_COUNTER_CLK / TIM2_PWM_FREQ) - 1;
-    m_tim1Hal.Init.ClockDivision = 0;
-    m_tim1Hal.Init.CounterMode = TIM_COUNTERMODE_UP;
-    m_tim1Hal.Init.RepetitionCounter = 0;
-    status = HAL_TIM_PWM_Init(&m_tim1Hal);
+    m_tim2Hal.Instance = TIM2;
+    m_tim2Hal.Init.Prescaler = (TIM2CLK / TIM2_COUNTER_CLK) - 1;
+    m_tim2Hal.Init.Period = (TIM2_COUNTER_CLK / TIM2_PWM_FREQ) - 1;
+    m_tim2Hal.Init.ClockDivision = 0;
+    m_tim2Hal.Init.CounterMode = TIM_COUNTERMODE_UP;
+    m_tim2Hal.Init.RepetitionCounter = 0;
+    status = HAL_TIM_PWM_Init(&m_tim2Hal);
     FW_ASSERT(status == HAL_OK);
     // Add timHandle to map.
-    SetHal(TIM2, &m_tim1Hal);
+    SetHal(TIM2, &m_tim2Hal);
 }
 
 // Setup common peripherals for low power mode.

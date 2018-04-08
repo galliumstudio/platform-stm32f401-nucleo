@@ -62,7 +62,7 @@ static CmdStatus PostEvt(Console &console, Evt const *e) {
         case Console::CONSOLE_CMD: {
             Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
             FW_ASSERT(ind.Argc() >= 1);
-            char const *str = ind.Argv()[0];
+            char const *str = ind.Argv(0);
             FW_ASSERT(str);
             char ch = str[0];
             QSignal sig = 0;    // Invalid

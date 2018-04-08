@@ -52,6 +52,8 @@
 using namespace QP;
 using namespace FW;
 
+#define FW_CONSOLE_ASSERT(t_) ((t_) ? (void)0 : Q_onAssert("Console.h", (int_t)__LINE__))
+
 namespace APP {
 
 class Console : public Active {
@@ -72,6 +74,7 @@ public:
     uint32_t Print(char const *format, ...);
     uint32_t PrintItem(uint32_t index, uint32_t minWidth, uint32_t itemPerLine, char const *format, ...);
     uint32_t PrintEvent(QP::QEvt const *e);
+    uint32_t PrintErrorEvt(ErrorEvt const *e);
     uint32_t PrintBufLine(uint8_t const *lineBuf, uint32_t lineLen, uint8_t unit, uint32_t lineLabel);
     uint32_t PrintBuf(uint8_t const *dataBuf, uint32_t dataLen, uint8_t align = 1, uint32_t label = 0);
     CmdStatus HandleCmd(Evt const *e, CmdHandler const *cmd, uint32_t cmdCount, bool isRoot = false);
@@ -153,6 +156,7 @@ public:
         ConsoleCmd(Hsmn hsmn, char const **argv, uint32_t argc) :
             Evt(CONSOLE_CMD, hsmn, hsmn), m_argv(argv), m_argc(argc) {}
         char const **Argv() const { return m_argv; }
+        char const *Argv(uint32_t index) const { FW_CONSOLE_ASSERT(index < m_argc); return m_argv[index]; }
         uint32_t Argc() const { return m_argc; }
     private:
         char const **m_argv;
