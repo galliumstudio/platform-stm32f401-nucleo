@@ -256,9 +256,9 @@ QState UserLed::Started(UserLed * const me, QEvt const * const e) {
             UserLedPatternReq const &req = static_cast<UserLedPatternReq const &>(*e);
             LedPattern const *pattern = me->m_config->patternSet.GetPattern(req.GetPatternIndex());
             if (pattern) {
-                me->m_isRepeat = req.IsRepeat();
-                me->m_intervalIndex = 0;
-                me->m_currPattern = pattern;
+                // Assignment 1 A valid LED pattern is requested. Setup m_isRepeat, m_intervalIndex and m_currPattern.
+                // Remember to use "me->" to access member varialbes.
+                // ...
                 Evt *evt = new UserLedPatternCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
                 Fw::Post(evt);
                 return Q_TRAN(&UserLed::Active);
@@ -299,9 +299,10 @@ QState UserLed::Active(UserLed * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             FW_ASSERT(me->m_currPattern);
-            LedInterval const &currInterval = me->m_currPattern->GetInterval(me->m_intervalIndex);                        
-            me->m_intervalTimer.Start(currInterval.GetDurationMs());
-            me->ConfigPwm(currInterval.GetLevelPermil());
+            // Assignment 1 Get the current LED interval object. Start a timer to detect end of interval. Configure PWM to set the LED to the designated brightness.
+            // LedInterval const &currInterval = ...;
+            // me->m_intervalTimer.Start(...);
+            // me->ConfigPwm(...);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -310,11 +311,14 @@ QState UserLed::Active(UserLed * const me, QEvt const * const e) {
             return Q_HANDLED();
         }
         case Q_INIT_SIG: {
-            if (me->m_isRepeat) {
-                return Q_TRAN(&UserLed::Repeating);
-            } else {
-                return Q_TRAN(&UserLed::Once);
-            }
+            // Assignment 1 Depending on whether repeat mode is on, it should go to either the Repeating or Once state.
+            // The code below always goes to the Repeating state. Replace it with your own code.
+            // if (...) {
+            //    return Q_TRAN(...);
+            // } else {
+            //     return Q_TRAN(...);
+            // }
+            return Q_TRAN(&UserLed::Repeating);
         }
         case USER_LED_OFF_REQ: {
             EVENT(e);
@@ -327,17 +331,20 @@ QState UserLed::Active(UserLed * const me, QEvt const * const e) {
         }
         case INTERVAL_TIMER: {
             EVENT(e);
-            uint32_t intervalCount = me->m_currPattern->GetCount();
-            FW_ASSERT(intervalCount > 0);
-            if (me->m_intervalIndex < (intervalCount - 1)) {
-                Evt *evt = new Evt(NEXT_INTERVAL, GET_HSMN(), GET_HSMN());
-                me->PostSync(evt);
-            } else if (me->m_intervalIndex == (intervalCount - 1)) {
-                Evt *evt = new Evt(LAST_INTERVAL, GET_HSMN(), GET_HSMN());
-                me->PostSync(evt);
-            } else {
-                FW_ASSERT(0);
-            }                
+            // Assignment 1 Check if it has reached the last interval of the LED pattern. Generate the internal event NEXT_INTERVAL or LAST_INTERVAL
+            // accordingly. Call PostSync() to post the internal event to ensure it is the next one to be processed.
+            // Note how it uses GET_HSMN() to get its own ID to post an event to itself.
+            // uint32_t intervalCount = ...;
+            // FW_ASSERT(intervalCount > 0);
+            // if (...) {
+            //    Evt *evt = new Evt(NEXT_INTERVAL, GET_HSMN(), GET_HSMN());
+            //    me->PostSync(evt);
+            // } else if (...) {
+            //     Evt *evt = new Evt(LAST_INTERVAL, GET_HSMN(), GET_HSMN());
+            //     me->PostSync(evt);
+            // } else {
+            //     FW_ASSERT(0);
+            // }
             return Q_HANDLED();
         }
         case NEXT_INTERVAL: {
@@ -347,8 +354,11 @@ QState UserLed::Active(UserLed * const me, QEvt const * const e) {
         }
         case LAST_INTERVAL: {
             EVENT(e);
-            me->m_intervalIndex = 0;
-            return Q_TRAN(&UserLed::Active);
+            // Assignment 1 Rewind to the first interval (index = 0). Do a self-transition (to the same state).
+            // See above for reference. Replace "return Q_HANDLED()" with own code.
+            // ...
+            // ...
+            return Q_HANDLED();
         }       
         case DONE: {
             EVENT(e);
@@ -384,8 +394,10 @@ QState UserLed::Once(UserLed * const me, QEvt const * const e) {
         }
         case LAST_INTERVAL: {
             EVENT(e);
-            Evt *evt = new Evt(DONE, GET_HSMN(), GET_HSMN());
-            me->PostSync(evt);
+            // Assignment 1 If repeat mode is off it needs to post the internal event DONE to itself.
+            // Refer to examples above to see how to create an event.
+            // Evt *evt = ...;
+            // me->PostSync(evt);
             return Q_HANDLED();
         }        
     }

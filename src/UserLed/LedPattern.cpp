@@ -28,6 +28,8 @@ LedPatternSet const TEST_LED_PATTERN_SET = {
                 {500,200}, {0, 200}, {500, 200}, {0, 1000}      // two short blinks.
             }
         }
+        // Assignment 1 Add two more LED patterns here. Remember to update the total count at the top.
+        // ...
     }
 };
 
