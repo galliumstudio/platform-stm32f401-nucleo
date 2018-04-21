@@ -39,115 +39,98 @@
 #include <string.h>
 #include "fw_log.h"
 #include "fw_assert.h"
-#include "fw_macro.h"
-#include "fw_timer.h"
 #include "Console.h"
-#include "ConsoleInterface.h"
-#include "UartOutInterface.h"
-#include "ConsoleCmd.h"
-#include "SystemCmd.h"
-#include "WifiStCmd.h"
-#include "DemoCmd.h"
-#include "UserLedCmd.h"
 #include "AOWashingMachineCmd.h"
+#include "AOWashingMachineInterface.h"
 
-FW_DEFINE_THIS_FILE("ConsoleCmd.cpp")
+FW_DEFINE_THIS_FILE("AOWashingMachineCmd.cpp")
 
 namespace APP {
 
 static CmdStatus Test(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
-            Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
-            console.PutStr("ConsoleCmd Test\n\r");
-            console.Print("Command = %s\n\r", ind.Argv(0));
-            if (ind.Argc() > 1) {
-                console.Print("%d arguments:\n\r", ind.Argc() - 1);
-                for (uint32_t i = 1; i < ind.Argc(); i++) {
-                    console.Print("[%d] %s\n\r", i, ind.Argv(i));
-                }
-            }
+            console.PutStr("AOWashingMachineCmd Test\n\r");
             break;
         }
     }
     return CMD_DONE;
 }
 
-static CmdStatus Timer(Console &console, Evt const *e) {
+static CmdStatus PostEvt(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
             Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
-            if (ind.Argc() < 2) {
-                console.PutStr("timer period_ms - timer test\n\r");
-                return CMD_DONE;
-            }
-            uint32_t period = STRING_TO_NUM(ind.Argv(1), 0);
-            console.Print("period = %d\n\r", period);
-            console.GetTimer().Start(period, Timer::PERIODIC);
-            console.Var(0) = 0;
-            break;
-        }
-        case Console::CONSOLE_TIMER: {
-            console.Print("timeout %d\n\r", console.Var(0)++);
-            break;
-        }
-    }
-    return CMD_CONTINUE;
-}
-
-CmdStatus Fibonacci(Console &console, Evt const *e) {
-    uint32_t &prev2 = console.Var(0);
-    uint32_t &prev1 = console.Var(1);
-    uint32_t &count = console.Var(2);
-    switch (e->sig) {
-        case Console::CONSOLE_CMD: {
-            prev2 = 1;
-            prev1 = 1;
-            count = 0;
-            console.Print("[%d] %d\n\r", count++, prev2);
-            console.Print("[%d] %d\n\r", count++, prev1);
-            break;
-        }
-        case UART_OUT_EMPTY_IND: {
-            while (1) {
-                uint32_t curr = prev2 + prev1;
-                prev2 = prev1;
-                prev1 = curr;
-                uint32_t result = console.Print("[%d] %lu\n\r", count, curr);
-                if (result == 0) {
+            FW_ASSERT(ind.Argc() >= 1);
+            char const *str = ind.Argv(0);
+            char ch = str[0];
+            Evt *evt = NULL;
+            switch(ch) {
+                case 'o': {
+                    console.PutStr("  -- Open door selected --\r\n");
+                    evt = new UserSimOpenDoorInd(AO_WASHING_MACHINE, CONSOLE);
                     break;
                 }
-                if (++count > 45) {
-                    prev2 = 1;
-                    prev1 = 1;
-                    count = 2;
+                case 'c': {
+                    console.PutStr("  -- Close door selected --\r\n");
+                    evt = new UserSimCloseDoorInd(AO_WASHING_MACHINE, CONSOLE);
+                    break;
+                }
+                case 's': {
+                    console.PutStr(" -- Start/Pause button pressed --\r\n");
+                    evt = new UserSimStartPauseInd(AO_WASHING_MACHINE, CONSOLE);
+                    break;
+                }
+                case 'n': {
+                    console.PutStr(" -- NORMAL cycle selected --\r\n");
+                    evt = new UserSimCycleSelectedInd(AO_WASHING_MACHINE, CONSOLE, UserSimCycleSelectedInd::NORMAL);
+                    break;
+                }
+                case 'd': {
+                    console.PutStr(" -- DELICATE cycle selected --\r\n");
+                    evt = new UserSimCycleSelectedInd(AO_WASHING_MACHINE, CONSOLE, UserSimCycleSelectedInd::DELICATE);
+                    break;
+                }
+                case 'b': {
+                    console.PutStr(" -- BULKY cycle selected --\r\n");
+                    evt = new UserSimCycleSelectedInd(AO_WASHING_MACHINE, CONSOLE, UserSimCycleSelectedInd::BULKY);
+                    break;
+                }
+                case 't': {
+                    console.PutStr(" -- TOWELS cycle selected --\r\n");
+                    evt = new UserSimCycleSelectedInd(AO_WASHING_MACHINE, CONSOLE, UserSimCycleSelectedInd::TOWELS);
+                    break;
+                }
+                default: {
+                    FW_ASSERT(false);
                 }
             }
+            Fw::Post(evt);
             break;
         }
     }
-    return CMD_CONTINUE;
+    return CMD_DONE;
 }
 
 static CmdStatus List(Console &console, Evt const *e);
 static CmdHandler const cmdHandler[] = {
-    { "test",       Test,       "Test function", 0 },
-    { "timer",      Timer,      "Timer test function", 0 },
-    { "fib",        Fibonacci,  "Fibonacci generator", 0 },
-    { "sys",        SystemCmd,  "System", 0 },
-    { "wifi",       WifiStCmd,  "Wifi(stm32) control", 0 },
-    { "demo",       DemoCmd,    "Demo from Psicc", 0 },
-    { "led",        UserLedCmd, "User LED control", 0 },
-    { "wash",       AOWashingMachineCmd, "Washing machinel", 0 },
-    { "?",          List,       "List commands", 0 },
+    { "test",    Test,       "Test function", 0 },
+    { "o",       PostEvt,    "Opens the door", 0 },
+    { "c",       PostEvt,    "Closes the door", 0 },
+    { "s",       PostEvt,    "Start/Pause button", 0 },
+    { "n",       PostEvt,    "Select wash NORMAL", 0 },
+    { "d",       PostEvt,    "Select wash DELICATE", 0 },
+    { "b",       PostEvt,    "Select wash BULKY", 0 },
+    { "t",       PostEvt,    "Select wash TOWELS", 0 },
+    { "?",       List,       "List commands", 0 },
 };
 
 static CmdStatus List(Console &console, Evt const *e) {
     return console.ListCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler));
 }
 
-CmdStatus ConsoleCmd(Console &console, Evt const *e) {
-    return console.HandleCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler), true);
+CmdStatus AOWashingMachineCmd(Console &console, Evt const *e) {
+    return console.HandleCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler));
 }
 
 }

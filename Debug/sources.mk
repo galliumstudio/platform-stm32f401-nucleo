@@ -32,6 +32,7 @@ qpcpp/include \
 qpcpp/ports/arm-cm/qxk/gnu \
 qpcpp/src/qf \
 qpcpp/src/qxk \
+src/AOWashingMachine \
 src/Console/CmdInput \
 src/Console/CmdParser \
 src/Console \

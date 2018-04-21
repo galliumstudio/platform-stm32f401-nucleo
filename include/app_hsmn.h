@@ -61,6 +61,7 @@ namespace APP {
     ADD_HSM(GPIO_IN, 6) \
     ADD_HSM(DEMO, 1) \
     ADD_HSM(USER_LED, 1) \
+    ADD_HSM(AO_WASHING_MACHINE, 1) \
     ADD_HSM(SIMPLE_ACT, 1) \
     ADD_HSM(SIMPLE_REG, 1) \
     ADD_HSM(COMPOSITE_ACT, 1) \
@@ -121,6 +122,7 @@ enum
     PRIO_GPIO_IN_ACT    = 31, //16,
     PRIO_DEMO           = 10,
     PRIO_USER_LED       = 8,
+    PRIO_AO_WASHING_MACHINE = 7,
     PRIO_SIMPLE_ACT     = 6,
     PRIO_COMPOSITE_ACT  = 4
 };

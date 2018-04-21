@@ -44,6 +44,7 @@ RM := rm -rf
 -include src/Console/CmdParser/subdir.mk
 -include src/Console/CmdInput/subdir.mk
 -include src/Console/subdir.mk
+-include src/AOWashingMachine/subdir.mk
 -include src/subdir.mk
 -include qpcpp/src/qxk/subdir.mk
 -include qpcpp/src/qf/subdir.mk

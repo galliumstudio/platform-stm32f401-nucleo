@@ -132,6 +132,7 @@
 									<listOptionValue builtIn="false" value="&quot;../src/Sensor/Iks01a1/BSP/Components/lsm6dsl&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/Demo&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/UserLed&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../src/AOWashingMachine&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/Template/CompositeAct&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/Template/CompositeAct/CompositeReg&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/Template/SimpleAct&quot;"/>
