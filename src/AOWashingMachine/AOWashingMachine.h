@@ -70,7 +70,6 @@ protected:
                     static QState Rinsing(AOWashingMachine * const me, QEvt const * const e);
                     static QState DrainingRinse(AOWashingMachine * const me, QEvt const * const e);
                     static QState Spinning(AOWashingMachine * const me, QEvt const * const e);
-                    static QState Delay(AOWashingMachine * const me, QEvt const * const e);
 
     // Helper functions
     uint8_t CheckDoorSensor();
@@ -131,8 +130,7 @@ protected:
     ADD_EVT(iWASH_START) \
     ADD_EVT(iWASH_CLOSE) \
     ADD_EVT(iWASH_OPEN) \
-    ADD_EVT(iWASH_DONE) \
-    ADD_EVT(iWASH_DELAY)
+    ADD_EVT(iWASH_DONE)
 
 #undef ADD_EVT
 #define ADD_EVT(e_) e_,

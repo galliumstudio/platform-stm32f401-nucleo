@@ -411,19 +411,13 @@ QState AOWashingMachine::DoorLocked(AOWashingMachine * const me, QEvt const * co
         case START_PAUSE_BUTTON_IND:
         {
             EVENT(e);
-            Evt *evt = new Evt(iWASH_DELAY, GET_HSMN(), GET_HSMN());
-            me->postLIFO(evt);
-            return Q_HANDLED();
+            return Q_TRAN(&AOWashingMachine::DoorUnlocked);
         }
         case OPEN_DOOR_IND:
         {
             EVENT(e);
             PRINT("Can't open door while locked!!\r\n");
             return Q_HANDLED();
-        }
-        case iWASH_DELAY:
-        {
-            return Q_TRAN(&AOWashingMachine::Delay);
         }
         case iWASH_DONE:
         {
@@ -688,39 +682,6 @@ QState AOWashingMachine::Spinning(AOWashingMachine * const me, QEvt const * cons
             Evt *evt = new Evt(iWASH_DONE, GET_HSMN(), GET_HSMN());
             me->postLIFO(evt);
             return Q_HANDLED();
-        }
-    }
-    return Q_SUPER(&AOWashingMachine::DoorLocked);
-}
-
-/**
- * In this state we delay until the washing machine is drained.
- *
- * @param me - Pointer to class
- * @param pEvent - The event to process
- *
- * @return Q_HANDLED if the event was processed, the containing state if not
- * processed.
- */
-QState AOWashingMachine::Delay(AOWashingMachine * const me, QEvt const * const e)
-{
-    switch (e->sig)
-    {
-        case Q_ENTRY_SIG:
-        {
-            EVENT(e);
-            me->StartDraining();
-            return Q_HANDLED();
-        }
-        case Q_EXIT_SIG:
-        {
-            EVENT(e);
-            return Q_HANDLED();
-        }
-        case WASH_DRAINED_IND:
-        {
-            EVENT(e);
-            return Q_TRAN(&AOWashingMachine::DoorUnlocked);
         }
     }
     return Q_SUPER(&AOWashingMachine::DoorLocked);
