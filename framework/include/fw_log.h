@@ -127,6 +127,7 @@ public:
     static char const *GetEvtName(QP::QSignal sig);
     static char const *GetHsmName(Hsmn hsmn);
     static char const *GetTypeName(Type type);
+    static char const *GetState(Hsmn hsmn);
 private:
     static bool IsOutput(Type type, Hsmn hsmn);
 

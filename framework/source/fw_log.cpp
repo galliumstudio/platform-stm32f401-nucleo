@@ -402,4 +402,12 @@ char const *Log::GetTypeName(Type type) {
     return m_typeName[type];
 }
 
+char const *Log::GetState(Hsmn hsmn) {
+    Hsm *hsm = Fw::GetHsm(hsmn);
+    if (!hsm) {
+        return Hsm::GetUndefName();
+    }
+    return hsm->GetState();
+}
+
 } // namespace FW

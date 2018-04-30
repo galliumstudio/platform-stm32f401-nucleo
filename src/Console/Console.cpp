@@ -188,7 +188,7 @@ CmdStatus Console::ListCmd(Evt const *e, CmdHandler const *cmd, uint32_t cmdCoun
             return CMD_DONE;
         }
     }
-    return CMD_DONE;
+    return CMD_CONTINUE;
 }
 
 uint32_t &Console::Var(uint32_t index) {

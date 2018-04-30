@@ -73,6 +73,52 @@ static CmdStatus Test(Console &console, Evt const *e) {
     return CMD_DONE;
 }
 
+static CmdStatus Hsm(Console &console, Evt const *e) {
+    uint32_t &hsmn = console.Var(0);
+    switch (e->sig) {
+        case Console::CONSOLE_CMD: {
+            console.Print("HSMs in system:\n\r");
+            console.Print("===============\n\r");
+            hsmn = 0;
+            break;
+        }
+        case UART_OUT_EMPTY_IND: {
+            for (; hsmn < HSM_COUNT; hsmn++) {
+                bool result = console.PrintItem(hsmn, 28, 4, "%s(%lu)", Log::GetHsmName(hsmn), hsmn);
+                if (!result) {
+                    return CMD_CONTINUE;
+                }
+            }
+            console.PutStr("\n\r\n\r");
+            return CMD_DONE;
+        }
+    }
+    return CMD_CONTINUE;
+}
+
+static CmdStatus State(Console &console, Evt const *e) {
+    uint32_t &hsmn = console.Var(0);
+    switch (e->sig) {
+        case Console::CONSOLE_CMD: {
+            console.Print("HSM states:\n\r");
+            console.Print("===========\n\r");
+            hsmn = 0;
+            break;
+        }
+        case UART_OUT_EMPTY_IND: {
+            for (; hsmn < HSM_COUNT; hsmn++) {
+                bool result = console.PrintItem(hsmn, 56, 2, "%s(%lu) - %s", Log::GetHsmName(hsmn), hsmn, Log::GetState(hsmn));
+                if (!result) {
+                    return CMD_CONTINUE;
+                }
+            }
+            console.PutStr("\n\r\n\r");
+            return CMD_DONE;
+        }
+    }
+    return CMD_CONTINUE;
+}
+
 static CmdStatus Timer(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
@@ -132,6 +178,8 @@ CmdStatus Fibonacci(Console &console, Evt const *e) {
 static CmdStatus List(Console &console, Evt const *e);
 static CmdHandler const cmdHandler[] = {
     { "test",       Test,       "Test function", 0 },
+    { "hsm",        Hsm,        "List all HSMs", 0 },
+    { "state",      State,      "List HSM states", 0 },
     { "timer",      Timer,      "Timer test function", 0 },
     { "fib",        Fibonacci,  "Fibonacci generator", 0 },
     { "sys",        SystemCmd,  "System", 0 },
