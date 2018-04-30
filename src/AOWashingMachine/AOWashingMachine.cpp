@@ -39,6 +39,7 @@
 #include "app_hsmn.h"
 #include "fw_log.h"
 #include "fw_assert.h"
+#include "UserLedInterface.h"
 #include "AOWashingMachineInterface.h"
 #include "AOWashingMachine.h"
 
@@ -274,6 +275,8 @@ QState AOWashingMachine::DoorOpen(AOWashingMachine * const me, QEvt const * cons
         {
             EVENT(e);
             me->m_doorState = DOOR_OPEN;
+            Evt *evt = new UserLedOffReq(USER_LED, GET_HSMN(), GEN_SEQ());
+            Fw::Post(evt);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG:
@@ -357,6 +360,8 @@ QState AOWashingMachine::DoorUnlocked(AOWashingMachine * const me, QEvt const * 
         {
             EVENT(e);
             me->UnlockDoor();
+            Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 0, true);
+            Fw::Post(evt);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG:
@@ -401,6 +406,8 @@ QState AOWashingMachine::DoorLocked(AOWashingMachine * const me, QEvt const * co
         {
             EVENT(e);
             me->LockDoor();
+            Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 1, true);
+            Fw::Post(evt);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG:

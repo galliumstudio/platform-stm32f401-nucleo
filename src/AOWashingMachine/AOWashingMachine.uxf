@@ -67,7 +67,8 @@ valign=top
     </coordinates>
     <panel_attributes>DoorOpen
 --
-entry / m_doorState = OPEN
+entry / m_doorState = OPEN,
+        ^USER_LED_OFF_REQ
 START_PAUSE_BUTTON_IND / ErrorBeep()
 CLOSE_DOOR_IND / ^iWASH_CLOSE
 
@@ -205,13 +206,14 @@ style=wordwrap</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>530</x>
-      <y>320</y>
+      <y>310</y>
       <w>840</w>
-      <h>50</h>
+      <h>70</h>
     </coordinates>
     <panel_attributes>DoorUnlocked
 --
-entry / UnlockDoor()
+entry / UnlockDoor(),
+        ^USER_LED_PATTERN_REQ(0, repeat)
 OPEN_DOOR_IND / ^iWASH_OPEN
      
     
@@ -225,10 +227,10 @@ valign=top
       <x>640</x>
       <y>270</y>
       <w>80</w>
-      <h>70</h>
+      <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;&gt;&gt;</panel_attributes>
-    <additional_attributes>10.0;10.0;60.0;10.0;60.0;50.0</additional_attributes>
+    <additional_attributes>10.0;10.0;60.0;10.0;60.0;40.0</additional_attributes>
   </element>
   <element>
     <id>UMLSpecialState</id>
@@ -251,7 +253,8 @@ valign=top
     </coordinates>
     <panel_attributes>DoorLocked
 --
-entry / LockDoor()
+entry / LockDoor(),
+        ^USER_LED_PATTERN_REQ(1, repeat)
 CYCLE_SELECTED_IND / ErrorBeep()
 OPEN_DOOR_IND / PrintError("cannot open while door is locked")
      
@@ -264,7 +267,7 @@ valign=top
     <id>UMLSpecialState</id>
     <coordinates>
       <x>1110</x>
-      <y>490</y>
+      <y>500</y>
       <w>20</w>
       <h>20</h>
     </coordinates>
@@ -454,18 +457,18 @@ valign=top
     <id>Relation</id>
     <coordinates>
       <x>800</x>
-      <y>490</y>
+      <y>500</y>
       <w>330</w>
-      <h>70</h>
+      <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;&gt;&gt;</panel_attributes>
-    <additional_attributes>310.0;10.0;10.0;10.0;10.0;50.0</additional_attributes>
+    <additional_attributes>310.0;10.0;10.0;10.0;10.0;40.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>1110</x>
-      <y>360</y>
+      <y>370</y>
       <w>30</w>
       <h>150</h>
     </coordinates>
@@ -476,23 +479,23 @@ valign=top
     <id>Relation</id>
     <coordinates>
       <x>780</x>
-      <y>360</y>
+      <y>370</y>
       <w>30</w>
-      <h>90</h>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;&gt;&gt;</panel_attributes>
-    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
+    <additional_attributes>10.0;60.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>660</x>
-      <y>360</y>
+      <y>370</y>
       <w>30</w>
-      <h>90</h>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;&gt;&gt;</panel_attributes>
-    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
+    <additional_attributes>10.0;60.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Text</id>
