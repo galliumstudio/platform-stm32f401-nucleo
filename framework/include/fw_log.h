@@ -123,6 +123,7 @@ public:
     static void Off(Hsmn hsmn);
     static void OnAll();
     static void OffAll();
+    static bool IsOn(Hsmn hsmn) { return m_on.IsSet(hsmn); }
 
     static char const *GetEvtName(QP::QSignal sig);
     static char const *GetHsmName(Hsmn hsmn);

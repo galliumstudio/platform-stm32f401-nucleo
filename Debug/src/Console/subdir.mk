@@ -5,15 +5,18 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/Console/Console.cpp \
-../src/Console/ConsoleCmd.cpp 
+../src/Console/ConsoleCmd.cpp \
+../src/Console/LogCmd.cpp 
 
 OBJS += \
 ./src/Console/Console.o \
-./src/Console/ConsoleCmd.o 
+./src/Console/ConsoleCmd.o \
+./src/Console/LogCmd.o 
 
 CPP_DEPS += \
 ./src/Console/Console.d \
-./src/Console/ConsoleCmd.d 
+./src/Console/ConsoleCmd.d \
+./src/Console/LogCmd.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

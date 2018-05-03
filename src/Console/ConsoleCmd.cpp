@@ -45,6 +45,7 @@
 #include "ConsoleInterface.h"
 #include "UartOutInterface.h"
 #include "ConsoleCmd.h"
+#include "LogCmd.h"
 #include "SystemCmd.h"
 #include "WifiStCmd.h"
 #include "DemoCmd.h"
@@ -180,6 +181,7 @@ static CmdHandler const cmdHandler[] = {
     { "test",       Test,       "Test function", 0 },
     { "hsm",        Hsm,        "List all HSMs", 0 },
     { "state",      State,      "List HSM states", 0 },
+    { "log",        LogCmd,     "Log control", 0 },
     { "timer",      Timer,      "Timer test function", 0 },
     { "fib",        Fibonacci,  "Fibonacci generator", 0 },
     { "sys",        SystemCmd,  "System", 0 },

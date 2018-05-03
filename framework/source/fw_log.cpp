@@ -374,7 +374,7 @@ void Log::OffAll() {
 }
 
 bool Log::IsOutput(Type type, Hsmn hsmn) {
-    return (type < m_verbosity) && m_on.IsSet(hsmn);
+    return (type < m_verbosity) && IsOn(hsmn);
 }
 
 char const *Log::GetEvtName(QP::QSignal sig) {
