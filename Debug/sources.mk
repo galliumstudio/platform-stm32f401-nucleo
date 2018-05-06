@@ -58,6 +58,8 @@ src/Template/CompositeAct \
 src/Template/CompositeAct/CompositeReg \
 src/Template/SimpleAct \
 src/Template/SimpleReg \
+src/Traffic/Lamp \
+src/Traffic \
 src/UartAct \
 src/UartAct/UartIn \
 src/UartAct/UartOut \

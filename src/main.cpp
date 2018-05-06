@@ -93,6 +93,7 @@
 #include "Demo.h"
 #include "UserLed.h"
 #include "AOWashingMachine.h"
+#include "Traffic.h"
 #include "UartAct.h"
 #include "UartActInterface.h"
 #include "SystemInterface.h"
@@ -131,6 +132,7 @@ static SimpleAct simpleAct;
 static Demo demo;
 static UserLed userLed;
 static AOWashingMachine washingMachine;
+static Traffic traffic;
 static GpioInAct gpioInAct;
 static UartAct uartAct2(UART2_ACT, "UART2_ACT", "UART2_IN", "UART2_OUT");
 static UartAct uartAct1(UART1_ACT, "UART1_ACT", "UART1_IN", "UART1_OUT");
@@ -184,6 +186,7 @@ int main(void)
     demo.Start(PRIO_DEMO);
     userLed.Start(PRIO_USER_LED);
     washingMachine.Start(PRIO_AO_WASHING_MACHINE);
+    traffic.Start(PRIO_TRAFFIC);
     gpioInAct.Start(PRIO_GPIO_IN_ACT);
     uartAct2.Start(PRIO_UART2_ACT);
     uartAct1.Start(PRIO_UART1_ACT);

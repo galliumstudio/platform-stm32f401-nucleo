@@ -19,6 +19,8 @@ RM := rm -rf
 -include src/UartAct/UartOut/subdir.mk
 -include src/UartAct/UartIn/subdir.mk
 -include src/UartAct/subdir.mk
+-include src/Traffic/Lamp/subdir.mk
+-include src/Traffic/subdir.mk
 -include src/Template/SimpleReg/subdir.mk
 -include src/Template/SimpleAct/subdir.mk
 -include src/Template/CompositeAct/CompositeReg/subdir.mk

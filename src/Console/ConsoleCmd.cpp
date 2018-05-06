@@ -51,6 +51,7 @@
 #include "DemoCmd.h"
 #include "UserLedCmd.h"
 #include "AOWashingMachineCmd.h"
+#include "TrafficCmd.h"
 
 FW_DEFINE_THIS_FILE("ConsoleCmd.cpp")
 
@@ -188,7 +189,8 @@ static CmdHandler const cmdHandler[] = {
     { "wifi",       WifiStCmd,  "Wifi(stm32) control", 0 },
     { "demo",       DemoCmd,    "Demo from Psicc", 0 },
     { "led",        UserLedCmd, "User LED control", 0 },
-    { "wash",       AOWashingMachineCmd, "Washing machinel", 0 },
+    { "wash",       AOWashingMachineCmd, "Washing machine", 0 },
+    { "traffic",    TrafficCmd, "Traffic light", 0 },
     { "?",          List,       "List commands", 0 },
 };
 

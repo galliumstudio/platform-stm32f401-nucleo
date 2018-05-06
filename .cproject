@@ -133,6 +133,8 @@
 									<listOptionValue builtIn="false" value="&quot;../src/Demo&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/UserLed&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/AOWashingMachine&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../src/Traffic&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../src/Traffic/Lamp&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/Template/CompositeAct&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/Template/CompositeAct/CompositeReg&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/Template/SimpleAct&quot;"/>

@@ -48,6 +48,7 @@
 #include "DemoInterface.h"
 #include "UserLedInterface.h"
 #include "AOWashingMachineInterface.h"
+#include "TrafficInterface.h"
 #include "SensorInterface.h"
 #include "bsp.h"
 #include <vector>
@@ -127,6 +128,8 @@ QState System::Root(System * const me, QEvt const * const e) {
         Fw::Post(evt);
         evt = new WashStartReq(AO_WASHING_MACHINE, SYSTEM, 0);
         Fw::Post(evt);
+        evt = new TrafficStartReq(TRAFFIC, SYSTEM, 0);
+        Fw::Post(evt);
         //evt = new SensorStartReq(IKS01A1, SYSTEM, 0);
         //Fw::Post(evt);
 
@@ -166,7 +169,8 @@ QState System::Root(System * const me, QEvt const * const e) {
     case COMPOSITE_ACT_START_CFM:
     case DEMO_START_CFM:
     case USER_LED_START_CFM:
-    case WASH_START_CFM: {
+    case WASH_START_CFM:
+    case TRAFFIC_START_CFM: {
         EVENT(e);
         return Q_HANDLED();
     }
