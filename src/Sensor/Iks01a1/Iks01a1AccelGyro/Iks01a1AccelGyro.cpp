@@ -272,7 +272,7 @@ QState Iks01a1AccelGyro::Started(Iks01a1AccelGyro * const me, QEvt const * const
             SensorAxes_t accData;
             DrvStatusTypeDef status = BSP_ACCELERO_Get_Axes(me->m_handle, &accData);
             FW_ASSERT(status == COMPONENT_OK);
-            //PRINT("%d %d %d\n\r", accData.AXIS_X, accData.AXIS_Y, accData.AXIS_Z);
+            LOG("%d %d %d", accData.AXIS_X, accData.AXIS_Y, accData.AXIS_Z);
             return Q_HANDLED();
         }
         case GPIO_IN_INACTIVE_IND: {

@@ -205,8 +205,8 @@ int main(void)
     evt = new SystemStartReq(SYSTEM, HSM_UNDEF, 0);
     Fw::Post(evt);
     // CONSOLE_UART1 must not be started.
-    //evt = new WifiStStartReq(WIFI_ST, HSM_UNDEF, 0, UART1_ACT);
-    //Fw::Post(evt);
+    evt = new WifiStStartReq(WIFI_ST, HSM_UNDEF, 0, UART1_ACT);
+    Fw::Post(evt);
     return QP::QF::run();
 }
 

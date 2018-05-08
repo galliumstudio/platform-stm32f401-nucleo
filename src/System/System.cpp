@@ -130,8 +130,8 @@ QState System::Root(System * const me, QEvt const * const e) {
         Fw::Post(evt);
         evt = new TrafficStartReq(TRAFFIC, SYSTEM, 0);
         Fw::Post(evt);
-        //evt = new SensorStartReq(IKS01A1, SYSTEM, 0);
-        //Fw::Post(evt);
+        evt = new SensorStartReq(IKS01A1, SYSTEM, 0);
+        Fw::Post(evt);
 
         // Test only.
         /*
