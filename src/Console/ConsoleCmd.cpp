@@ -52,6 +52,7 @@
 #include "UserLedCmd.h"
 #include "AOWashingMachineCmd.h"
 #include "TrafficCmd.h"
+#include <memory>
 
 FW_DEFINE_THIS_FILE("ConsoleCmd.cpp")
 
@@ -177,6 +178,31 @@ CmdStatus Fibonacci(Console &console, Evt const *e) {
     return CMD_CONTINUE;
 }
 
+static CmdStatus Perf(Console &console, Evt const *e) {
+    switch (e->sig) {
+        case Console::CONSOLE_CMD: {
+            uint32_t startMs = GetSystemMs();
+            const uint32_t TEST_CNT = 100000;
+            const uint16_t TEST_SIZE = 32;
+            for (uint32_t i = 0; i < TEST_CNT; i++) {
+                QEvt *evt = QF::newX_(TEST_SIZE, 0, 0);
+                evt->sig = i;
+                QF::gc(evt);
+            }
+            console.Print("Elapsed time with QF = %d\n\r", GetSystemMs() - startMs);
+
+            startMs = GetSystemMs();
+            for (uint32_t i = 0; i < TEST_CNT; i++) {
+                auto evt = std::make_shared<QEvt>(0);
+                evt->sig = i;
+            }
+            console.Print("Elapsed time with new = %d\n\r", GetSystemMs() - startMs);
+            break;
+        }
+    }
+    return CMD_DONE;
+}
+
 static CmdStatus List(Console &console, Evt const *e);
 static CmdHandler const cmdHandler[] = {
     { "test",       Test,       "Test function", 0 },
@@ -191,6 +217,7 @@ static CmdHandler const cmdHandler[] = {
     { "led",        UserLedCmd, "User LED control", 0 },
     { "wash",       AOWashingMachineCmd, "Washing machine", 0 },
     { "traffic",    TrafficCmd, "Traffic light", 0 },
+    { "perf",       Perf,       "Performance demo", 0 },
     { "?",          List,       "List commands", 0 },
 };
 

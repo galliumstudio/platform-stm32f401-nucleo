@@ -156,7 +156,7 @@ extern "C" void DMA1_Stream6_IRQHandler(void) {
     QXK_ISR_ENTRY();
     UART_HandleTypeDef *hal = UartAct::GetHal(UART2_ACT);
     HAL_DMA_IRQHandler(hal->hdmatx);
-    QXK_ISR_ENTRY();
+    QXK_ISR_EXIT();
 }
 
 // UART2 RX DMA
@@ -165,7 +165,7 @@ extern "C" void DMA1_Stream5_IRQHandler(void) {
     QXK_ISR_ENTRY();
     UART_HandleTypeDef *hal = UartAct::GetHal(UART2_ACT);
     HAL_DMA_IRQHandler(hal->hdmarx);
-    QXK_ISR_ENTRY();
+    QXK_ISR_EXIT();
 }
 
 // UART2 RX
@@ -183,7 +183,7 @@ extern "C" void DMA2_Stream7_IRQHandler(void) {
     QXK_ISR_ENTRY();
     UART_HandleTypeDef *hal = UartAct::GetHal(UART1_ACT);
     HAL_DMA_IRQHandler(hal->hdmatx);
-    QXK_ISR_ENTRY();
+    QXK_ISR_EXIT();
 }
 
 // UART1 RX DMA
@@ -192,7 +192,7 @@ extern "C" void DMA2_Stream5_IRQHandler(void) {
     QXK_ISR_ENTRY();
     UART_HandleTypeDef *hal = UartAct::GetHal(UART1_ACT);
     HAL_DMA_IRQHandler(hal->hdmarx);
-    QXK_ISR_ENTRY();
+    QXK_ISR_EXIT();
 }
 
 // UART1 RX
