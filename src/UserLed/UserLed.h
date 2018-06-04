@@ -53,7 +53,7 @@ namespace APP {
 
 class UserLed : public Active {
 public:
-    UserLed();
+    UserLed(Hsmn hsmn, char const *name);
 
 protected:
     static QState InitialPseudoState(UserLed * const me, QEvt const * const e);

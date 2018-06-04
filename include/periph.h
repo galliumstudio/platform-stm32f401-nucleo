@@ -93,6 +93,7 @@ private:
     // Persistent HAL handle objects.
     static TIM_HandleTypeDef m_tim1Hal;
     static TIM_HandleTypeDef m_tim2Hal;
+    static TIM_HandleTypeDef m_tim3Hal;
     // Add more HAL handles here.
 };
 

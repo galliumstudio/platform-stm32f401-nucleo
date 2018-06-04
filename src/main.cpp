@@ -130,7 +130,8 @@ static Console consoleUart1(CONSOLE_UART1, "CONSOLE_UART1", "CMD_INPUT_UART1", "
 static CompositeAct compositeAct;
 static SimpleAct simpleAct;
 static Demo demo;
-static UserLed userLed;
+static UserLed userLed(USER_LED, "USER_LED");
+static UserLed testLed(TEST_LED, "TEST_LED");
 static AOWashingMachine washingMachine;
 static Traffic traffic;
 static GpioInAct gpioInAct;
@@ -185,6 +186,7 @@ int main(void)
     simpleAct.Start(PRIO_SIMPLE_ACT);
     demo.Start(PRIO_DEMO);
     userLed.Start(PRIO_USER_LED);
+    testLed.Start(PRIO_TEST_LED);
     washingMachine.Start(PRIO_AO_WASHING_MACHINE);
     traffic.Start(PRIO_TRAFFIC);
     gpioInAct.Start(PRIO_GPIO_IN_ACT);

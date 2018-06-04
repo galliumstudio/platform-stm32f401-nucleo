@@ -60,7 +60,7 @@ namespace APP {
     ADD_HSM(GPIO_IN_ACT, 1) \
     ADD_HSM(GPIO_IN, 6) \
     ADD_HSM(DEMO, 1) \
-    ADD_HSM(USER_LED, 1) \
+    ADD_HSM(USER_LED, 2) \
     ADD_HSM(AO_WASHING_MACHINE, 1) \
     ADD_HSM(TRAFFIC, 1) \
     ADD_HSM(LAMP, 2) \
@@ -93,6 +93,7 @@ namespace APP {
     ADD_ALIAS(MAG_DRDY,        GPIO_IN+3) \
     ADD_ALIAS(HUMID_TEMP_DRDY, GPIO_IN+4) \
     ADD_ALIAS(PRESS_INT,       GPIO_IN+5) \
+    ADD_ALIAS(TEST_LED,        USER_LED+1) \
     ADD_ALIAS(LAMP_NS, LAMP+0) \
     ADD_ALIAS(LAMP_EW, LAMP+1) \
     ADD_ALIAS(COMPOSITE_REG0, COMPOSITE_REG+0) \
@@ -125,7 +126,8 @@ enum
     PRIO_WIFI_ST        = 20,
     PRIO_GPIO_IN_ACT    = 31, //16,
     PRIO_DEMO           = 10,
-    PRIO_USER_LED       = 8,
+    PRIO_USER_LED       = 9,
+    PRIO_TEST_LED       = 8,
     PRIO_AO_WASHING_MACHINE = 7,
     PRIO_TRAFFIC        = 6,
     PRIO_SIMPLE_ACT     = 5,

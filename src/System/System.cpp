@@ -101,8 +101,9 @@ QState System::Root(System * const me, QEvt const * const e) {
         EVENT(e);
         Periph::SetupNormal();
         // Test only
+        /*
         __HAL_RCC_GPIOA_CLK_ENABLE();
-        /* -2- Configure IO in output push-pull mode to drive external LEDs */
+        // -2- Configure IO in output push-pull mode to drive external LEDs
         GPIO_InitTypeDef  GPIO_InitStruct;
         GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
         GPIO_InitStruct.Pull  = GPIO_PULLUP;
@@ -115,6 +116,7 @@ QState System::Root(System * const me, QEvt const * const e) {
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
         GPIO_InitStruct.Pin = GPIO_PIN_6;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        */
 
         me->m_testTimer.Start(500, Timer::PERIODIC);
 
@@ -125,6 +127,8 @@ QState System::Root(System * const me, QEvt const * const e) {
         evt = new DemoStartReq(DEMO, SYSTEM, 0);
         Fw::Post(evt);
         evt = new UserLedStartReq(USER_LED, SYSTEM, 0);
+        Fw::Post(evt);
+        evt = new UserLedStartReq(TEST_LED, SYSTEM, 0);
         Fw::Post(evt);
         evt = new WashStartReq(AO_WASHING_MACHINE, SYSTEM, 0);
         Fw::Post(evt);

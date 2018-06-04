@@ -70,6 +70,8 @@ static CmdStatus On(Console &console, Evt const *e) {
                 console.Print("pattern = %d, repeat = %d\n\r", pattern, repeat);
                 Evt *evt = new UserLedPatternReq(USER_LED, console.GetHsmn(), console.GenSeq(), pattern, repeat);
                 Fw::Post(evt);
+                evt = new UserLedPatternReq(TEST_LED, console.GetHsmn(), console.GenSeq(), pattern, repeat);
+                Fw::Post(evt);
                 break;
             }
             console.Print("led on <pattern idx> [0=once,*other=repeat]\n\r");
@@ -88,6 +90,8 @@ static CmdStatus Off(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
             Evt *evt = new UserLedOffReq(USER_LED, console.GetHsmn(), console.GenSeq());
+            Fw::Post(evt);
+            evt = new UserLedOffReq(TEST_LED, console.GetHsmn(), console.GenSeq());
             Fw::Post(evt);
             break;
         }

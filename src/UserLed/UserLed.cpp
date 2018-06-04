@@ -72,6 +72,7 @@ static char const * const interfaceEvtName[] = {
 // If pwmTimer is NULL, af and pwmChannel are don't-care, and mode must be OUTPUT_PP or OUTPUT_OD.
 UserLed::Config const UserLed::CONFIG[] = {
     { USER_LED, GPIOA, GPIO_PIN_5, true, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2, TIM2, TIM_CHANNEL_1, false, TEST_LED_PATTERN_SET },
+    { TEST_LED, GPIOC, GPIO_PIN_7, true, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF2_TIM3, TIM3, TIM_CHANNEL_2, false, TEST_LED_PATTERN_SET },
     // Add more LED here.
 };
 
@@ -154,9 +155,8 @@ void UserLed::StopPwm(TIM_HandleTypeDef *hal) {
     FW_ASSERT(status == HAL_OK);
 }
 
-
-UserLed::UserLed() :
-    FW::Active((QStateHandler)&UserLed::InitialPseudoState, USER_LED, "USER_LED",
+UserLed::UserLed(Hsmn hsmn, char const *name) :
+    FW::Active((QStateHandler)&UserLed::InitialPseudoState, hsmn, name,
            timerEvtName, ARRAY_COUNT(timerEvtName),
            internalEvtName, ARRAY_COUNT(internalEvtName),
            interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
