@@ -138,10 +138,9 @@ QState System::Root(System * const me, QEvt const * const e) {
         //Fw::Post(evt);
 
         // Test only.
-        /*
         evt = new GpioInStartReq(USER_BTN, SYSTEM, 0);
         Fw::Post(evt);
-        */
+
         status = Q_HANDLED();
         break;
     }
@@ -178,10 +177,20 @@ QState System::Root(System * const me, QEvt const * const e) {
         EVENT(e);
         return Q_HANDLED();
     }
-    case GPIO_IN_START_CFM:
-    case GPIO_IN_ACTIVE_IND:
+    case GPIO_IN_START_CFM: {
+        EVENT(e);
+        return Q_HANDLED();
+    }
+    case GPIO_IN_ACTIVE_IND: {
+        EVENT(e);
+        Evt *evt = new UserLedPatternReq(TEST_LED, GET_HSMN(), GEN_SEQ(), 0, true);
+        Fw::Post(evt);
+        return Q_HANDLED();
+    }
     case GPIO_IN_INACTIVE_IND: {
         EVENT(e);
+        Evt *evt = new UserLedOffReq(TEST_LED, GET_HSMN(), GEN_SEQ());
+        Fw::Post(evt);
         return Q_HANDLED();
     }
     default: {
