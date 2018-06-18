@@ -27,6 +27,8 @@ CPP_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+STemWinLibrary522/Config \
+STemWinLibrary522/OS \
 framework/source \
 qpcpp/include \
 qpcpp/ports/arm-cm/qxk/gnu \

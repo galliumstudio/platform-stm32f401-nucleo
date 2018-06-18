@@ -53,6 +53,8 @@ RM := rm -rf
 -include qpcpp/ports/arm-cm/qxk/gnu/subdir.mk
 -include qpcpp/include/subdir.mk
 -include framework/source/subdir.mk
+-include STemWinLibrary522/OS/subdir.mk
+-include STemWinLibrary522/Config/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -100,7 +102,7 @@ all: platform-stm32f401-nucleo.elf secondary-outputs
 platform-stm32f401-nucleo.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -ffreestanding -fno-move-loop-invariants -Wall -Wextra  -g3 -T mem.ld -T libs.ld -T sections.ld -nostartfiles -Xlinker --gc-sections -L"../ldscripts" -Wl,-Map,"platform-stm32f401-nucleo.map" --specs=nano.specs -o "platform-stm32f401-nucleo.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -ffreestanding -fno-move-loop-invariants -Wall -Wextra  -g3 -T mem.ld -T libs.ld -T sections.ld -nostartfiles -Xlinker --gc-sections -L"../ldscripts" -L../STemWinLibrary522/Lib -Wl,-Map,"platform-stm32f401-nucleo.map" -mfloat-abi=hard -mfpu=fpv4-sp-d16 -o "platform-stm32f401-nucleo.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
