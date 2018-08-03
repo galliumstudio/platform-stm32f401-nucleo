@@ -201,12 +201,10 @@ bool GpioIn::IsActive() {
 }
 
 GpioIn::GpioIn() :
-    Region((QStateHandler)&GpioIn::InitialPseudoState, GetCurrHsmn(), GetName(GetCurrHsmn()),
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
-    m_config(NULL), m_client(HSM_UNDEF),
+    Region((QStateHandler)&GpioIn::InitialPseudoState, GetCurrHsmn(), GetName(GetCurrHsmn())),
+    m_config(NULL), m_client(HSM_UNDEF), m_debouncing(true),
     m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {
+    SET_EVT_NAME(GPIO_IN);
     uint32_t i;
     for (i = 0; i < ARRAY_COUNT(CONFIG); i++) {
         if (CONFIG[i].hsmn == GetHsm().GetHsmn()) {
@@ -267,8 +265,9 @@ QState GpioIn::Stopped(GpioIn * const me, QEvt const * const e) {
         }
         case GPIO_IN_START_REQ: {
             EVENT(e);
-            Evt const &req = EVT_CAST(*e);
+            GpioInStartReq const &req = static_cast<GpioInStartReq const &>(*e);
             me->m_client = req.GetFrom();
+            me->m_debouncing = req.IsDebouncing();
             Evt *evt = new GpioInStartCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
             Fw::Post(evt);
             return Q_TRAN(&GpioIn::Started);
@@ -325,6 +324,8 @@ QState GpioIn::Inactive(GpioIn * const me, QEvt const * const e) {
             if (me->IsActive()) {
                 Evt *evt = new Evt(PIN_ACTIVE, GET_HSMN(), GET_HSMN(), GEN_SEQ());
                 me->PostSync(evt);
+            } else if (!me->m_debouncing) {
+                return Q_TRAN(&GpioIn::Inactive);
             }
             return Q_HANDLED();
         }
@@ -353,6 +354,8 @@ QState GpioIn::Active(GpioIn * const me, QEvt const * const e) {
             if (!me->IsActive()) {
                 Evt *evt = new Evt(PIN_INACTIVE, GET_HSMN(), GET_HSMN(), GEN_SEQ());
                 me->PostSync(evt);
+            } else if (!me->m_debouncing) {
+                return Q_TRAN(&GpioIn::Active);
             }
             return Q_HANDLED();
         }

@@ -61,9 +61,12 @@ TIM_HandleTypeDef Periph::m_tim3Hal;
 // USER_LED (LED2) - PA.5 PWM TIM2 Channel 1
 // TEST_LED - PC.7 PWM TIM3 Channel 2
 // BUTTON - PC.13
+// Ili9341 SPI1 - SCK PA.5, MISO PA.6, MOSI PA.7, CS PB.6 D/CX PC.7
+//                TX DMA2 Request 3 Channel 3
+//                RX DMA2 Request 2 Channel 3
 // IKS01A1 I2C1 - SCL PB.8, SDA PB.9
 //              - TX DMA1 Request 7 Channel 0 (not used)
-//              - RX DMA1 Request 0 Channel 1
+//              - RX DMA1 Request 0 Channel 1 (not used)
 // IKS01A1 ACCEL GYRO INT - PB.5
 // IKS01A1 MAG INT/DRDY - PC.1 (INT) PC.0 (DRDY)
 // IKS01A1 HUMID TEMP DRDY - PB.10
@@ -84,8 +87,8 @@ TIM_HandleTypeDef Periph::m_tim3Hal;
 
 void Periph::SetupNormal() {
     __GPIOA_CLK_ENABLE();
-    __GPIOC_CLK_ENABLE();
     __GPIOB_CLK_ENABLE();
+    __GPIOC_CLK_ENABLE();
     __HAL_RCC_DMA1_CLK_ENABLE();
     __HAL_RCC_DMA2_CLK_ENABLE();
     __HAL_RCC_TIM2_CLK_ENABLE();
@@ -127,9 +130,10 @@ void Periph::Reset() {
     HAL_TIM_PWM_DeInit(&m_tim1Hal);
     __HAL_RCC_TIM3_CLK_DISABLE();
     __HAL_RCC_TIM2_CLK_DISABLE();
-    __HAL_RCC_DMA1_CLK_DISABLE();
     __HAL_RCC_DMA2_CLK_DISABLE();
+    __HAL_RCC_DMA1_CLK_DISABLE();
     __GPIOC_CLK_DISABLE();
+    __GPIOB_CLK_ENABLE();
     __GPIOA_CLK_DISABLE();
     // TBD.
 }

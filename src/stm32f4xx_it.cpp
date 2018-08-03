@@ -73,7 +73,8 @@
 #include "qpcpp.h"
 #include "app_hsmn.h"
 #include "UartAct.h"
-#include "Iks01a1Thread.h"
+#include "Iks01a1.h"
+#include "Ili9341.h"
 #include "GpioIn.h"
 #include "fw_log.h"
 
@@ -266,27 +267,68 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 extern "C" void I2C1_EV_IRQHandler(void)
 {
     QXK_ISR_ENTRY();
-    HAL_I2C_EV_IRQHandler(Iks01a1Thread::GetHal());
+    HAL_I2C_EV_IRQHandler(Iks01a1::GetHal());
     QXK_ISR_EXIT();
 }
 // Sensor Iks01a1
 extern "C" void I2C1_ER_IRQHandler(void)
 {
     QXK_ISR_ENTRY();
-    HAL_I2C_ER_IRQHandler(Iks01a1Thread::GetHal());
+    HAL_I2C_ER_IRQHandler(Iks01a1::GetHal());
     QXK_ISR_EXIT();
 }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hal) {
-    if (hal == Iks01a1Thread::GetHal()) {
-        Iks01a1Thread::SignalI2cSem();
+    if (hal == Iks01a1::GetHal()) {
+        Iks01a1::SignalI2cSem();
     }
 }
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hal) {
-    if (hal == Iks01a1Thread::GetHal()) {
-        Iks01a1Thread::SignalI2cSem();
+    if (hal == Iks01a1::GetHal()) {
+        Iks01a1::SignalI2cSem();
     }
 }
+
+// ILI9341 LCD.
+// Must be declared as extern "C" in header.
+extern "C" void SPI1_IRQHandler(void)
+{
+    QXK_ISR_ENTRY();
+    HAL_SPI_IRQHandler(Ili9341::GetHal());
+    QXK_ISR_EXIT();
+}
+
+// SPI1 TX DMA
+// Must be declared as extern "C" in header.
+extern "C" void DMA2_Stream3_IRQHandler(void) {
+    QXK_ISR_ENTRY();
+    SPI_HandleTypeDef *hal = Ili9341::GetHal();
+    HAL_DMA_IRQHandler(hal->hdmatx);
+    QXK_ISR_EXIT();
+}
+
+// SPI1 RX DMA
+// Must be declared as extern "C" in header.
+extern "C" void DMA2_Stream2_IRQHandler(void) {
+    QXK_ISR_ENTRY();
+    SPI_HandleTypeDef *hal = Ili9341::GetHal();
+    HAL_DMA_IRQHandler(hal->hdmarx);
+    QXK_ISR_EXIT();
+}
+
+
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hal) {
+    if (hal == Ili9341::GetHal()) {
+        Ili9341::SignalSpiSem();
+    }
+}
+
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hal) {
+    if (hal == Ili9341::GetHal()) {
+        Ili9341::SignalSpiSem();
+    }
+}
+
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

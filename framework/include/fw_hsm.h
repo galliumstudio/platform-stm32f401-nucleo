@@ -60,25 +60,13 @@ typedef Map<Hsmn, Sequence> HsmnSeqMap;
 
 class Hsm {
 public:
-    Hsm(Hsmn hsmn, char const *name, QP::QHsm *qhsm,
-        EvtName timerEvtName, EvtCount timerEvtCount,
-        EvtName internalEvtName, EvtCount internalEvtCount,
-        EvtName interfaceEvtName, EvtCount interfaceEvtCount) :
-        m_hsmn(hsmn), m_name(name), m_qhsm(qhsm), m_state(m_undefName),
-        m_timerEvtName(timerEvtName), m_timerEvtCount(timerEvtCount),
-        m_internalEvtName(internalEvtName), m_internalEvtCount(internalEvtCount),
-        m_interfaceEvtName(interfaceEvtName), m_interfaceEvtCount(interfaceEvtCount),
-        m_nextSequence(0), m_inHsmnSeq(HSM_UNDEF, 0),
-        m_outHsmnSeqMap(m_outHsmnSeqStor, ARRAY_COUNT(m_outHsmnSeqStor), HsmnSeq(HSM_UNDEF, 0)) {}
+    Hsm(Hsmn hsmn, char const *name, QP::QHsm *qhsm);
     void Init(QP::QActive *container);
 
     Hsmn GetHsmn() const { return m_hsmn; }
     char const *GetName() const { return m_name; }
     char const *GetState() const { return m_state; }
     void SetState(char const *s) { m_state = s; }
-    static char const *GetBuiltinEvtName(QP::QSignal signal);
-    char const *GetEvtName(QP::QSignal signal) const;
-    static char const *GetUndefName() { return m_undefName; }
 
     Sequence GenSeq() { return m_nextSequence++; }
     bool Defer(QP::QEvt const *e) { return m_deferEQueue.Defer(e); }
@@ -129,12 +117,6 @@ protected:
     char const * m_name;
     QP::QHsm *m_qhsm;
     char const *m_state;
-    EvtName m_timerEvtName;
-    EvtCount m_timerEvtCount;
-    EvtName m_internalEvtName;
-    EvtCount m_internalEvtCount;
-    EvtName m_interfaceEvtName;
-    EvtCount m_interfaceEvtCount;
     Sequence m_nextSequence;
     DeferEQueue m_deferEQueue;
     QP::QEQueue m_reminderQueue;
@@ -143,9 +125,6 @@ protected:
     HsmnSeqMap m_outHsmnSeqMap;
     QP::QEvt const *m_deferQueueStor[DEFER_QUEUE_COUNT];
     QP::QEvt const *m_reminderQueueStor[REMINDER_QUEUE_COUNT];
-
-    static char const * const m_builtinEvtName[];
-    static char const m_undefName[];
 };
 
 } // namespace FW

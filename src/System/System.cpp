@@ -49,7 +49,9 @@
 #include "UserLedInterface.h"
 #include "AOWashingMachineInterface.h"
 #include "TrafficInterface.h"
+#include "LevelMeterInterface.h"
 #include "SensorInterface.h"
+#include "DispInterface.h"
 #include "bsp.h"
 #include <vector>
 #include <memory>
@@ -81,12 +83,11 @@ static char const * const interfaceEvtName[] = {
 };
 
 System::System() :
-    Active((QStateHandler)&System::InitialPseudoState, SYSTEM, "SYSTEM",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Active((QStateHandler)&System::InitialPseudoState, SYSTEM, "SYSTEM"),
     m_stateTimer(this->GetHsm().GetHsmn(), STATE_TIMER),
-    m_testTimer(this->GetHsm().GetHsmn(), TEST_TIMER) {}
+    m_testTimer(this->GetHsm().GetHsmn(), TEST_TIMER) {
+    SET_EVT_NAME(SYSTEM);
+}
 
 QState System::InitialPseudoState(System * const me, QEvt const * const e) {
     (void)e;
@@ -126,16 +127,18 @@ QState System::Root(System * const me, QEvt const * const e) {
         Fw::Post(evt);
         evt = new DemoStartReq(DEMO, SYSTEM, 0);
         Fw::Post(evt);
-        evt = new UserLedStartReq(USER_LED, SYSTEM, 0);
-        Fw::Post(evt);
-        evt = new UserLedStartReq(TEST_LED, SYSTEM, 0);
-        Fw::Post(evt);
+        //evt = new UserLedStartReq(USER_LED, SYSTEM, 0);
+        //Fw::Post(evt);
+        //evt = new UserLedStartReq(TEST_LED, SYSTEM, 0);
+        //Fw::Post(evt);
         evt = new WashStartReq(AO_WASHING_MACHINE, SYSTEM, 0);
         Fw::Post(evt);
         evt = new TrafficStartReq(TRAFFIC, SYSTEM, 0);
         Fw::Post(evt);
-        //evt = new SensorStartReq(IKS01A1, SYSTEM, 0);
-        //Fw::Post(evt);
+        evt = new SensorStartReq(IKS01A1, SYSTEM, 0);
+        Fw::Post(evt);
+        evt = new LevelMeterStartReq(LEVEL_METER, SYSTEM, 0);
+        Fw::Post(evt);
 
         // Test only.
         evt = new GpioInStartReq(USER_BTN, SYSTEM, 0);
@@ -173,7 +176,8 @@ QState System::Root(System * const me, QEvt const * const e) {
     case DEMO_START_CFM:
     case USER_LED_START_CFM:
     case WASH_START_CFM:
-    case TRAFFIC_START_CFM: {
+    case TRAFFIC_START_CFM:
+    case LEVEL_METER_START_CFM: {
         EVENT(e);
         return Q_HANDLED();
     }

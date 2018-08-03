@@ -85,6 +85,7 @@ protected:
 
     Config const *m_config;
     Hsmn m_client;
+    bool m_debouncing;      // True to enable debouncing.
     Timer m_stateTimer;
 
 #define GPIO_IN_TIMER_EVT \

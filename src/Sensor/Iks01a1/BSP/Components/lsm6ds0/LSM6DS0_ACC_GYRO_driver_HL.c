@@ -238,7 +238,7 @@ static DrvStatusTypeDef LSM6DS0_X_Init( DrvContextTypeDef *handle )
 
   /* Select default output data rate. */
   // Gallium - test only
-  if ( LSM6DS0_X_Set_ODR_When_Disabled( handle, ODR_HIGH /*ODR_HIGH*/ ) == COMPONENT_ERROR )
+  if ( LSM6DS0_X_Set_ODR_When_Disabled( handle, ODR_MID /*ODR_HIGH*/ ) == COMPONENT_ERROR )
   {
     return COMPONENT_ERROR;
   }

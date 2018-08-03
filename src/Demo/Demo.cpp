@@ -65,11 +65,10 @@ static char const * const interfaceEvtName[] = {
 };
 
 Demo::Demo() :
-    Active((QStateHandler)&Demo::InitialPseudoState, DEMO, "DEMO",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
-    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {}
+    Active((QStateHandler)&Demo::InitialPseudoState, DEMO, "DEMO"),
+    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {
+    SET_EVT_NAME(DEMO);
+}
 
 QState Demo::InitialPseudoState(Demo * const me, QEvt const * const e) {
     (void)e;

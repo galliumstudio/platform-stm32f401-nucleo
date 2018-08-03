@@ -91,9 +91,12 @@
 #include "SimpleAct.h"
 #include "SimpleActInterface.h"
 #include "Demo.h"
+#include "Ili9341Thread.h"
+#include "LedPanelThread.h"
 #include "UserLed.h"
 #include "AOWashingMachine.h"
 #include "Traffic.h"
+#include "LevelMeter.h"
 #include "UartAct.h"
 #include "UartActInterface.h"
 #include "SystemInterface.h"
@@ -134,11 +137,14 @@ static UserLed userLed(USER_LED, "USER_LED");
 static UserLed testLed(TEST_LED, "TEST_LED");
 static AOWashingMachine washingMachine;
 static Traffic traffic;
+static LevelMeter levelMeter;
 static GpioInAct gpioInAct;
 static UartAct uartAct2(UART2_ACT, "UART2_ACT", "UART2_IN", "UART2_OUT");
 static UartAct uartAct1(UART1_ACT, "UART1_ACT", "UART1_IN", "UART1_OUT");
 static WifiSt wifiSt;
 static Iks01a1Thread iks01a1Thread;
+static Ili9341Thread ili9341Thread;
+static LedPanelThread ledPanelThread;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -163,12 +169,6 @@ int main(void)
     // Configure log settings.
     Log::SetVerbosity(5);
     Log::OnAll();
-    //Log::Off(SYSTEM);
-    //Log::Off(SAMPLE_ACT);
-    //Log::Off(SAMPLE_REG0);
-    //Log::Off(SAMPLE_REG1);
-    //Log::Off(SAMPLE_REG2);
-    //Log::Off(SAMPLE_REG3);
     Log::Off(UART2_IN);
     Log::Off(UART1_IN);
     Log::Off(UART2_OUT);
@@ -180,6 +180,8 @@ int main(void)
     Log::Off(CONSOLE_UART2);
     Log::Off(CONSOLE_UART1);
     Log::Off(ACCEL_GYRO_INT);
+    Log::Off(ILI9341);
+    Log::Off(LEVEL_METER);
 
     // Start active objects.
     compositeAct.Start(PRIO_COMPOSITE_ACT);
@@ -189,6 +191,7 @@ int main(void)
     testLed.Start(PRIO_TEST_LED);
     washingMachine.Start(PRIO_AO_WASHING_MACHINE);
     traffic.Start(PRIO_TRAFFIC);
+    levelMeter.Start(PRIO_LEVEL_METER);
     gpioInAct.Start(PRIO_GPIO_IN_ACT);
     uartAct2.Start(PRIO_UART2_ACT);
     uartAct1.Start(PRIO_UART1_ACT);
@@ -196,6 +199,8 @@ int main(void)
     consoleUart1.Start(PRIO_CONSOLE_UART1);
     wifiSt.Start(PRIO_WIFI_ST);
     iks01a1Thread.Start(PRIO_IKS01A1);
+    ili9341Thread.Start(PRIO_ILI9341);
+    ledPanelThread.Start(PRIO_LEDPANEL);
     sys.Start(PRIO_SYSTEM);
 
     // Kick off the topmost active objects.

@@ -70,6 +70,9 @@ enum KernelAwareISRs {
     I2C1_ER_PRIO            = QF_AWARE_ISR_CMSIS_PRI + 1,   // I2C1 Error IRQ
     DMA1_STREAM7_PRIO       = QF_AWARE_ISR_CMSIS_PRI + 1,   // I2C1 TX DMA
     DMA1_STREAM0_PRIO       = QF_AWARE_ISR_CMSIS_PRI + 1,   // I2C1 RX DMA
+    SPI1_PRIO               = QF_AWARE_ISR_CMSIS_PRI + 1,   // SPI1 IRQ
+    DMA2_STREAM3_PRIO       = QF_AWARE_ISR_CMSIS_PRI + 1,   // SPI1 TX DMA
+    DMA2_STREAM2_PRIO       = QF_AWARE_ISR_CMSIS_PRI + 1,   // SPI1 RX DMA
     EXTI0_PRIO              = QF_AWARE_ISR_CMSIS_PRI + 1,   // MAG DRDY (PC.0)
     EXTI1_PRIO              = QF_AWARE_ISR_CMSIS_PRI + 1,   // MAG INT (PC.1)
     EXTI2_PRIO              = QF_AWARE_ISR_CMSIS_PRI + 1,   // (future)

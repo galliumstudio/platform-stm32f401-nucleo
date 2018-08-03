@@ -69,14 +69,13 @@ static char const * const interfaceEvtName[] = {
 };
 
 WifiSt::WifiSt() :
-    Active((QStateHandler)&WifiSt::InitialPseudoState, WIFI_ST, "WIFI_ST",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Active((QStateHandler)&WifiSt::InitialPseudoState, WIFI_ST, "WIFI_ST"),
         m_ifHsmn(HSM_UNDEF), m_outIfHsmn(HSM_UNDEF), m_consoleOutIfHsmn(HSM_UNDEF),
         m_outFifo(m_outFifoStor, OUT_FIFO_ORDER),
         m_inFifo(m_inFifoStor, IN_FIFO_ORDER),
-        m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {}
+        m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {
+    SET_EVT_NAME(WIFI_ST);
+}
 
 QState WifiSt::InitialPseudoState(WifiSt * const me, QEvt const * const e) {
     (void)e;

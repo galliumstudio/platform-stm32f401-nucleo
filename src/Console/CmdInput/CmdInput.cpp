@@ -84,11 +84,10 @@ bool CmdInput::IsDown() {
 }
 
 CmdInput::CmdInput(Hsmn hsmn, char const *name, Console &console) :
-    Region((QStateHandler)&CmdInput::InitialPseudoState, hsmn, name,
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
-    m_console(console), m_stateTimer(this->GetHsm().GetHsmn(), STATE_TIMER) {}
+    Region((QStateHandler)&CmdInput::InitialPseudoState, hsmn, name),
+    m_console(console), m_stateTimer(this->GetHsm().GetHsmn(), STATE_TIMER) {
+    SET_EVT_NAME(CMD_INPUT);
+}
 
 QState CmdInput::InitialPseudoState(CmdInput * const me, QEvt const * const e) {
     (void)e;

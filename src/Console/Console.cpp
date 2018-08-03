@@ -244,10 +244,7 @@ void Console::LastCmdFunc(Evt const *e) {
 }
 
 Console::Console(Hsmn hsmn, char const *name, char const *cmdInputName, char const *cmdParserName) :
-    Active((QStateHandler)&Console::InitialPseudoState, hsmn, name,
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Active((QStateHandler)&Console::InitialPseudoState, hsmn, name),
     m_ifHsmn(HSM_UNDEF), m_outIfHsmn(HSM_UNDEF), m_isDefault(false),
     m_cmdInput(GetCmdInputHsmn(hsmn), cmdInputName, *this),
     m_cmdParser(GetCmdParserHsmn(hsmn), cmdParserName),
@@ -256,6 +253,7 @@ Console::Console(Hsmn hsmn, char const *name, char const *cmdInputName, char con
     m_argc(0), m_rootCmdFunc(NULL), m_lastCmdFunc(NULL),
     m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER),
     m_consoleTimer(GetHsm().GetHsmn(), CONSOLE_TIMER) {
+    SET_EVT_NAME(CONSOLE);
     FW_ASSERT((hsmn >= CONSOLE) && (hsmn <= CONSOLE_LAST));
 }
 

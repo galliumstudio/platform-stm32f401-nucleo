@@ -41,19 +41,31 @@
 
 #include "qpcpp.h"
 #include "fw_region.h"
+#include "fw_xthread.h"
 #include "fw_timer.h"
 #include "fw_evt.h"
 #include "app_hsmn.h"
-#include "Iks01a1Config.h"
+#include "Iks01a1AccelGyro.h"
+#include "Iks01a1Mag.h"
+#include "Iks01a1HumidTemp.h"
+#include "Iks01a1Press.h"
+#include "Sensor.h"
 
 using namespace QP;
 using namespace FW;
 
 namespace APP {
 
-class Iks01a1 : public Region {
+class Iks01a1 : public Sensor {
 public:
-    Iks01a1(Iks01a1Config const *config, I2C_HandleTypeDef &hal);
+    Iks01a1(XThread &container);
+
+    // Only supports single instance.
+    static I2C_HandleTypeDef *GetHal() { return &m_hal; }
+    static void SignalI2cSem() { m_i2cSem.signal(); }
+    // Called from Sensorio.cpp (hooks for IKS01A1 BSP).
+    static bool I2cWriteInt(uint16_t devAddr, uint16_t memAddr, uint8_t *buf, uint16_t len);
+    static bool I2cReadInt(uint16_t devAddr, uint16_t memAddr, uint8_t *buf, uint16_t len);
 
 protected:
     static QState InitialPseudoState(Iks01a1 * const me, QEvt const * const e);
@@ -67,39 +79,59 @@ protected:
     void DeInitI2c();
     bool InitHal();
 
-    Iks01a1Config const *m_config;
-    I2C_HandleTypeDef &m_hal;
-    DMA_HandleTypeDef m_txDmaHandle;
-    DMA_HandleTypeDef m_rxDmaHandle;
+    class Config {
+    public:
+        // Key
+        Hsmn hsmn;
+        I2C_TypeDef *i2c;
+        // I2c interrupt parameters.
+        IRQn_Type i2cEvIrq;
+        uint32_t i2cEvPrio;
+        IRQn_Type i2cErIrq;
+        uint32_t i2cErPrio;
+
+        // SCL/SDA parameters.
+        GPIO_TypeDef *i2cPort;
+        uint32_t sclPin;
+        uint32_t sdaPin;
+        uint32_t i2cAf;
+
+        // I2C Tx DMA parameters.
+        DMA_Stream_TypeDef *txDmaStream;
+        uint32_t txDmaCh;
+        IRQn_Type txDmaIrq;
+        uint32_t txDmaPrio;
+
+        // I2C Rx DMA parameters.
+        DMA_Stream_TypeDef *rxDmaStream;
+        uint32_t rxDmaCh;
+        IRQn_Type rxDmaIrq;
+        uint32_t rxDmaPrio;
+
+        // Hsmn of GpioIn regions for interrupt pins.
+        Hsmn accelGyroIntHsmn;
+        Hsmn magIntHsmn;
+        Hsmn magDrdyHsmn;
+        Hsmn humidTempDrdyHsmn;
+        Hsmn pressIntHsmn;
+    };
+
+    static Config const CONFIG[];
+    Config const *m_config;
+    static I2C_HandleTypeDef m_hal;     // Only support single instance.
+    static QXSemaphore m_i2cSem;        // Only support single instance.
+                                        // Binary semaphore to siganl I2C read/write completion.
+    DMA_HandleTypeDef m_txDmaHandle;    // For future use (DMA not yet supported).
+    DMA_HandleTypeDef m_rxDmaHandle;    // For future use (DMA not yet supported).
     Hsmn m_client;
     Timer m_stateTimer;
 
-#define IKS01A1_TIMER_EVT \
-    ADD_EVT(STATE_TIMER)
-
-#define IKS01A1_INTERNAL_EVT \
-    ADD_EVT(START) \
-    ADD_EVT(DONE) \
-    ADD_EVT(FAILED)
-
-#undef ADD_EVT
-#define ADD_EVT(e_) e_,
-
-    enum {
-        IKS01A1_TIMER_EVT_START = TIMER_EVT_START(IKS01A1),
-        IKS01A1_TIMER_EVT
-    };
-
-    enum {
-        IKS01A1_INTERNAL_EVT_START = INTERNAL_EVT_START(IKS01A1),
-        IKS01A1_INTERNAL_EVT
-    };
-
-    class Failed : public ErrorEvt {
-    public:
-        Failed(Hsmn hsmn, Error error, Hsmn origin, Reason reason) :
-            ErrorEvt(FAILED, hsmn, hsmn, 0, error, origin, reason) {}
-    };
+    XThread &m_container;               // Its type needs to be XThread rather than the base class QActive in order to initialize
+                                        // its composed regions (below).
+    Iks01a1AccelGyro m_iks01a1AccelGyro;
+    Iks01a1Mag m_iks01a1Mag;
+    Iks01a1HumidTemp m_iks01a1HumidTemp;
+    Iks01a1Press m_iks01a1Press;
 };
 
 } // namespace APP

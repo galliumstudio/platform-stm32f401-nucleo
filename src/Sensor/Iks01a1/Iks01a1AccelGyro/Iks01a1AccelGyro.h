@@ -44,13 +44,15 @@
 #include "fw_timer.h"
 #include "fw_evt.h"
 #include "app_hsmn.h"
+#include "SensorAccelGyro.h"
+#include "SensorAccelGyroInterface.h"
 
 using namespace QP;
 using namespace FW;
 
 namespace APP {
 
-class Iks01a1AccelGyro : public Region {
+class Iks01a1AccelGyro : public SensorAccelGyro {
 public:
     Iks01a1AccelGyro(Hsmn intHsmn, I2C_HandleTypeDef &hal);
 
@@ -61,37 +63,14 @@ protected:
         static QState Starting(Iks01a1AccelGyro * const me, QEvt const * const e);
         static QState Stopping(Iks01a1AccelGyro * const me, QEvt const * const e);
         static QState Started(Iks01a1AccelGyro * const me, QEvt const * const e);
+            static QState Off(Iks01a1AccelGyro * const me, QEvt const * const e);
+            static QState On(Iks01a1AccelGyro * const me, QEvt const * const e);
 
     Hsmn m_intHsmn;
     I2C_HandleTypeDef &m_hal;
     Timer m_stateTimer;
     void *m_handle;               // Handle to Nucleo IKS01A1 BSP.
-
-#define IKS01A1_ACCEL_GYRO_TIMER_EVT \
-    ADD_EVT(STATE_TIMER)
-
-#define IKS01A1_ACCEL_GYRO_INTERNAL_EVT \
-    ADD_EVT(DONE) \
-    ADD_EVT(FAILED)
-
-#undef ADD_EVT
-#define ADD_EVT(e_) e_,
-
-    enum {
-        IKS01A1_ACCEL_GYRO_TIMER_EVT_START = TIMER_EVT_START(IKS01A1_ACCEL_GYRO),
-        IKS01A1_ACCEL_GYRO_TIMER_EVT
-    };
-
-    enum {
-        IKS01A1_ACCEL_GYRO_INTERNAL_EVT_START = INTERNAL_EVT_START(IKS01A1_ACCEL_GYRO),
-        IKS01A1_ACCEL_GYRO_INTERNAL_EVT
-    };
-
-    class Failed : public ErrorEvt {
-    public:
-        Failed(Hsmn hsmn, Error error, Hsmn origin, Reason reason) :
-            ErrorEvt(FAILED, hsmn, hsmn, 0, error, origin, reason) {}
-    };
+    AccelGyroPipe *m_pipe;        // Pipe to save accel/gyro reports/samples.
 };
 
 } // namespace APP

@@ -207,10 +207,7 @@ void UartAct::DeInitUart() {
 }
 
 UartAct::UartAct(Hsmn hsmn, char const *name, char const *inName, char const *outName) :
-    Active((QStateHandler)&UartAct::InitialPseudoState, hsmn, name,
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Active((QStateHandler)&UartAct::InitialPseudoState, hsmn, name),
     m_config(NULL),
     m_uartInHsmn(GetUartInHsmn(hsmn)),
     m_uartOutHsmn(GetUartOutHsmn(hsmn)),
@@ -218,6 +215,7 @@ UartAct::UartAct(Hsmn hsmn, char const *name, char const *inName, char const *ou
     m_uartOut(m_uartOutHsmn, outName, m_hal),
     m_client(HSM_UNDEF), m_outFifo(NULL), m_inFifo(NULL),
     m_stateTimer(hsmn, STATE_TIMER) {
+    SET_EVT_NAME(UART_ACT);
     FW_ASSERT((hsmn >= UART_ACT) && (hsmn <= UART_ACT_LAST));
     memset(&m_hal, 0, sizeof(m_hal));
     memset(&m_txDmaHandle, 0, sizeof(m_txDmaHandle));

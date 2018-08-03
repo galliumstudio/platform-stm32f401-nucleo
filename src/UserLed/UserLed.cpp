@@ -156,12 +156,10 @@ void UserLed::StopPwm(TIM_HandleTypeDef *hal) {
 }
 
 UserLed::UserLed(Hsmn hsmn, char const *name) :
-    FW::Active((QStateHandler)&UserLed::InitialPseudoState, hsmn, name,
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    FW::Active((QStateHandler)&UserLed::InitialPseudoState, hsmn, name),
     m_config(NULL), m_currPattern(NULL), m_intervalIndex(0), m_isRepeat(false),
     m_intervalTimer(GetHsm().GetHsmn(), INTERVAL_TIMER) {
+    SET_EVT_NAME(USER_LED);
     uint32_t i;
     for (i = 0; i < ARRAY_COUNT(CONFIG); i++) {
         if (CONFIG[i].hsmn == GetHsm().GetHsmn()) {

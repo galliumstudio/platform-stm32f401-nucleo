@@ -40,7 +40,7 @@
 #include "fw_log.h"
 #include "fw_assert.h"
 #include "x_nucleo_iks01a1.h"
-#include "Iks01a1Thread.h"
+#include "Iks01a1.h"
 
 FW_DEFINE_THIS_FILE("SensorIo.cpp")
 
@@ -58,13 +58,13 @@ extern "C" uint8_t Sensor_IO_Write(void *handle, uint8_t memAddr, uint8_t *pBuff
             if (nBytes > 1) {
                 memAddr |= 0x80;
             }
-            result = Iks01a1Thread::I2cWriteInt(ctx->address, memAddr, pBuffer, nBytes);
+            result = Iks01a1::I2cWriteInt(ctx->address, memAddr, pBuffer, nBytes);
             break;
         }
         case IKS01A1_LPS22HB_WHO_AM_I: {
             // I2C multi-bytes write not supported for LPS22HB.
             for (uint16_t i = 0; i < nBytes; i++ ) {
-                result = Iks01a1Thread::I2cWriteInt(ctx->address, (memAddr + i), &pBuffer[i], 1);
+                result = Iks01a1::I2cWriteInt(ctx->address, (memAddr + i), &pBuffer[i], 1);
                 if (!result) {
                     break;
                 }
@@ -73,7 +73,7 @@ extern "C" uint8_t Sensor_IO_Write(void *handle, uint8_t memAddr, uint8_t *pBuff
         }
         case IKS01A1_LSM6DS0_WHO_AM_I:
         case IKS01A1_LSM6DS3_WHO_AM_I: {
-            result = Iks01a1Thread::I2cWriteInt(ctx->address, memAddr, pBuffer, nBytes);
+            result = Iks01a1::I2cWriteInt(ctx->address, memAddr, pBuffer, nBytes);
             break;
         }
         default: {
@@ -95,13 +95,13 @@ extern "C" uint8_t Sensor_IO_Read(void *handle, uint8_t memAddr, uint8_t *pBuffe
             if (nBytes > 1) {
                 memAddr |= 0x80;
             }
-            result = Iks01a1Thread::I2cReadInt(ctx->address, memAddr, pBuffer, nBytes);
+            result = Iks01a1::I2cReadInt(ctx->address, memAddr, pBuffer, nBytes);
             break;
         }
         case IKS01A1_LPS22HB_WHO_AM_I: {
             // I2C multi-bytes read not supported for LPS22HB.
             for (uint16_t i = 0; i < nBytes; i++ ) {
-                result = Iks01a1Thread::I2cReadInt(ctx->address, (memAddr + i), &pBuffer[i], 1);
+                result = Iks01a1::I2cReadInt(ctx->address, (memAddr + i), &pBuffer[i], 1);
                 if (!result) {
                     break;
                 }
@@ -110,7 +110,7 @@ extern "C" uint8_t Sensor_IO_Read(void *handle, uint8_t memAddr, uint8_t *pBuffe
         }
         case IKS01A1_LSM6DS0_WHO_AM_I:
         case IKS01A1_LSM6DS3_WHO_AM_I: {
-            result = Iks01a1Thread::I2cReadInt(ctx->address, memAddr, pBuffer, nBytes);
+            result = Iks01a1::I2cReadInt(ctx->address, memAddr, pBuffer, nBytes);
             break;
         }
         default: {

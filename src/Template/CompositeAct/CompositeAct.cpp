@@ -66,11 +66,10 @@ static char const * const interfaceEvtName[] = {
 };
 
 CompositeAct::CompositeAct() :
-    Active((QStateHandler)&CompositeAct::InitialPseudoState, COMPOSITE_ACT, "COMPOSITE_ACT",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
-    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {}
+    Active((QStateHandler)&CompositeAct::InitialPseudoState, COMPOSITE_ACT, "COMPOSITE_ACT"),
+    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {
+    SET_EVT_NAME(COMPOSITE_ACT);
+}
 
 QState CompositeAct::InitialPseudoState(CompositeAct * const me, QEvt const * const e) {
     (void)e;

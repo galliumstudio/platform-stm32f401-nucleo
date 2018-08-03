@@ -48,30 +48,9 @@ FW_DEFINE_THIS_FILE("Iks01a1AccelGyro.cpp")
 
 namespace APP {
 
-#undef ADD_EVT
-#define ADD_EVT(e_) #e_,
-
-static char const * const timerEvtName[] = {
-    "IKS01A1_ACCEL_GYRO_TIMER_EVT_START",
-    IKS01A1_ACCEL_GYRO_TIMER_EVT
-};
-
-static char const * const internalEvtName[] = {
-    "IKS01A1_ACCEL_GYRO_INTERNAL_EVT_START",
-    IKS01A1_ACCEL_GYRO_INTERNAL_EVT
-};
-
-static char const * const interfaceEvtName[] = {
-    "SENSOR_ACCEL_GYRO_INTERFACE_EVT_START",
-    SENSOR_ACCEL_GYRO_INTERFACE_EVT
-};
-
 Iks01a1AccelGyro::Iks01a1AccelGyro(Hsmn intHsmn, I2C_HandleTypeDef &hal) :
-    Region((QStateHandler)&Iks01a1AccelGyro::InitialPseudoState, IKS01A1_ACCEL_GYRO, "IKS01A1_ACCEL_GYRO",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
-    m_intHsmn(intHsmn), m_hal(hal), m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER), m_handle(NULL) {
+    SensorAccelGyro((QStateHandler)&Iks01a1AccelGyro::InitialPseudoState, IKS01A1_ACCEL_GYRO, "IKS01A1_ACCEL_GYRO"),
+    m_intHsmn(intHsmn), m_hal(hal), m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER), m_handle(NULL), m_pipe(NULL) {
 }
 
 QState Iks01a1AccelGyro::InitialPseudoState(Iks01a1AccelGyro * const me, QEvt const * const e) {
@@ -99,11 +78,35 @@ QState Iks01a1AccelGyro::Root(Iks01a1AccelGyro * const me, QEvt const * const e)
             Fw::Post(evt);
             return Q_HANDLED();
         }
+        case SENSOR_ACCEL_GYRO_ON_REQ: {
+            EVENT(e);
+            Evt const &req = EVT_CAST(*e);
+            Evt *evt = new SensorAccelGyroOnCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_STATE, GET_HSMN());
+            Fw::Post(evt);
+            return Q_HANDLED();
+        }
+        case SENSOR_ACCEL_GYRO_OFF_REQ: {
+            EVENT(e);
+            Evt const &req = EVT_CAST(*e);
+            Evt *evt = new SensorAccelGyroOffCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_STATE, GET_HSMN());
+            Fw::Post(evt);
+            return Q_HANDLED();
+        }
         case SENSOR_ACCEL_GYRO_STOP_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
             me->GetHsm().SaveInSeq(req);
             return Q_TRAN(&Iks01a1AccelGyro::Stopping);
+        }
+        case GPIO_IN_ACTIVE_IND: {
+            EVENT(e);
+            // This may indicate a data ready interrupt not being handled by a substate.
+            // This occurs during startup when the data ready pin has been high already. As a result the
+            // GPIO_IN_ACTIVE_IND event is posted to this hsm immediately and is ignored in the "Off" state.
+            // This will prevent further interrupts from being generated and stall the hsm.
+            // To fix the issue (of missing the very first data ready interrupt) a GPIO_IN_ACTIVE_IND event
+            // is artifically generated upon entry to the "On" state to kick start the processing.
+            return Q_HANDLED();
         }
     }
     return Q_SUPER(&QHsm::top);
@@ -144,7 +147,10 @@ QState Iks01a1AccelGyro::Starting(Iks01a1AccelGyro * const me, QEvt const * cons
             FW_ASSERT(timeout > GpioInStartReq::TIMEOUT_MS);
             me->m_stateTimer.Start(timeout);
             me->GetHsm().ResetOutSeq();
-            Evt *evt = new GpioInStartReq(me->m_intHsmn, GET_HSMN(), GEN_SEQ());
+            // Disable debouncing to ensure we get the active indication even if the GpioIn region misses the deactive trigger.
+            // If debouncing is enabled, the GpioIn region won't send the active indication if it hasn't detected the deactive
+            // pin level. It will cause this region to stall (deadlock)
+            Evt *evt = new GpioInStartReq(me->m_intHsmn, GET_HSMN(), GEN_SEQ(), false);
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
             return Q_HANDLED();
@@ -253,34 +259,125 @@ QState Iks01a1AccelGyro::Started(Iks01a1AccelGyro * const me, QEvt const * const
             EVENT(e);
             DrvStatusTypeDef status = BSP_ACCELERO_Init(LSM6DS0_X_0, &me->m_handle);
             FW_ASSERT(status == COMPONENT_OK);
-
-            // Test only
-            status = BSP_ACCELERO_Sensor_Enable(me->m_handle);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            DrvStatusTypeDef status = BSP_ACCELERO_DeInit(&me->m_handle);
             FW_ASSERT(status == COMPONENT_OK);
-            status_t result = LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(me->m_handle, LSM6DS0_ACC_GYRO_INT_DRDY_XL_ENABLE);
-            //status_t result = LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(me->m_handle, LSM6DS0_ACC_GYRO_INT_DRDY_XL_DISABLE);
-            FW_ASSERT(result == MEMS_SUCCESS);
+            return Q_HANDLED();
+        }
+        case Q_INIT_SIG: {
+            return Q_TRAN(&Iks01a1AccelGyro::Off);
+        }
+    }
+    return Q_SUPER(&Iks01a1AccelGyro::Root);
+}
+
+QState Iks01a1AccelGyro::Off(Iks01a1AccelGyro * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
             EVENT(e);
             return Q_HANDLED();
         }
-        // Test only.
+        case SENSOR_ACCEL_GYRO_ON_REQ: {
+            SensorAccelGyroOnReq const &req = static_cast<SensorAccelGyroOnReq const &>(*e);
+            bool success = false;
+            Error error = ERROR_HAL;
+            do {
+                me->m_pipe = req.GetPipe();
+                if (!me->m_pipe) {
+                    error = ERROR_PARAM;
+                    break;
+                }
+                DrvStatusTypeDef status = BSP_ACCELERO_Sensor_Enable(me->m_handle);
+                if (status != COMPONENT_OK) {
+                    break;
+                }
+                status_t result = LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(me->m_handle, LSM6DS0_ACC_GYRO_INT_DRDY_XL_ENABLE);
+                if (result != MEMS_SUCCESS) {
+                    BSP_ACCELERO_Sensor_Disable(me->m_handle);
+                    break;
+                }
+                success = true;
+            } while(0);
+            if (success) {
+                Evt *evt = new SensorAccelGyroOnCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+                Fw::Post(evt);
+                evt = new Evt(TURNED_ON, GET_HSMN());
+                me->PostSync(evt);
+            } else {
+                Evt *evt = new SensorAccelGyroOnCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), error);
+                Fw::Post(evt);
+            }
+            return Q_HANDLED();
+        }
+        case TURNED_ON: {
+             EVENT(e);
+             return Q_TRAN(&Iks01a1AccelGyro::On);
+         }
+    }
+    return Q_SUPER(&Iks01a1AccelGyro::Started);
+}
+
+QState Iks01a1AccelGyro::On(Iks01a1AccelGyro * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            // The very first GPIO_IN_ACTIVE_IND event may arrive before this hsm enters the "On" state
+            // and is therefore ignored. This could happen if the interrupt pin has been active already
+            // during initialization. To kick start the processing, a GPIO_IN_ACTIVE_IND event is
+            // artifically generated here.
+            Evt *evt = new Evt(GPIO_IN_ACTIVE_IND, GET_HSMN(), GET_HSMN());
+            Fw::Post(evt);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            return Q_HANDLED();
+        }
+        case SENSOR_ACCEL_GYRO_OFF_REQ: {
+            SensorAccelGyroOffReq const &req = static_cast<SensorAccelGyroOffReq const &>(*e);
+            me->m_pipe = NULL;
+            status_t result = LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(me->m_handle, LSM6DS0_ACC_GYRO_INT_DRDY_XL_DISABLE);
+            FW_ASSERT(result == MEMS_SUCCESS);
+            DrvStatusTypeDef status = BSP_ACCELERO_Sensor_Disable(me->m_handle);
+            FW_ASSERT(status == COMPONENT_OK);
+            Evt *evt = new SensorAccelGyroOffCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+            Fw::Post(evt);
+            evt = new Evt(TURNED_OFF, GET_HSMN());
+            me->PostSync(evt);
+            return Q_HANDLED();
+        }
         case GPIO_IN_ACTIVE_IND: {
             //EVENT(e);
             SensorAxes_t accData;
             DrvStatusTypeDef status = BSP_ACCELERO_Get_Axes(me->m_handle, &accData);
             FW_ASSERT(status == COMPONENT_OK);
-            LOG("%d %d %d", accData.AXIS_X, accData.AXIS_Y, accData.AXIS_Z);
+            //LOG("%d %d %d", accData.AXIS_X, accData.AXIS_Y, accData.AXIS_Z);
+            // @TODO - Perform any unit conversion. Currently just return raw values.
+            //         Gyro data are not filled in, left as default 0.
+            AccelGyroReport report(accData.AXIS_X, accData.AXIS_Y, accData.AXIS_Z);
+            uint32_t count = me->m_pipe->Write(&report, 1);
+            if (count != 1) {
+                WARNING("Pipe full");
+            }
             return Q_HANDLED();
         }
         case GPIO_IN_INACTIVE_IND: {
             //EVENT(e);
             return Q_HANDLED();
         }
+        case TURNED_OFF: {
+             EVENT(e);
+             return Q_TRAN(&Iks01a1AccelGyro::Off);
+        }
     }
-    return Q_SUPER(&Iks01a1AccelGyro::Root);
+    return Q_SUPER(&Iks01a1AccelGyro::Started);
 }
 
 /*

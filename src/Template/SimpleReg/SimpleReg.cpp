@@ -65,11 +65,9 @@ static char const * const interfaceEvtName[] = {
 };
 
 SimpleReg::SimpleReg() :
-    Region((QStateHandler)&SimpleReg::InitialPseudoState, SIMPLE_REG, "SIMPLE_REG",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Region((QStateHandler)&SimpleReg::InitialPseudoState, SIMPLE_REG, "SIMPLE_REG"),
     m_stateTimer(this->GetHsm().GetHsmn(), STATE_TIMER) {
+    SET_EVT_NAME(SIMPLE_REG);
 }
 
 QState SimpleReg::InitialPseudoState(SimpleReg * const me, QEvt const * const e) {

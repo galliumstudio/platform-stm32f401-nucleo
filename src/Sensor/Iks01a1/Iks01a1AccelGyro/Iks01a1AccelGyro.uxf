@@ -28,15 +28,16 @@ fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>0</x>
-      <y>12</y>
+      <x>12</x>
+      <y>0</y>
       <w>1452</w>
-      <h>984</h>
+      <h>1296</h>
     </coordinates>
     <panel_attributes>Iks01a1AccelGyro::Root
 --
-IKS01A1_ACCEL_GYRO_START_REQ/ ^IKS01A1_ACCEL_GYRO_START_CFM(STATE)
-
+SENSOR_ACCEL_GYRO_START_REQ/ ^SENSOR_ACCEL_GYRO_START_CFM(STATE)
+SENSOR_ACCEL_GYRO_ON_REQ/ ^SENSOR_ACCEL_GYRO_ON_CFM(STATE)
+SENSOR_ACCEL_GYRO_OFF_REQ/ ^SENSOR_ACCEL_GYRO_OFF_CFM(STATE)
 
 valign=top
 </panel_attributes>
@@ -45,15 +46,15 @@ valign=top
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>552</x>
-      <y>96</y>
+      <x>564</x>
+      <y>84</y>
       <w>336</w>
       <h>132</h>
     </coordinates>
     <panel_attributes>Stopped
 --
-IKS01A1_ACCEL_GYRO_STOP_REQ 
-/ ^IKS01A1_ACCEL_GYRO_STOP_CFM(SUCCESS)
+SENSOR_ACCEL_GYRO_STOP_REQ 
+/ ^SENSOR_ACCEL_GYRO_STOP_CFM(SUCCESS)
 
 valign=top
 </panel_attributes>
@@ -62,14 +63,15 @@ valign=top
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>204</x>
-      <y>732</y>
-      <w>1008</w>
-      <h>228</h>
+      <x>84</x>
+      <y>720</y>
+      <w>1296</w>
+      <h>516</h>
     </coordinates>
     <panel_attributes>Started
 --
-
+entry/ BSP_ACCELERO_Init()
+exit/ BSP_ACCELERO_DeInit()
 
 valign=top
 </panel_attributes>
@@ -78,8 +80,8 @@ valign=top
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>912</x>
-      <y>360</y>
+      <x>924</x>
+      <y>348</y>
       <w>456</w>
       <h>264</h>
     </coordinates>
@@ -89,7 +91,7 @@ entry/ start stateTimer, ResetOutSeq(),
        ^GPIO_IN_STOP_REQ, SaveOutSeq()
 exit/ stop stateTimer, ClearInSeq(), recall
 
-IKS01A1_ACCEL_GYRO_STOP_REQ/ defer
+SENSOR_ACCEL_GYRO_STOP_REQ/ defer
 
 GPIO_IN_STOP_CFM
 / if (!HandleCfmRsp()) ^^FAILED(error)
@@ -102,8 +104,8 @@ valign=top
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>72</x>
-      <y>360</y>
+      <x>84</x>
+      <y>348</y>
       <w>456</w>
       <h>264</h>
     </coordinates>
@@ -124,8 +126,8 @@ valign=top
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>264</x>
-      <y>156</y>
+      <x>276</x>
+      <y>144</y>
       <w>312</w>
       <h>228</h>
     </coordinates>
@@ -135,8 +137,8 @@ valign=top
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>516</x>
-      <y>480</y>
+      <x>528</x>
+      <y>468</y>
       <w>420</w>
       <h>36</h>
     </coordinates>
@@ -146,8 +148,8 @@ valign=top
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>264</x>
-      <y>612</y>
+      <x>276</x>
+      <y>600</y>
       <w>36</w>
       <h>144</h>
     </coordinates>
@@ -157,8 +159,8 @@ valign=top
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>588</x>
-      <y>48</y>
+      <x>600</x>
+      <y>36</y>
       <w>156</w>
       <h>72</h>
     </coordinates>
@@ -168,8 +170,8 @@ valign=top
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>876</x>
-      <y>156</y>
+      <x>888</x>
+      <y>144</y>
       <w>288</w>
       <h>228</h>
     </coordinates>
@@ -179,8 +181,8 @@ valign=top
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>948</x>
-      <y>252</y>
+      <x>960</x>
+      <y>240</y>
       <w>24</w>
       <h>24</h>
     </coordinates>
@@ -190,8 +192,8 @@ valign=top
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>948</x>
-      <y>264</y>
+      <x>960</x>
+      <y>252</y>
       <w>36</w>
       <h>120</h>
     </coordinates>
@@ -201,8 +203,8 @@ valign=top
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1128</x>
-      <y>612</y>
+      <x>1140</x>
+      <y>600</y>
       <w>348</w>
       <h>108</h>
     </coordinates>
@@ -212,45 +214,45 @@ valign=top
   <element>
     <id>Text</id>
     <coordinates>
-      <x>276</x>
-      <y>240</y>
+      <x>288</x>
+      <y>228</y>
       <w>300</w>
       <h>60</h>
     </coordinates>
-    <panel_attributes>IKS01A1_ACCEL_GYRO_START_REQ/ SaveInSeq()
+    <panel_attributes>SENSOR_ACCEL_GYRO_START_REQ/ SaveInSeq()
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>564</x>
-      <y>444</y>
+      <x>576</x>
+      <y>432</y>
       <w>324</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>FAILED, STATE_TIMER
-/ ^IKS01A1_ACCEL_GYRO_START_CFM(error)
+/ ^SENSOR_ACCEL_GYRO_START_CFM(error)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>1140</x>
-      <y>240</y>
+      <x>1152</x>
+      <y>228</y>
       <w>300</w>
       <h>36</h>
     </coordinates>
-    <panel_attributes>DONE/ ^IKS01A1_ACCEL_GYRO_STOP_CFM(SUCCESS)
+    <panel_attributes>DONE/ ^SENSOR_ACCEL_GYRO_STOP_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>792</x>
-      <y>300</y>
+      <x>804</x>
+      <y>288</y>
       <w>192</w>
       <h>36</h>
     </coordinates>
@@ -261,36 +263,151 @@ style=wordwrap</panel_attributes>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>276</x>
-      <y>660</y>
+      <x>288</x>
+      <y>648</y>
       <w>324</w>
       <h>48</h>
     </coordinates>
-    <panel_attributes>DONE/ ^IKS01A1_ACCEL_GYRO_START_CFM(SUCCESS)
+    <panel_attributes>DONE/ ^SENSOR_ACCEL_GYRO_START_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>864</x>
-      <y>660</y>
+      <x>876</x>
+      <y>648</y>
       <w>288</w>
       <h>36</h>
     </coordinates>
-    <panel_attributes>IKS01A1_ACCEL_GYRO_STOP_REQ /SaveInSeq()
+    <panel_attributes>SENSOR_ACCEL_GYRO_STOP_REQ /SaveInSeq()
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>588</x>
-      <y>48</y>
+      <x>600</x>
+      <y>36</y>
       <w>24</w>
       <h>24</h>
     </coordinates>
     <panel_attributes>type=initial</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>168</x>
+      <y>852</y>
+      <w>420</w>
+      <h>264</h>
+    </coordinates>
+    <panel_attributes>Off
+--
+SENSOR_ACCEL_GYRO_ON_REQ(pipe)
+/ save pipe,
+  BSP_ACCELERO_Sensor_Enable(),
+  LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(),
+  if (success)
+      ^SENSOR_ACCEL_GYRO_ON_CFM(SUCCESS)
+      ^^TURNED_ON
+  else
+      disable sensor and interrupt,
+      ^SENSOR_ACCEL_GYRO_ON_CFM(FAIL)
+valign=top
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>252</x>
+      <y>804</y>
+      <w>24</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>type=initial</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>252</x>
+      <y>804</y>
+      <w>156</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;&gt;&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;110.0;10.0;110.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>888</x>
+      <y>852</y>
+      <w>408</w>
+      <h>264</h>
+    </coordinates>
+    <panel_attributes>On
+--
+SENSOR_ACCEL_GYRO_OFF_REQ
+/ clear pipe poiner,
+  disable sensor and interrupt,
+  ^SENSOR_ACCEL_GYRO_OFF_CFM(SUCCESS),
+  ^^TURNED_OFF
+
+GPIO_IN_ACTIVE_IND
+/ BSP_ACCELERO_Get_Axes(),
+  save data to pipe
+valign=top
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>576</x>
+      <y>924</y>
+      <w>336</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;&gt;&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;260.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>576</x>
+      <y>1020</y>
+      <w>336</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;&gt;&gt;</panel_attributes>
+    <additional_attributes>260.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>684</x>
+      <y>900</y>
+      <w>96</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>TURNED_ON
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>672</x>
+      <y>996</y>
+      <w>144</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>TURNED_OFF
+style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

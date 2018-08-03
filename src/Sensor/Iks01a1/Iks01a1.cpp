@@ -52,24 +52,48 @@ FW_DEFINE_THIS_FILE("Iks01a1.cpp")
 
 namespace APP {
 
-#undef ADD_EVT
-#define ADD_EVT(e_) #e_,
-
-static char const * const timerEvtName[] = {
-    "IKS01A1_TIMER_EVT_START",
-    IKS01A1_TIMER_EVT
+// Define I2C and interrupt configurations.
+Iks01a1::Config const Iks01a1::CONFIG[] = {
+    { IKS01A1, I2C1, I2C1_EV_IRQn, I2C1_EV_PRIO, I2C1_ER_IRQn, I2C1_ER_PRIO,        // I2C INT
+      GPIOB, GPIO_PIN_8, GPIO_PIN_9, GPIO_AF4_I2C1,                                 // I2C SCL SDA
+      DMA1_Stream7, DMA_CHANNEL_1, DMA1_Stream7_IRQn, DMA1_STREAM7_PRIO,            // TX DMA
+      DMA1_Stream0, DMA_CHANNEL_1, DMA1_Stream0_IRQn, DMA1_STREAM0_PRIO,            // RX DMA
+      ACCEL_GYRO_INT, MAG_INT, MAG_DRDY, HUMID_TEMP_DRDY, PRESS_INT
+    }
 };
+I2C_HandleTypeDef Iks01a1::m_hal;   // Only support single instance.
+QXSemaphore Iks01a1::m_i2cSem;      // Only support single instance.
 
-static char const * const internalEvtName[] = {
-    "IKS01A1_INTERNAL_EVT_START",
-    IKS01A1_INTERNAL_EVT
-};
+bool Iks01a1::I2cWriteInt(uint16_t devAddr, uint16_t memAddr, uint8_t *buf, uint16_t len) {
+    if (HAL_I2C_Mem_Write_IT(&m_hal, devAddr, memAddr, I2C_MEMADD_SIZE_8BIT, buf, len) != HAL_OK) {
+        return false;
+    }
+    return m_i2cSem.wait(BSP_MSEC_TO_TICK(1000));
+}
 
-// Abstract interface.
-static char const * const interfaceEvtName[] = {
-    "SENSOR_INTERFACE_EVT_START",
-    SENSOR_INTERFACE_EVT
-};
+bool Iks01a1::I2cReadInt(uint16_t devAddr, uint16_t memAddr, uint8_t *buf, uint16_t len) {
+    // Test only
+    //HAL_I2C_Mem_Read(&m_hal, devAddr, memAddr, I2C_MEMADD_SIZE_8BIT, buf, len, 10000);
+    //return true;
+
+    // Gallium - test only
+    //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+    if (HAL_I2C_Mem_Read_IT(&m_hal, devAddr, memAddr, I2C_MEMADD_SIZE_8BIT, buf, len) != HAL_OK) {
+        return false;
+    }
+    // Gallium - test only
+    //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+
+    // Test only
+    //return m_i2cSem.wait(BSP_MSEC_TO_TICK(1000));
+    bool result = m_i2cSem.wait(BSP_MSEC_TO_TICK(1000));
+    // Gallium - test only
+    //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+    if (!result) {
+        return false;
+    }
+    return true;
+}
 
 void Iks01a1::InitI2c() {
     FW_ASSERT(m_config);
@@ -159,17 +183,21 @@ bool Iks01a1::InitHal() {
     return false;
 }
 
-Iks01a1::Iks01a1(Iks01a1Config const *config, I2C_HandleTypeDef &hal) :
-    Region((QStateHandler)&Iks01a1::InitialPseudoState, IKS01A1, "IKS01A1",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
-    m_config(config), m_hal(hal), m_client(HSM_UNDEF), m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {
-    FW_ASSERT(m_config->hsmn == GetHsm().GetHsmn());
+Iks01a1::Iks01a1(XThread &container) :
+    Sensor((QStateHandler)&Iks01a1::InitialPseudoState, IKS01A1, "IKS01A1"),
+    m_config(&CONFIG[0]), m_client(HSM_UNDEF), m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER), m_container(container),
+    m_iks01a1AccelGyro(m_config->accelGyroIntHsmn, m_hal), m_iks01a1Mag(m_config->magIntHsmn, m_config->magDrdyHsmn, m_hal),
+    m_iks01a1HumidTemp(m_config->humidTempDrdyHsmn, m_hal), m_iks01a1Press(m_config->pressIntHsmn, m_hal) {
+    m_i2cSem.init(0,1);
 }
 
 QState Iks01a1::InitialPseudoState(Iks01a1 * const me, QEvt const * const e) {
     (void)e;
+    // We need to use m_container rather than GetHsm().GetContainer() since we need the derived type XThread rather than QActive.
+    me->m_iks01a1AccelGyro.Init(&me->m_container);
+    me->m_iks01a1Mag.Init(&me->m_container);
+    me->m_iks01a1HumidTemp.Init(&me->m_container);
+    me->m_iks01a1Press.Init(&me->m_container);
     return Q_TRAN(&Iks01a1::Root);
 }
 

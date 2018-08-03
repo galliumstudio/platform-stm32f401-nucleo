@@ -67,6 +67,58 @@ char const * const Log::m_typeName[NUM_TYPE] = {
 };
 char const Log::m_truncatedError[] = "<##TRUN##>";
 
+char const * const Log::m_builtinEvtName[] = {
+    "NULL",
+    "ENTRY",
+    "EXIT",
+    "INIT"
+};
+char const Log::m_undefName[] = "UNDEF";
+
+Log::EvtSetStor Log::GetEvtSetStor() {
+    // Event names for each HSM. Only the 1st HSM of an event interface is actually used.
+    static EvtSet evtSetStor[MAX_HSM_COUNT];
+    return &evtSetStor;
+}
+
+// Sets up event names for the specified event interface.
+// @param evtHsmn - HSMN of the event interface for which event names are being set up.
+//                  evtHsmn forms the upper bits of an event signal. It is retrieved from
+//                  a signal via the macro GET_EVT_HSMN(signal_).
+// This function is to be called in the constructors of Active or Region objects.
+// By design there is no "Unset/Clear" function. All event names are to be set up
+// to the framework during system initialization (before main()).
+// As a result there is no need to implement critical sections in other API functions using
+// evtSetStor.
+void Log::SetEvtName(Hsmn evtHsmn, EvtName timerEvtName, EvtCount timerEvtCount,
+                    EvtName internalEvtName, EvtCount internalEvtCount,
+                    EvtName interfaceEvtName, EvtCount interfaceEvtCount) {
+    EvtSetStor stor = GetEvtSetStor();
+    FW_ASSERT(stor && (evtHsmn < ARRAY_COUNT(*stor)));
+    QF_CRIT_STAT_TYPE crit;
+    QF_CRIT_ENTRY(crit);
+    (*stor)[evtHsmn].Init(timerEvtName, timerEvtCount, internalEvtName, internalEvtCount, interfaceEvtName, interfaceEvtCount);
+    QF_CRIT_EXIT(crit);
+}
+
+char const *Log::GetEvtName(QSignal signal) {
+    if (signal < Q_USER_SIG) {
+        return GetBuiltinEvtName(signal);
+    }
+    EvtSetStor stor = GetEvtSetStor();
+    Hsmn hsmn = GET_EVT_HSMN(signal);
+    FW_ASSERT(stor && (hsmn < ARRAY_COUNT(*stor)));
+    EvtSet const &evtSet = (*stor)[hsmn];
+    return evtSet.Get(signal);
+}
+
+char const *Log::GetBuiltinEvtName(QP::QSignal signal) {
+    if (signal < Q_USER_SIG) {
+        return m_builtinEvtName[signal];
+    }
+    return GetUndefName();
+}
+
 void Log::AddInterface(Hsmn infHsmn, Fifo *fifo, QSignal sig, bool isDefault) {
     FW_LOG_ASSERT((infHsmn != HSM_UNDEF) && fifo && sig);
     QF_CRIT_STAT_TYPE crit;
@@ -377,22 +429,12 @@ bool Log::IsOutput(Type type, Hsmn hsmn) {
     return (type < m_verbosity) && IsOn(hsmn);
 }
 
-char const *Log::GetEvtName(QP::QSignal sig) {
-    if (sig < Q_USER_SIG) {
-        return Hsm::GetBuiltinEvtName(sig);
-    };
-    Hsmn hsmn = GET_EVT_HSMN(sig);
-    Hsm *hsm = Fw::GetHsm(hsmn);
-    FW_ASSERT(hsm);
-    return hsm->GetEvtName(sig);
-}
-
 // Must allow HSM_UNDEF since the "m_from" hsmn of an event is optional
 // (e.g. an internal event or event sent from main).
 char const *Log::GetHsmName(Hsmn hsmn) {
     Hsm *hsm = Fw::GetHsm(hsmn);
     if (!hsm) {
-        return Hsm::GetUndefName();
+        return GetUndefName();
     }
     return hsm->GetName();
 }
@@ -405,7 +447,7 @@ char const *Log::GetTypeName(Type type) {
 char const *Log::GetState(Hsmn hsmn) {
     Hsm *hsm = Fw::GetHsm(hsmn);
     if (!hsm) {
-        return Hsm::GetUndefName();
+        return GetUndefName();
     }
     return hsm->GetState();
 }

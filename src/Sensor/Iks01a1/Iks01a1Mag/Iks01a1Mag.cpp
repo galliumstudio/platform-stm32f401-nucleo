@@ -47,29 +47,8 @@ FW_DEFINE_THIS_FILE("Iks01a1Mag.cpp")
 
 namespace APP {
 
-#undef ADD_EVT
-#define ADD_EVT(e_) #e_,
-
-static char const * const timerEvtName[] = {
-    "IKS01A1_MAG_TIMER_EVT_START",
-    IKS01A1_MAG_TIMER_EVT
-};
-
-static char const * const internalEvtName[] = {
-    "IKS01A1_MAG_INTERNAL_EVT_START",
-    IKS01A1_MAG_INTERNAL_EVT
-};
-
-static char const * const interfaceEvtName[] = {
-    "SENSOR_MAG_INTERFACE_EVT_START",
-    SENSOR_MAG_INTERFACE_EVT
-};
-
 Iks01a1Mag::Iks01a1Mag(Hsmn intHsmn, Hsmn drdyHsmn, I2C_HandleTypeDef &hal) :
-    Region((QStateHandler)&Iks01a1Mag::InitialPseudoState, IKS01A1_MAG, "IKS01A1_MAG",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    SensorMag((QStateHandler)&Iks01a1Mag::InitialPseudoState, IKS01A1_MAG, "IKS01A1_MAG"),
     m_intHsmn(intHsmn), m_drdyHsmn(drdyHsmn), m_hal(hal), m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER), m_handle(NULL) {
 }
 

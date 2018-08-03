@@ -65,11 +65,10 @@ static char const * const interfaceEvtName[] = {
 };
 
 SimpleAct::SimpleAct() :
-    Active((QStateHandler)&SimpleAct::InitialPseudoState, SIMPLE_ACT, "SIMPLE_ACT",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
-    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {}
+    Active((QStateHandler)&SimpleAct::InitialPseudoState, SIMPLE_ACT, "SIMPLE_ACT"),
+    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {
+    SET_EVT_NAME(SIMPLE_ACT);
+}
 
 QState SimpleAct::InitialPseudoState(SimpleAct * const me, QEvt const * const e) {
     (void)e;

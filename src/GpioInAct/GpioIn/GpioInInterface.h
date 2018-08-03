@@ -73,8 +73,11 @@ public:
     enum {
         TIMEOUT_MS = 100
     };
-    GpioInStartReq(Hsmn to, Hsmn from, Sequence seq) :
-        Evt(GPIO_IN_START_REQ, to, from, seq) {}
+    GpioInStartReq(Hsmn to, Hsmn from, Sequence seq, bool debouncing = true) :
+        Evt(GPIO_IN_START_REQ, to, from, seq), m_debouncing(debouncing) {}
+    bool IsDebouncing() const { return m_debouncing; }
+private:
+    bool m_debouncing;        // True to enable debouncing.
 };
 
 class GpioInStartCfm : public ErrorEvt {

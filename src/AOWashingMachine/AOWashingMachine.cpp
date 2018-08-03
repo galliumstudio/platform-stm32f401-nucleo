@@ -89,15 +89,14 @@ static const uint16_t TOWELS_RINSE_TEMP = 150; // Degrees F
 static const uint16_t SPIN_TIME_MS = 5000;
 
 AOWashingMachine::AOWashingMachine() :
-    Active((QStateHandler)&AOWashingMachine::InitialPseudoState, AO_WASHING_MACHINE, "AO_WASHING_MACHINE",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Active((QStateHandler)&AOWashingMachine::InitialPseudoState, AO_WASHING_MACHINE, "AO_WASHING_MACHINE"),
        m_doorState(DOOR_OPEN),
        m_history(&FillingWash),
        m_washTimer(GetHsm().GetHsmn(), WASH_TIMEOUT),
        m_rinseTimer(GetHsm().GetHsmn(), RINSE_TIMEOUT),
-       m_spinTimer(GetHsm().GetHsmn(), SPIN_TIMEOUT) {}
+       m_spinTimer(GetHsm().GetHsmn(), SPIN_TIMEOUT) {
+    SET_EVT_NAME(AO_WASHING_MACHINE);
+}
 
 QState AOWashingMachine::InitialPseudoState(AOWashingMachine * const me, QEvt const * const e) {
     (void)e;

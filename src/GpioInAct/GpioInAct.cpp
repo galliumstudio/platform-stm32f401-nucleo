@@ -46,8 +46,7 @@ FW_DEFINE_THIS_FILE("GpioInAct.cpp")
 namespace APP {
 
 GpioInAct::GpioInAct() :
-    Active((QStateHandler)&GpioInAct::InitialPseudoState, GPIO_IN_ACT, "GPIO_IN_ACT",
-           NULL, 0, NULL, 0, NULL, 0) {}
+    Active((QStateHandler)&GpioInAct::InitialPseudoState, GPIO_IN_ACT, "GPIO_IN_ACT") {}
 
 QState GpioInAct::InitialPseudoState(GpioInAct * const me, QEvt const * const e) {
     (void)e;

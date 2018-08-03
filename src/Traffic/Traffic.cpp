@@ -66,13 +66,12 @@ static char const * const interfaceEvtName[] = {
 };
 
 Traffic::Traffic() :
-    Active((QStateHandler)&Traffic::InitialPseudoState, TRAFFIC, "TRAFFIC",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Active((QStateHandler)&Traffic::InitialPseudoState, TRAFFIC, "TRAFFIC"),
     m_lampNS(LAMP_NS, "LAMP_NS"), m_lampEW(LAMP_EW, "LAMP_EW"),
     m_carWaiting(false), m_waitTimer(GetHsm().GetHsmn(), WAIT_TIMER),
-    m_idleTimer(GetHsm().GetHsmn(), IDLE_TIMER), m_blinkTimer(GetHsm().GetHsmn(), BLINK_TIMER){}
+    m_idleTimer(GetHsm().GetHsmn(), IDLE_TIMER), m_blinkTimer(GetHsm().GetHsmn(), BLINK_TIMER){
+    SET_EVT_NAME(TRAFFIC);
+}
 
 QState Traffic::InitialPseudoState(Traffic * const me, QEvt const * const e) {
     (void)e;

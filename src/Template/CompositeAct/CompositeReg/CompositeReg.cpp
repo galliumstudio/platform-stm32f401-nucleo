@@ -96,11 +96,9 @@ static uint16_t GetInst(Hsmn hsmn) {
 }
 
 CompositeReg::CompositeReg() :
-    Region((QStateHandler)&CompositeReg::InitialPseudoState, GetCurrHsmn(), GetName(GetCurrHsmn()),
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Region((QStateHandler)&CompositeReg::InitialPseudoState, GetCurrHsmn(), GetName(GetCurrHsmn())),
     m_stateTimer(this->GetHsm().GetHsmn(), STATE_TIMER) {
+    SET_EVT_NAME(COMPOSITE_REG);
     IncCurrHsmn();
 }
 

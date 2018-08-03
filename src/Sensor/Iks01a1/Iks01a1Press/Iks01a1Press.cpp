@@ -47,29 +47,8 @@ FW_DEFINE_THIS_FILE("Iks01a1Press.cpp")
 
 namespace APP {
 
-#undef ADD_EVT
-#define ADD_EVT(e_) #e_,
-
-static char const * const timerEvtName[] = {
-    "IKS01A1_PRESS_TIMER_EVT_START",
-    IKS01A1_PRESS_TIMER_EVT
-};
-
-static char const * const internalEvtName[] = {
-    "IKS01A1_PRESS_INTERNAL_EVT_START",
-    IKS01A1_PRESS_INTERNAL_EVT
-};
-
-static char const * const interfaceEvtName[] = {
-    "SENSOR_PRESS_INTERFACE_EVT_START",
-    SENSOR_PRESS_INTERFACE_EVT
-};
-
 Iks01a1Press::Iks01a1Press(Hsmn intHsmn, I2C_HandleTypeDef &hal) :
-    Region((QStateHandler)&Iks01a1Press::InitialPseudoState, IKS01A1_PRESS, "IKS01A1_PRESS",
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    SensorPress((QStateHandler)&Iks01a1Press::InitialPseudoState, IKS01A1_PRESS, "IKS01A1_PRESS"),
     m_intHsmn(intHsmn), m_hal(hal), m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER), m_handle(NULL) {
 }
 

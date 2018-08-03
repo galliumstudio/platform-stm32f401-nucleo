@@ -44,13 +44,14 @@
 #include "fw_timer.h"
 #include "fw_evt.h"
 #include "app_hsmn.h"
+#include "SensorMag.h"
 
 using namespace QP;
 using namespace FW;
 
 namespace APP {
 
-class Iks01a1Mag : public Region {
+class Iks01a1Mag : public SensorMag {
 public:
     Iks01a1Mag(Hsmn intHsmn, Hsmn drdyHsmn, I2C_HandleTypeDef &hal);
 
@@ -67,32 +68,6 @@ protected:
     I2C_HandleTypeDef &m_hal;
     Timer m_stateTimer;
     void *m_handle;               // Handle to Nucleo IKS01A1 BSP.
-
-#define IKS01A1_MAG_TIMER_EVT \
-    ADD_EVT(STATE_TIMER)
-
-#define IKS01A1_MAG_INTERNAL_EVT \
-    ADD_EVT(DONE) \
-    ADD_EVT(FAILED)
-
-#undef ADD_EVT
-#define ADD_EVT(e_) e_,
-
-    enum {
-        IKS01A1_MAG_TIMER_EVT_START = TIMER_EVT_START(IKS01A1_MAG),
-        IKS01A1_MAG_TIMER_EVT
-    };
-
-    enum {
-        IKS01A1_MAG_INTERNAL_EVT_START = INTERNAL_EVT_START(IKS01A1_MAG),
-        IKS01A1_MAG_INTERNAL_EVT
-    };
-
-    class Failed : public ErrorEvt {
-    public:
-        Failed(Hsmn hsmn, Error error, Hsmn origin, Reason reason) :
-            ErrorEvt(FAILED, hsmn, hsmn, 0, error, origin, reason) {}
-    };
 };
 
 } // namespace APP

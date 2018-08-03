@@ -53,7 +53,6 @@ uint32_t Fw::m_evtPoolSmall[ROUND_UP_DIV_4(EVT_SIZE_SMALL * EVT_COUNT_SMALL)];
 uint32_t Fw::m_evtPoolMedium[ROUND_UP_DIV_4(EVT_SIZE_MEDIUM * EVT_COUNT_MEDIUM)];
 uint32_t Fw::m_evtPoolLarge[ROUND_UP_DIV_4(EVT_SIZE_LARGE * EVT_COUNT_LARGE)];
 
-
 void Fw::Init() {
     // Initialize QP. It must be done before BspInit() since the latter may enable
     // SysTick which will cause the scheduler to run.

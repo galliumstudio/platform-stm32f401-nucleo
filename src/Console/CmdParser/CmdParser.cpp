@@ -65,12 +65,10 @@ static char const * const interfaceEvtName[] = {
 };
 
 CmdParser::CmdParser(Hsmn hsmn, char const *name) :
-    Region((QStateHandler)&CmdParser::InitialPseudoState, hsmn, name,
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Region((QStateHandler)&CmdParser::InitialPseudoState, hsmn, name),
     m_cmdStr(NULL), m_argv(NULL), m_argc(0), m_maxArgc(0), m_index(-1),
     m_stateTimer(this->GetHsm().GetHsmn(), STATE_TIMER) {
+    SET_EVT_NAME(CMD_PARSER);
 }
 
 QState CmdParser::InitialPseudoState(CmdParser * const me, QEvt const * const e) {

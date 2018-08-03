@@ -38,7 +38,9 @@
 
 #include "fw_hsm.h"
 #include "fw_inline.h"
+#include "fw_log.h"
 #include "fw_assert.h"
+#include "fw.h"
 
 FW_DEFINE_THIS_FILE("fw_hsm.cpp")
 
@@ -46,48 +48,14 @@ using namespace QP;
 
 namespace FW {
 
-char const * const Hsm::m_builtinEvtName[] = {
-    "NULL",
-    "ENTRY",
-    "EXIT",
-    "INIT"
-};
-
-char const Hsm::m_undefName[] = "UNDEF";
+Hsm::Hsm(Hsmn hsmn, char const *name, QP::QHsm *qhsm) :
+    m_hsmn(hsmn), m_name(name), m_qhsm(qhsm), m_state(Log::GetUndefName()),
+    m_nextSequence(0), m_inHsmnSeq(HSM_UNDEF, 0),
+    m_outHsmnSeqMap(m_outHsmnSeqStor, ARRAY_COUNT(m_outHsmnSeqStor), HsmnSeq(HSM_UNDEF, 0)) {}
 
 void Hsm::Init(QActive *container) {
     m_deferEQueue.Init(container, m_deferQueueStor, ARRAY_COUNT(m_deferQueueStor));
     m_reminderQueue.init(m_reminderQueueStor, ARRAY_COUNT(m_reminderQueueStor));
-}
-
-char const *Hsm::GetBuiltinEvtName(QP::QSignal signal) {
-    if (signal < Q_USER_SIG) {
-        return m_builtinEvtName[signal];
-    }
-    return m_undefName;
-}
-
-char const *Hsm::GetEvtName(QSignal signal) const {
-    uint32_t index;
-    if (signal < Q_USER_SIG) {
-        return GetBuiltinEvtName(signal);
-    } else if (IS_TIMER_EVT(signal)) {
-        index = GET_TIMER_EVT_INDEX(signal);
-        if (m_timerEvtName && (index < m_timerEvtCount)) {
-            return m_timerEvtName[index];
-        }
-    } else if (IS_INTERNAL_EVT(signal)) {
-        index = GET_INTERNAL_EVT_INDEX(signal);
-        if (m_internalEvtName && (index < m_internalEvtCount)) {
-            return m_internalEvtName[index];
-        }
-    } else {
-        index = GET_INTERFACE_EVT_INDEX(signal);
-        if (m_interfaceEvtName && (index < m_interfaceEvtCount)) {
-            return m_interfaceEvtName[index];
-        }
-    }
-    return m_undefName;
 }
 
 bool Hsm::MatchOutSeq(Hsmn hsmn, Sequence seqToMatch, bool autoClear) {

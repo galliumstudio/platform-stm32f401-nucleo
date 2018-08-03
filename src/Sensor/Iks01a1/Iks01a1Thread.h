@@ -45,11 +45,6 @@
 #include "fw_evt.h"
 #include "app_hsmn.h"
 #include "Iks01a1.h"
-#include "Iks01a1AccelGyro.h"
-#include "Iks01a1Mag.h"
-#include "Iks01a1HumidTemp.h"
-#include "Iks01a1Press.h"
-#include "Iks01a1Config.h"
 
 using namespace QP;
 using namespace FW;
@@ -58,28 +53,13 @@ namespace APP {
 
 class Iks01a1Thread : public XThread {
 public:
-    Iks01a1Thread();
-
-    // Only supports single instance.
-    static I2C_HandleTypeDef *GetHal() { return &m_hal; }
-    static void SignalI2cSem() { m_i2cSem.signal(); }
-    static bool I2cWriteInt(uint16_t devAddr, uint16_t memAddr, uint8_t *buf, uint16_t len);
-    static bool I2cReadInt(uint16_t devAddr, uint16_t memAddr, uint8_t *buf, uint16_t len);
+    Iks01a1Thread() : m_iks01a1(*this) {}
 
 protected:
-    void OnRun();
-
-    static Iks01a1Config const CONFIG[];
-
-    Iks01a1Config const *m_config;
-    static I2C_HandleTypeDef m_hal;     // Only support single instance.
-    static QXSemaphore m_i2cSem;        // Only support single instance.
-                                        // Binary semaphore to siganl I2C read/write completion.
+    void OnRun() {
+        m_iks01a1.Init(this);
+    }
     Iks01a1 m_iks01a1;
-    Iks01a1AccelGyro m_iks01a1AccelGyro;
-    Iks01a1Mag m_iks01a1Mag;
-    Iks01a1HumidTemp m_iks01a1HumidTemp;
-    Iks01a1Press m_iks01a1Press;
 };
 
 } // namespace APP

@@ -49,15 +49,9 @@ namespace FW {
 
 class Active : public QP::QActive {
 public:
-    Active(QP::QStateHandler const initial, Hsmn hsmn, char const *name,
-            EvtName timerEvtName, EvtCount timerEvtCount,
-            EvtName internalEvtName, EvtCount internalEvtCount,
-            EvtName interfaceEvtName, EvtCount interfaceEvtCount) :
+    Active(QP::QStateHandler const initial, Hsmn hsmn, char const *name) :
         QP::QActive(initial),
-        m_hsm(hsmn, name, this,
-              timerEvtName, timerEvtCount,
-              internalEvtName, internalEvtCount,
-              interfaceEvtName, interfaceEvtCount),
+        m_hsm(hsmn, name, this),
         m_hsmnRegMap(m_hsmnRegStor, ARRAY_COUNT(m_hsmnRegStor), HsmnReg(HSM_UNDEF, NULL)){
     }
     void Start(uint8_t prio);

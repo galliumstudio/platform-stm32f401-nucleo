@@ -41,6 +41,7 @@
 
 #include "fw_def.h"
 #include "fw_evt.h"
+#include "fw_pipe.h"
 #include "app_hsmn.h"
 
 using namespace QP;
@@ -52,7 +53,11 @@ namespace APP {
     ADD_EVT(SENSOR_ACCEL_GYRO_START_REQ) \
     ADD_EVT(SENSOR_ACCEL_GYRO_START_CFM) \
     ADD_EVT(SENSOR_ACCEL_GYRO_STOP_REQ) \
-    ADD_EVT(SENSOR_ACCEL_GYRO_STOP_CFM)
+    ADD_EVT(SENSOR_ACCEL_GYRO_STOP_CFM) \
+    ADD_EVT(SENSOR_ACCEL_GYRO_ON_REQ) \
+    ADD_EVT(SENSOR_ACCEL_GYRO_ON_CFM) \
+    ADD_EVT(SENSOR_ACCEL_GYRO_OFF_REQ) \
+    ADD_EVT(SENSOR_ACCEL_GYRO_OFF_CFM)
 
 #undef ADD_EVT
 #define ADD_EVT(e_) e_,
@@ -65,6 +70,23 @@ enum {
 enum {
     SENSOR_ACCEL_GYRO_REASON_UNSPEC = 0,
 };
+
+// Data types used in sensor events.
+class AccelGyroReport
+{
+public:
+  AccelGyroReport(int32_t aX = 0, int32_t aY = 0, int32_t aZ = 0, int32_t gX = 0, int32_t gY = 0, int32_t gZ = 0) :
+      m_aX(aX), m_aY(aY), m_aZ(aZ), m_gX(gX), m_gY(gY), m_gZ(gZ) {}
+  int32_t m_aX;
+  int32_t m_aY;
+  int32_t m_aZ;
+  int32_t m_gX;
+  int32_t m_gY;
+  int32_t m_gZ;
+};
+
+typedef Pipe<AccelGyroReport> AccelGyroPipe;
+
 
 class SensorAccelGyroStartReq : public Evt {
 public:
@@ -96,6 +118,44 @@ public:
     SensorAccelGyroStopCfm(Hsmn to, Hsmn from, Sequence seq,
                    Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
         ErrorEvt(SENSOR_ACCEL_GYRO_STOP_CFM, to, from, seq, error, origin, reason) {}
+};
+
+class SensorAccelGyroOnReq : public Evt {
+public:
+    enum {
+        TIMEOUT_MS = 100
+    };
+    // @todo - Add configuration parameters, e.g. ODR.
+    SensorAccelGyroOnReq(Hsmn to, Hsmn from, Sequence seq, AccelGyroPipe *pipe) :
+        Evt(SENSOR_ACCEL_GYRO_ON_REQ, to, from, seq), m_pipe(pipe) {}
+    AccelGyroPipe *GetPipe() const { return m_pipe; }
+private:
+    AccelGyroPipe *m_pipe;
+
+};
+
+class SensorAccelGyroOnCfm : public ErrorEvt {
+public:
+    SensorAccelGyroOnCfm(Hsmn to, Hsmn from, Sequence seq,
+                   Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
+        ErrorEvt(SENSOR_ACCEL_GYRO_ON_CFM, to, from, seq, error, origin, reason) {}
+};
+
+class SensorAccelGyroOffReq : public Evt {
+public:
+    enum {
+        TIMEOUT_MS = 100
+    };
+    // @todo - Add configuration parameters, e.g. ODR.
+    SensorAccelGyroOffReq(Hsmn to, Hsmn from, Sequence seq) :
+        Evt(SENSOR_ACCEL_GYRO_OFF_REQ, to, from, seq) {}
+};
+
+class SensorAccelGyroOffCfm : public ErrorEvt {
+public:
+    SensorAccelGyroOffCfm(Hsmn to, Hsmn from, Sequence seq,
+                   Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
+        ErrorEvt(SENSOR_ACCEL_GYRO_OFF_CFM, to, from, seq, error, origin, reason) {}
 };
 
 } // namespace APP

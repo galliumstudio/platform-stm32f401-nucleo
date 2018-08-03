@@ -43,6 +43,7 @@
 #include "qpcpp.h"
 #include "fw_maptype.h"
 #include "fw_evt.h"
+#include "bsp.h"
 
 #define FW_XTHREAD_ASSERT(t_) ((t_) ? (void)0 : Q_onAssert("fw_xthread.h", (int_t)__LINE__))
 
@@ -56,6 +57,8 @@ public:
     }
     void Start(uint8_t prio);
     void Add(Region *reg);
+    void DelayMs(uint32_t ms) { delay(BSP_MSEC_TO_TICK(ms)); }
+
 protected:
     virtual void OnRun() = 0;
     void PostSync(Evt const *e);

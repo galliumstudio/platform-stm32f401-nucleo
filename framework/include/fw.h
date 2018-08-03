@@ -57,6 +57,7 @@ public:
     static QP::QActive *GetContainer(Hsmn hsmn);
 
 protected:
+
     enum {
         EVT_POOL_COUNT = 3,     // Number of event pools (small, medium and large).
         EVT_SIZE_SMALL = 32,

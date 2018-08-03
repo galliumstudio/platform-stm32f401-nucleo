@@ -90,12 +90,11 @@ void UartOut::CleanCache(uint32_t addr, uint32_t len) {
 }
 
 UartOut::UartOut(Hsmn hsmn, char const *name, UART_HandleTypeDef &hal) :
-    Region((QStateHandler)&UartOut::InitialPseudoState, hsmn, name,
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)),
+    Region((QStateHandler)&UartOut::InitialPseudoState, hsmn, name),
     m_hal(hal), m_manager(HSM_UNDEF), m_client(HSM_UNDEF), m_fifo(NULL), m_writeCount(0),
-    m_activeTimer(this->GetHsm().GetHsmn(), ACTIVE_TIMER) {}
+    m_activeTimer(this->GetHsm().GetHsmn(), ACTIVE_TIMER) {
+    SET_EVT_NAME(UART_OUT);
+}
 
 QState UartOut::InitialPseudoState(UartOut * const me, QEvt const * const e) {
     (void)e;

@@ -51,15 +51,9 @@ class XThread;
 
 class Region : public QP::QHsm {
 public:
-    Region(QP::QStateHandler const initial, Hsmn hsmn, char const *name,
-            EvtName timerEvtName, EvtCount timerEvtCount,
-            EvtName internalEvtName, EvtCount internalEvtCount,
-            EvtName interfaceEvtName, EvtCount interfaceEvtCount) :
+    Region(QP::QStateHandler const initial, Hsmn hsmn, char const *name) :
         QP::QHsm(initial),
-        m_hsm(hsmn, name, this,
-              timerEvtName, timerEvtCount,
-              internalEvtName, internalEvtCount,
-              interfaceEvtName, interfaceEvtCount),
+        m_hsm(hsmn, name, this),
         m_container(NULL) {}
 
     void Init(Active *container);

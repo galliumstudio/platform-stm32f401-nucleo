@@ -65,10 +65,9 @@ static char const * const interfaceEvtName[] = {
 };
 
 Lamp::Lamp(Hsmn hsmn, char const *name) :
-    Region((QStateHandler)&Lamp::InitialPseudoState, hsmn, name,
-           timerEvtName, ARRAY_COUNT(timerEvtName),
-           internalEvtName, ARRAY_COUNT(internalEvtName),
-           interfaceEvtName, ARRAY_COUNT(interfaceEvtName)) {}
+    Region((QStateHandler)&Lamp::InitialPseudoState, hsmn, name) {
+    SET_EVT_NAME(LAMP);
+}
 
 QState Lamp::InitialPseudoState(Lamp * const me, QEvt const * const e) {
     (void)e;

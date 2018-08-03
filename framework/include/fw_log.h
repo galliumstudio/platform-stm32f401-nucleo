@@ -44,12 +44,16 @@
 #include "fw_map.h"
 #include "fw_pipe.h"
 #include "fw_bitset.h"
+#include "fw_evtSet.h"
 #include "fw_assert.h"
 
 #define FW_LOG_ASSERT(t_) ((t_) ? (void)0 : Q_onAssert("fw_log.h", (int_t)__LINE__))
 
 namespace FW {
 
+#define SET_EVT_NAME(evtHsmn_)   Log::SetEvtName(evtHsmn_, timerEvtName, ARRAY_COUNT(timerEvtName), \
+                                                 internalEvtName, ARRAY_COUNT(internalEvtName), \
+                                                 interfaceEvtName, ARRAY_COUNT(interfaceEvtName))
 #define PRINT(format_, ...)      Log::Print(HSM_UNDEF, format_, ## __VA_ARGS__)
 // The following macros can only be used within an HSM. Newline is automatically appended.
 #define EVENT(e_)                Log::Event(Log::TYPE_LOG, me->GetHsm().GetHsmn(), e_, __FUNCTION__);
@@ -96,6 +100,14 @@ public:
         BYTE_PER_LINE = 16
     };
 
+    // Set event names for an HSM.
+    static void SetEvtName(Hsmn evtHsmn, EvtName timerEvtName, EvtCount timerEvtCount,
+                           EvtName internalEvtName, EvtCount internalEvtCount,
+                           EvtName interfaceEvtName, EvtCount interfaceEvtCount);
+    static char const *GetEvtName(QP::QSignal signal);
+    static char const *GetBuiltinEvtName(QP::QSignal signal);
+    static char const *GetUndefName() { return m_undefName; }
+
     // Add and remove output device interface.
     static void AddInterface(Hsmn infHsmn, Fifo *fifo, QP::QSignal sig, bool isDefault);
     static void RemoveInterface(Hsmn infHsmn);
@@ -125,11 +137,13 @@ public:
     static void OffAll();
     static bool IsOn(Hsmn hsmn) { return m_on.IsSet(hsmn); }
 
-    static char const *GetEvtName(QP::QSignal sig);
     static char const *GetHsmName(Hsmn hsmn);
     static char const *GetTypeName(Type type);
     static char const *GetState(Hsmn hsmn);
 private:
+    // EvtSetStor is a pointer to an array of EvtSet with MAX_HSM_COUNT elements.
+    typedef EvtSet (*EvtSetStor)[MAX_HSM_COUNT];
+    static EvtSetStor GetEvtSetStor();
     static bool IsOutput(Type type, Hsmn hsmn);
 
     class Inf {
@@ -157,6 +171,8 @@ private:
     static HsmnInfMap m_hsmnInfMap;
     static char const * const m_typeName[NUM_TYPE];
     static char const m_truncatedError[];
+    static char const * const m_builtinEvtName[];
+    static char const m_undefName[];
 };
 
 } // namespace FW
