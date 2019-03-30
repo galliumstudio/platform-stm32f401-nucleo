@@ -111,7 +111,8 @@
 									<listOptionValue builtIn="false" value="&quot;../src/System&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/GpioInAct&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/GpioInAct/GpioIn&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../src/WifiSt&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../src/Wifi&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../src/Wifi/WifiSt&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/GpioOutAct&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/GpioOutAct/GpioOut&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../src/Disp&quot;"/>

@@ -374,6 +374,11 @@ QState LevelMeter::Redrawing(LevelMeter * const me, QEvt const * const e) {
             EVENT(e);
             return Q_TRAN(&LevelMeter::Normal);
         }
+        case REDRAW: {
+            EVENT(e);
+            LOG("Discarded");
+            return Q_HANDLED();
+        }
     }
     return Q_SUPER(&LevelMeter::Started);
 }

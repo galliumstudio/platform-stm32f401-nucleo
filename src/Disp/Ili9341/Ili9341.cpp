@@ -203,7 +203,11 @@ bool Ili9341::SpiWriteDma(uint8_t const *buf, uint16_t len) {
     HAL_GPIO_WritePin(m_config->csPort, m_config->csPin, GPIO_PIN_RESET);
     // Needs to cast away const-ness. It has been verified that HAL_SPI_Transmit_DMA does not write to buf.
     if (HAL_SPI_Transmit_DMA(&m_hal, const_cast<uint8_t *>(buf), len) == HAL_OK) {
-        status = m_spiSem.wait(BSP_MSEC_TO_TICK(1000));
+        status = m_spiSem.wait(BSP_MSEC_TO_TICK(100000));
+        // @todo - There may be a bug in QXK that after a semaphore wait times out, the "waitSet" is not cleared but no task
+        //         is waiting on the semaphore. It triggers an assert at qxk_sema.cpp line 220 when the semaphore is signaled again
+        //         in HAL_SPI_TxCpltCallback() in stm32f4xx_it.cpp (before it is waited on again here.)
+        //
     }
     HAL_GPIO_WritePin(m_config->csPort, m_config->csPin, GPIO_PIN_SET);
     return status;

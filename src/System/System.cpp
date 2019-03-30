@@ -102,24 +102,33 @@ QState System::Root(System * const me, QEvt const * const e) {
         EVENT(e);
         Periph::SetupNormal();
         // Test only
-        /*
+
         __HAL_RCC_GPIOA_CLK_ENABLE();
         // -2- Configure IO in output push-pull mode to drive external LEDs
         GPIO_InitTypeDef  GPIO_InitStruct;
         GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
         GPIO_InitStruct.Pull  = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-        GPIO_InitStruct.Pin = GPIO_PIN_5;
+
+        // Test only - Configures USER LED
+        //GPIO_InitStruct.Pin = GPIO_PIN_5;
+        //HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+        // Test only - Configures test pins.
+        /*
+        GPIO_InitStruct.Pin = GPIO_PIN_11;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+        GPIO_InitStruct.Pin = GPIO_PIN_12;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+        GPIO_InitStruct.Pin = GPIO_PIN_15;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-        // Test only - Configure test pin2.
-        GPIO_InitStruct.Pin = GPIO_PIN_7;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-        GPIO_InitStruct.Pin = GPIO_PIN_6;
-        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         */
 
-        me->m_testTimer.Start(500, Timer::PERIODIC);
+        me->m_testTimer.Start(200, Timer::PERIODIC);
 
         Evt *evt = new CompositeActStartReq(COMPOSITE_ACT, SYSTEM, 0);
         Fw::Post(evt);
@@ -134,10 +143,6 @@ QState System::Root(System * const me, QEvt const * const e) {
         evt = new WashStartReq(AO_WASHING_MACHINE, SYSTEM, 0);
         Fw::Post(evt);
         evt = new TrafficStartReq(TRAFFIC, SYSTEM, 0);
-        Fw::Post(evt);
-        evt = new SensorStartReq(IKS01A1, SYSTEM, 0);
-        Fw::Post(evt);
-        evt = new LevelMeterStartReq(LEVEL_METER, SYSTEM, 0);
         Fw::Post(evt);
 
         // Test only.
@@ -155,17 +160,23 @@ QState System::Root(System * const me, QEvt const * const e) {
         break;
     }
     case TEST_TIMER: {
-        //EVENT(e);
-
+        EVENT(e);
         // Test only.
-        //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+        //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_11);
+        //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_12);
+        //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_15);
 
-        /*
-        static int testcount = 10000;
-        char msg[100];
-        snprintf(msg, sizeof(msg), "This is a UART DMA transmission testing number %d.", testcount++);
-        LOG("Writing %s", msg);
-        */
+        static int testCount = 0;
+        // Delays the start of IKS01A1 IMU sensor by 200ms from power up.
+        // There is a gitch at about 200ms on SDA/SCL (PB8 and PB9) of I2C1 connected to the IKS01A1 board.
+        // We need to initialize the I2C1 bus after the glitch to avoid communication issues.
+        // That glitch is found to be caused by the 2.8" TFT board.
+        if (testCount++ == 0) {
+            Evt *evt = new SensorStartReq(IKS01A1, SYSTEM, 0);
+            Fw::Post(evt);
+            evt = new LevelMeterStartReq(LEVEL_METER, SYSTEM, 0);
+            Fw::Post(evt);
+        }
 
         status = Q_HANDLED();
         break;

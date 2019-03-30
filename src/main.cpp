@@ -100,7 +100,7 @@
 #include "UartAct.h"
 #include "UartActInterface.h"
 #include "SystemInterface.h"
-#include "WifiStInterface.h"
+#include "WifiInterface.h"
 #include "SensorInterface.h"
 #include "GpioInInterface.h"
 #include "ConsoleInterface.h"
@@ -212,8 +212,8 @@ int main(void)
     evt = new SystemStartReq(SYSTEM, HSM_UNDEF, 0);
     Fw::Post(evt);
     // CONSOLE_UART1 must not be started.
-    //evt = new WifiStStartReq(WIFI_ST, HSM_UNDEF, 0, UART1_ACT);
-    //Fw::Post(evt);
+    evt = new WifiStartReq(WIFI_ST, HSM_UNDEF, 0, UART1_ACT);
+    Fw::Post(evt);
     return QP::QF::run();
 }
 

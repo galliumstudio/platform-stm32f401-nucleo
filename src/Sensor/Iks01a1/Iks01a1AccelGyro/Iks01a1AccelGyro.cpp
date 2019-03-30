@@ -296,10 +296,12 @@ QState Iks01a1AccelGyro::Off(Iks01a1AccelGyro * const me, QEvt const * const e) 
                 }
                 DrvStatusTypeDef status = BSP_ACCELERO_Sensor_Enable(me->m_handle);
                 if (status != COMPONENT_OK) {
+                    ERROR("BSP_ACCELERO_Sensor_Enable failed (%d)", status);
                     break;
                 }
                 status_t result = LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(me->m_handle, LSM6DS0_ACC_GYRO_INT_DRDY_XL_ENABLE);
                 if (result != MEMS_SUCCESS) {
+                    ERROR("LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT failed (%d)", result);
                     BSP_ACCELERO_Sensor_Disable(me->m_handle);
                     break;
                 }

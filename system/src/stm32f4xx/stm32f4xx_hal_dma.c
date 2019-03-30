@@ -486,7 +486,11 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
     
     /* Enable Common interrupts*/
     hdma->Instance->CR  |= DMA_IT_TC | DMA_IT_TE | DMA_IT_DME;
-    hdma->Instance->FCR |= DMA_IT_FE;
+    // Gallium Added "if" check to only enable FIFO Error interrupt if FIFO mode is enabled.
+    if(hdma->Init.FIFOMode != DMA_FIFOMODE_DISABLE)
+    {
+        hdma->Instance->FCR |= DMA_IT_FE;
+    }
     
     if(hdma->XferHalfCpltCallback != NULL)
     {
