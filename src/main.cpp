@@ -212,10 +212,6 @@ int main(void)
     // CONSOLE_UART1 must not be started since it is used by WIFI (started in System).
     //evt = new ConsoleStartReq(CONSOLE_UART1, HSM_UNDEF, 0, ConsoleCmd, UART1_ACT, false);
     //Fw::Post(evt);
-
-    //evt = new WifiStartReq(WIFI_ST, HSM_UNDEF, 0, UART1_ACT);
-    //Fw::Post(evt);
-
     evt = new SystemStartReq(SYSTEM, HSM_UNDEF, 0);
     Fw::Post(evt);
     return QP::QF::run();

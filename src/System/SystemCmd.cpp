@@ -66,21 +66,31 @@ static CmdStatus Start(Console &console, Evt const *e) {
             Fw::Post(evt);
             break;
         }
+        case SYSTEM_START_CFM: {
+            ErrorEvt const &cfm = ERROR_EVT_CAST(*e);
+            console.PrintErrorEvt(&cfm);
+        	return CMD_DONE;
+        }
     }
-    return CMD_DONE;
+    return CMD_CONTINUE;
 }
 
 
 static CmdStatus Stop(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
-            console.PutStr("Starting SYSTEM\n\r");
+            console.PutStr("Stopping SYSTEM\n\r");
             Evt *evt = new SystemStopReq(SYSTEM, console.GetHsmn(), 0);
             Fw::Post(evt);
             break;
         }
+        case SYSTEM_STOP_CFM: {
+            ErrorEvt const &cfm = ERROR_EVT_CAST(*e);
+            console.PrintErrorEvt(&cfm);
+        	return CMD_DONE;
+        }
     }
-    return CMD_DONE;
+    return CMD_CONTINUE;
 }
 
 
