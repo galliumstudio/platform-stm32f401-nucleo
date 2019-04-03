@@ -85,7 +85,7 @@ public:
 class SensorStopReq : public Evt {
 public:
     enum {
-        TIMEOUT_MS = 200
+        TIMEOUT_MS = 300
     };
     SensorStopReq(Hsmn to, Hsmn from, Sequence seq) :
         Evt(SENSOR_STOP_REQ, to, from, seq) {}

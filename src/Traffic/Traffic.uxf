@@ -35,6 +35,7 @@ fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
     </coordinates>
     <panel_attributes>Traffic::Root
 --
+entry/ initialize LAMP_NS and LAMP_EW regions
 TRAFFIC_START_REG/ ^TRAFFIC_START_CFM(STATE)
 valign=top
 </panel_attributes>

@@ -709,4 +709,40 @@ style=wordwrap</panel_attributes>
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1020</x>
+      <y>80</y>
+      <w>220</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;&gt;&gt;</panel_attributes>
+    <additional_attributes>200.0;100.0;200.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>1040</x>
+      <y>70</y>
+      <w>250</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>WASH_STOP_REQ / WASH_STOP_CFM(OK)
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>1270</x>
+      <y>70</y>
+      <w>160</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Note..
+@todo - Need to make sure system is properly shutdown
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
 </diagram>

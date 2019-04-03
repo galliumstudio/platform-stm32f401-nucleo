@@ -92,7 +92,7 @@ public:
 class WifiStopReq : public Evt {
 public:
     enum {
-        TIMEOUT_MS = 200
+        TIMEOUT_MS = 300
     };
     WifiStopReq(Hsmn to, Hsmn from, Sequence seq) :
         Evt(WIFI_STOP_REQ, to, from, seq) {}

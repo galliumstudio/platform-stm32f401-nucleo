@@ -57,18 +57,53 @@ public:
 protected:
     static QState InitialPseudoState(System * const me, QEvt const * const e);
     static QState Root(System * const me, QEvt const * const e);
+        static QState Stopped(System * const me, QEvt const * const e);
+        static QState Starting(System * const me, QEvt const * const e);
+            static QState Starting1(System * const me, QEvt const * const e);
+            static QState Starting2(System * const me, QEvt const * const e);
+            static QState Starting3(System * const me, QEvt const * const e);
+        static QState Stopping(System * const me, QEvt const * const e);
+            static QState Stopping1(System * const me, QEvt const * const e);
+            static QState Stopping2(System * const me, QEvt const * const e);
+        static QState Started(System * const me, QEvt const * const e);
+
 
     Timer m_stateTimer;
+    Timer m_sensorDelayTimer;
     Timer m_testTimer;
 
     enum {
-        STATE_TIMER = TIMER_EVT_START(SYSTEM),
-        TEST_TIMER,
+        SENSOR_DELAY_TIMEOUT_MS = 200,
+    };
+
+
+#define SYSTEM_TIMER_EVT \
+    ADD_EVT(STATE_TIMER) \
+    ADD_EVT(SENSOR_DELAY_TIMER) \
+    ADD_EVT(TEST_TIMER)
+
+#define SYSTEM_INTERNAL_EVT \
+    ADD_EVT(DONE) \
+    ADD_EVT(NEXT) \
+    ADD_EVT(FAILED)
+
+#undef ADD_EVT
+#define ADD_EVT(e_) e_,
+
+    enum {
+        SYSTEM_TIMER_EVT_START = TIMER_EVT_START(SYSTEM),
+        SYSTEM_TIMER_EVT
     };
 
     enum {
-        DONE = INTERNAL_EVT_START(SYSTEM),
-        RESTART,
+        SYSTEM_INTERNAL_EVT_START = INTERNAL_EVT_START(SYSTEM),
+        SYSTEM_INTERNAL_EVT
+    };
+
+    class Failed : public ErrorEvt {
+    public:
+        Failed(Hsmn hsmn, Error error, Hsmn origin, Reason reason) :
+            ErrorEvt(FAILED, hsmn, hsmn, 0, error, origin, reason) {}
     };
 };
 

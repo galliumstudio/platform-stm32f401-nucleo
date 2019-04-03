@@ -52,8 +52,7 @@ static UART_HandleTypeDef usart;
 /* top of stack (highest address) defined in the linker script -------------*/
 extern int _estack;
 
-static void BspInitUart() {
-#ifdef ENABLE_BSP_PRINT
+static void InitUart() {
     // USART2 (TX=PA2, RX=PA3) is used as the virtual COM port in ST-Link.
     __HAL_RCC_USART2_CLK_ENABLE();          // Customize.
     __GPIOA_CLK_ENABLE();                   // Customize.
@@ -72,20 +71,23 @@ static void BspInitUart() {
     usart.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
     usart.Init.Mode = UART_MODE_TX_RX;
     HAL_UART_Init(&usart);
-    char const *test = "BspInit success\n\r";
-    BspWrite(test, strlen(test));
-#endif // ENABLE_BSP_PRINT
+}
+
+static void WriteUart(char const *buf, uint32_t len) {
+    HAL_UART_Transmit(&usart, (uint8_t *)buf, len, 0xFFFF);
 }
 
 void BspInit() {
     // STM32F7xx HAL library initialization
     HAL_Init();
-    BspInitUart();
+#ifdef ENABLE_BSP_PRINT
+    InitUart();
+#endif // ENABLE_BSP_PRINT
 }
 
 void BspWrite(char const *buf, uint32_t len) {
 #ifdef ENABLE_BSP_PRINT
-     HAL_UART_Transmit(&usart, (uint8_t *)buf, len, 0xFFFF);
+     WriteUart(buf, len);
 #endif
 }
 
@@ -160,10 +162,12 @@ extern "C" void Q_onAssert(char const * const module, int loc) {
     //
     // NOTE: add here your application-specific error handling
     //
-    (void)module;
-    (void)loc;
-
-    // Gallium - TBD
+    // Gallium
+    InitUart();
+    char buf[100];
+    snprintf(buf, sizeof(buf), "ASSERT FAILED in %s at line %d\n\r", module, loc);
+    WriteUart(buf, strlen(buf));
+    QF_INT_DISABLE();
     for (;;) {
     }
     //NVIC_SystemReset();

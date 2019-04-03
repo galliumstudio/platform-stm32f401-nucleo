@@ -205,6 +205,14 @@ QState AOWashingMachine::Started(AOWashingMachine * const me, QEvt const * const
                 return Q_TRAN(&AOWashingMachine::DoorClosed);
             }
         }
+        case WASH_STOP_REQ: {
+            EVENT(e);
+            Evt const &req = EVT_CAST(*e);
+            // @todo - Need to make sure system is properly shutdown.
+            Evt *evt = new WashStopCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+            Fw::Post(evt);
+            return Q_TRAN(&AOWashingMachine::Stopped);
+        }
         case CYCLE_SELECTED_IND:
         {
             EVENT(e);

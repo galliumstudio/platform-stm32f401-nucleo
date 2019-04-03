@@ -181,6 +181,8 @@ int main(void)
     Log::Off(CONSOLE_UART1);
     Log::Off(ACCEL_GYRO_INT);
     Log::Off(ILI9341);
+    Log::Off(IKS01A1_PRESS);
+    Log::Off(PRESS_INT);
     Log::Off(LEVEL_METER);
 
     // Start active objects.
@@ -207,12 +209,14 @@ int main(void)
     Evt *evt;
     evt = new ConsoleStartReq(CONSOLE_UART2, HSM_UNDEF, 0, ConsoleCmd, UART2_ACT, true); //true);
     Fw::Post(evt);
+    // CONSOLE_UART1 must not be started since it is used by WIFI (started in System).
     //evt = new ConsoleStartReq(CONSOLE_UART1, HSM_UNDEF, 0, ConsoleCmd, UART1_ACT, false);
     //Fw::Post(evt);
+
+    //evt = new WifiStartReq(WIFI_ST, HSM_UNDEF, 0, UART1_ACT);
+    //Fw::Post(evt);
+
     evt = new SystemStartReq(SYSTEM, HSM_UNDEF, 0);
-    Fw::Post(evt);
-    // CONSOLE_UART1 must not be started.
-    evt = new WifiStartReq(WIFI_ST, HSM_UNDEF, 0, UART1_ACT);
     Fw::Post(evt);
     return QP::QF::run();
 }

@@ -82,6 +82,9 @@ QState Traffic::Root(Traffic * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
+            // Initialize regions.
+            me->m_lampNS.Init(me);
+            me->m_lampEW.Init(me);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -135,9 +138,6 @@ QState Traffic::Started(Traffic * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
-            // Initialize regions.
-            me->m_lampNS.Init(me);
-            me->m_lampEW.Init(me);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {

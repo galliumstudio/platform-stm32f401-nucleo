@@ -76,6 +76,21 @@ static CmdStatus Test(Console &console, Evt const *e) {
     return CMD_DONE;
 }
 
+static CmdStatus Assert(Console &console, Evt const *e) {
+    switch (e->sig) {
+        case Console::CONSOLE_CMD: {
+            Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
+            if ((ind.Argc() > 1) && STRING_EQUAL(ind.Argv(1), "1234")) {
+                FW_ASSERT(0);
+            } else {
+                console.PutStr("Invalid passcode\n\r");
+            }
+            break;
+        }
+    }
+    return CMD_DONE;
+}
+
 static CmdStatus Hsm(Console &console, Evt const *e) {
     uint32_t &hsmn = console.Var(0);
     switch (e->sig) {
@@ -206,6 +221,7 @@ static CmdStatus Perf(Console &console, Evt const *e) {
 static CmdStatus List(Console &console, Evt const *e);
 static CmdHandler const cmdHandler[] = {
     { "test",       Test,       "Test function", 0 },
+    { "assert",     Assert,     "Trigger assert", 0 },
     { "hsm",        Hsm,        "List all HSMs", 0 },
     { "state",      State,      "List HSM states", 0 },
     { "log",        LogCmd,     "Log control", 0 },
