@@ -243,9 +243,10 @@ QState System::Starting1(System * const me, QEvt const * const e) {
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
 
-            evt = new WifiStartReq(WIFI_ST, SYSTEM, GEN_SEQ(), UART1_ACT);
-            me->GetHsm().SaveOutSeq(*evt);
-            Fw::Post(evt);
+            //evt = new WifiStartReq(WIFI_ST, SYSTEM, GEN_SEQ(), UART1_ACT);
+            //me->GetHsm().SaveOutSeq(*evt);
+            //Fw::Post(evt);
+
 
             // USER LED pin (PA.5) is shared with TFP display SPI clock pin.
             // It must not be enabled when the TFP is used (e.g. in LevelMeter).
@@ -286,7 +287,9 @@ QState System::Starting1(System * const me, QEvt const * const e) {
         }
         case NEXT: {
             EVENT(e);
-            return Q_TRAN(&System::Starting2);
+            //return Q_TRAN(&System::Starting2);
+            return Q_TRAN(&System::Starting3);
+            //return Q_TRAN(&System::Started);
         }
     }
     return Q_SUPER(&System::Starting);
@@ -472,19 +475,19 @@ QState System::Stopping2(System * const me, QEvt const * const e) {
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
 
-            evt = new WifiStopReq(WIFI_ST, SYSTEM, GEN_SEQ());
-            me->GetHsm().SaveOutSeq(*evt);
-            Fw::Post(evt);
+            //evt = new WifiStopReq(WIFI_ST, SYSTEM, GEN_SEQ());
+            //me->GetHsm().SaveOutSeq(*evt);
+            //Fw::Post(evt);
 
-            evt = new SensorStopReq(IKS01A1, SYSTEM, GEN_SEQ());
-            me->GetHsm().SaveOutSeq(*evt);
-            Fw::Post(evt);
+            //evt = new SensorStopReq(IKS01A1, SYSTEM, GEN_SEQ());
+            //me->GetHsm().SaveOutSeq(*evt);
+            //Fw::Post(evt);
 
             // USER LED pin (PA.5) is shared with TFP display SPI clock pin.
             // It must not be enabled when the TFP is used (e.g. in LevelMeter).
-            //evt = new UserLedStopReq(USER_LED, SYSTEM, GEN_SEQ());
-            //me->GetHsm().SaveOutSeq(*evt);
-            //Fw::Post(evt);
+            evt = new UserLedStopReq(USER_LED, SYSTEM, GEN_SEQ());
+            me->GetHsm().SaveOutSeq(*evt);
+            Fw::Post(evt);
 
             // Additional LED pin. It requires additional hardware.
             //evt = new UserLedStopReq(TEST_LED, SYSTEM, GEN_SEQ());

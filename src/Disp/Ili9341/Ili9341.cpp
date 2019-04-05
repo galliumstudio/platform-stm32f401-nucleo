@@ -511,6 +511,7 @@ QState Ili9341::Started(Ili9341 * const me, QEvt const * const e) {
             me->m_container.DelayMs(100);
             me->InitDisp();
             me->SetRotation(0);
+            me->FillScreen(COLOR565_WHITE);
 
             // Test only.
             /*

@@ -2,17 +2,9 @@
 
 namespace APP {
 
-// Illustration only.
-/*
-LedInterval testInterval = {1, 2};
-
-LedPattern testPattern = {
-    2, {{1,2}, {2, 3}}
-};
-*/
-
 LedPatternSet const TEST_LED_PATTERN_SET = {
-    2, 
+	// Change to your own patterns.
+	2,	// Number of patterns.
     {
         // Pattern 0
         {21, 
