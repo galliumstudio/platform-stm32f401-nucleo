@@ -287,9 +287,7 @@ QState System::Starting1(System * const me, QEvt const * const e) {
         }
         case NEXT: {
             EVENT(e);
-            //return Q_TRAN(&System::Starting2);
-            return Q_TRAN(&System::Starting3);
-            //return Q_TRAN(&System::Started);
+            return Q_TRAN(&System::Starting2);
         }
     }
     return Q_SUPER(&System::Starting);
@@ -309,6 +307,10 @@ QState System::Starting2(System * const me, QEvt const * const e) {
         }
         case SENSOR_DELAY_TIMER: {
             EVENT(e);
+
+            // UW 2009 Bypass sensor.
+            return Q_TRAN(&System::Starting3);
+
             me->GetHsm().ResetOutSeq();
 
             Evt *evt = new SensorStartReq(IKS01A1, SYSTEM, GEN_SEQ());
