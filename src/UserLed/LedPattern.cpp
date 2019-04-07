@@ -3,7 +3,7 @@
 namespace APP {
 
 LedPatternSet const TEST_LED_PATTERN_SET = {
-	// Change to your own patterns.
+    // UW 2019 - Change the number of patterns to 4 after appending two of yours below.
 	2,	// Number of patterns.
     {
         // Pattern 0
@@ -20,6 +20,9 @@ LedPatternSet const TEST_LED_PATTERN_SET = {
                 {500,200}, {0, 200}, {500, 200}, {0, 1000}      // two short blinks.
             }
         }
+        // UW 2019 - Add two of your own patterns here.
+        // Pattern 2 ...
+        // Pattern 3 ...
     }
 };
 

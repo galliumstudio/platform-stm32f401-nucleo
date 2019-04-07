@@ -308,8 +308,8 @@ QState System::Starting2(System * const me, QEvt const * const e) {
         case SENSOR_DELAY_TIMER: {
             EVENT(e);
 
-            // UW 2009 Bypass sensor.
-            return Q_TRAN(&System::Starting3);
+            // UW 2009 Bypass sensor and display (level meter).
+            return Q_TRAN(&System::Started);
 
             me->GetHsm().ResetOutSeq();
 

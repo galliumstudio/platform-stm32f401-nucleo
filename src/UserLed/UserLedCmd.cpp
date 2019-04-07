@@ -197,13 +197,21 @@ static CmdStatus On(Console &console, Evt const *e) {
                     repeat = false;
                 }
                 console.Print("pattern = %d, repeat = %d\n\r", pattern, repeat);
-                // UW 2019 Add test code to drive LED.
+                // UW 2019 - Implement the command to display the indexed pattern. If repeat is "0", it is shown once;
+                //           otherwise it is shown 5 times. Handle the case when the index is out of range.
+                //           As a reminder, the set of LED patterns is defined in the structure TEST_LED_PATTERN_SET.
+                // Sample code to show how to use the API to control LED brightness and add delay. Please remove or comment
+                // it when adding your own code.
+                // Being sample code.
                 InitGpio();
-                ConfigPwm(200);
-                Delay(2000);
                 ConfigPwm(1000);
-                Delay(2000);
+                Delay(200);
                 ConfigPwm(0);
+                Delay(200);
+                ConfigPwm(200);
+                Delay(200);
+                ConfigPwm(0);
+                // End sample code.
                 return CMD_DONE;
             }
             console.Print("led on <pattern idx> [0=once,*other=repeat]\n\r");
