@@ -127,10 +127,9 @@ protected:
     ADD_EVT(SPIN_TIMEOUT)
 
 #define AO_WASHING_MACHINE_INTERNAL_EVT \
-    ADD_EVT(iWASH_START) \
-    ADD_EVT(iWASH_CLOSE) \
-    ADD_EVT(iWASH_OPEN) \
-    ADD_EVT(iWASH_DONE)
+    ADD_EVT(WASH_CLOSE) \
+    ADD_EVT(WASH_OPEN) \
+    ADD_EVT(WASH_DONE)
 
 #undef ADD_EVT
 #define ADD_EVT(e_) e_,

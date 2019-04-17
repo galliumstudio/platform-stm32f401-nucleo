@@ -282,8 +282,9 @@ QState AOWashingMachine::DoorOpen(AOWashingMachine * const me, QEvt const * cons
         {
             EVENT(e);
             me->m_doorState = DOOR_OPEN;
-            Evt *evt = new UserLedOffReq(USER_LED, GET_HSMN(), GEN_SEQ());
-            Fw::Post(evt);
+            // UW 2019
+            //Evt *evt = new UserLedOffReq(USER_LED, GET_HSMN(), GEN_SEQ());
+            //Fw::Post(evt);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG:
@@ -300,11 +301,11 @@ QState AOWashingMachine::DoorOpen(AOWashingMachine * const me, QEvt const * cons
         case CLOSE_DOOR_IND:
         {
             EVENT(e);
-            Evt *evt = new Evt(iWASH_CLOSE, GET_HSMN(), GET_HSMN());
-            me->postLIFO(evt);
+            Evt *evt = new Evt(WASH_CLOSE, GET_HSMN(), GET_HSMN());
+            me->PostSync(evt);
             return Q_HANDLED();
         }
-        case iWASH_CLOSE:
+        case WASH_CLOSE:
         {
             return Q_TRAN(&AOWashingMachine::DoorClosed);
         }
@@ -341,7 +342,7 @@ QState AOWashingMachine::DoorClosed(AOWashingMachine * const me, QEvt const * co
         {
             return Q_TRAN(&AOWashingMachine::DoorUnlocked);
         }
-        case iWASH_OPEN:
+        case WASH_OPEN:
         {
             return Q_TRAN(&AOWashingMachine::DoorOpen);
         }
@@ -367,8 +368,9 @@ QState AOWashingMachine::DoorUnlocked(AOWashingMachine * const me, QEvt const * 
         {
             EVENT(e);
             me->UnlockDoor();
-            Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 0, true);
-            Fw::Post(evt);
+            // UW 2019
+            //Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 0, true);
+            //Fw::Post(evt);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG:
@@ -379,8 +381,8 @@ QState AOWashingMachine::DoorUnlocked(AOWashingMachine * const me, QEvt const * 
         case OPEN_DOOR_IND:
         {
             EVENT(e);
-            Evt *evt = new Evt(iWASH_OPEN, GET_HSMN(), GET_HSMN());
-            me->postLIFO(evt);
+            Evt *evt = new Evt(WASH_OPEN, GET_HSMN(), GET_HSMN());
+            me->PostSync(evt);
             return Q_HANDLED();
         }
         case START_PAUSE_BUTTON_IND:
@@ -413,8 +415,9 @@ QState AOWashingMachine::DoorLocked(AOWashingMachine * const me, QEvt const * co
         {
             EVENT(e);
             me->LockDoor();
-            Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 1, true);
-            Fw::Post(evt);
+            // UW 2019
+            //Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 1, true);
+            //Fw::Post(evt);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG:
@@ -433,7 +436,7 @@ QState AOWashingMachine::DoorLocked(AOWashingMachine * const me, QEvt const * co
             PRINT("Can't open door while locked!!\r\n");
             return Q_HANDLED();
         }
-        case iWASH_DONE:
+        case WASH_DONE:
         {
             return Q_TRAN(&AOWashingMachine::DoorUnlocked);
         }
@@ -693,8 +696,8 @@ QState AOWashingMachine::Spinning(AOWashingMachine * const me, QEvt const * cons
         {
             EVENT(e);
             me->m_history = &FillingWash;
-            Evt *evt = new Evt(iWASH_DONE, GET_HSMN(), GET_HSMN());
-            me->postLIFO(evt);
+            Evt *evt = new Evt(WASH_DONE, GET_HSMN(), GET_HSMN());
+            me->PostSync(evt);
             return Q_HANDLED();
         }
     }

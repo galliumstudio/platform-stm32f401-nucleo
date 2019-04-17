@@ -239,9 +239,9 @@ QState UserLed::Started(UserLed * const me, QEvt const * const e) {
             me->DeInitGpio();
             return Q_HANDLED();
         }
-        //case Q_INIT_SIG: {
-        //    return Q_TRAN(&UserLed::Idle);
-        //}
+        case Q_INIT_SIG: {
+            return Q_TRAN(&UserLed::Idle);
+        }
         case USER_LED_STOP_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
@@ -249,8 +249,145 @@ QState UserLed::Started(UserLed * const me, QEvt const * const e) {
             Fw::Post(evt);
             return Q_TRAN(&UserLed::Stopped);
         }
+        case USER_LED_PATTERN_REQ: {
+            EVENT(e);
+            UserLedPatternReq const &req = static_cast<UserLedPatternReq const &>(*e);
+            LedPattern const *pattern = me->m_config->patternSet.GetPattern(req.GetPatternIndex());
+            if (pattern) {
+                // UW 2019
+                // ...
+                Evt *evt = new UserLedPatternCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+                Fw::Post(evt);
+                return Q_TRAN(&UserLed::Active);
+            } else {
+                Evt *evt = new UserLedPatternCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_PARAM, GET_HSMN(), USER_LED_REASON_INVALID_PATTERN);
+                Fw::Post(evt);
+                return Q_HANDLED();
+            }
+        }        
     }
     return Q_SUPER(&UserLed::Root);
+}
+
+QState UserLed::Idle(UserLed * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            // UW 2019
+            // ...
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            return Q_HANDLED();
+        }
+        case USER_LED_OFF_REQ: {
+            EVENT(e);
+            Evt const &req = EVT_CAST(*e);
+            Evt *evt = new UserLedOffCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+            Fw::Post(evt);
+            return Q_HANDLED();
+        }        
+    }
+    return Q_SUPER(&UserLed::Started);
+}
+
+QState UserLed::Active(UserLed * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            // UW 2019
+            // FW_ASSERT(me->m_currPattern);
+            // ...
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            // UW 2019
+            // ...
+            return Q_HANDLED();
+        }
+        case Q_INIT_SIG: {
+            if (me->m_isRepeat) {
+                return Q_TRAN(&UserLed::Repeating);
+            } else {
+                return Q_TRAN(&UserLed::Once);
+            }
+        }
+        case USER_LED_OFF_REQ: {
+            EVENT(e);
+            Evt const &req = EVT_CAST(*e);
+            Evt *evt = new UserLedOffCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+            Fw::Post(evt);
+            evt = new Evt(DONE, GET_HSMN(), GET_HSMN());
+            me->PostSync(evt);
+            return Q_HANDLED();
+        }
+        case INTERVAL_TIMER: {
+            EVENT(e);
+            // UW 2019
+            // ...
+            return Q_HANDLED();
+        }
+
+        // UW 2019
+        // Handle NEXT_INTERVAL (see DONE below for example).
+        /*
+        case NEXT_INTERVAL: {
+            EVENT(e);
+            ...
+        }
+        */
+
+        // UW 2019
+        // Handle LAST_INTERVAL (see DONE below for example).
+        /*
+        case LAST_INTERVAL: {
+            EVENT(e);
+            ...
+        }
+        */
+
+        case DONE: {
+            EVENT(e);
+            return Q_TRAN(&UserLed::Idle);
+        }   
+    }
+    return Q_SUPER(&UserLed::Started);
+}
+
+QState UserLed::Repeating(UserLed * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            return Q_HANDLED();
+        }
+    }
+    return Q_SUPER(&UserLed::Active);
+}
+
+QState UserLed::Once(UserLed * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            return Q_HANDLED();
+        }
+        case LAST_INTERVAL: {
+            EVENT(e);
+            // UW 2019
+            // ...
+            return Q_HANDLED();
+        }        
+    }
+    return Q_SUPER(&UserLed::Active);
 }
 
 /*
