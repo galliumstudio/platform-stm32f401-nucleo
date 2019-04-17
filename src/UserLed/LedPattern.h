@@ -34,7 +34,7 @@ public:
     }
 
     // Returns a reference to the indexed LED interval object.
-    // Use FW_ASSERT() to ensure index is in range.
+    // Use LED_PATTERN_ASSERT() to ensure index is in range.
     LedInterval const &GetInterval(uint32_t index) const {
         return ...
     }
