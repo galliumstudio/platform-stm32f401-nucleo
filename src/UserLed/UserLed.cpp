@@ -254,8 +254,9 @@ QState UserLed::Started(UserLed * const me, QEvt const * const e) {
             UserLedPatternReq const &req = static_cast<UserLedPatternReq const &>(*e);
             LedPattern const *pattern = me->m_config->patternSet.GetPattern(req.GetPatternIndex());
             if (pattern) {
-                // UW 2019
-                // ...
+                me->m_isRepeat = req.IsRepeat();
+                me->m_intervalIndex = 0;
+                me->m_currPattern = pattern;
                 Evt *evt = new UserLedPatternCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
                 Fw::Post(evt);
                 return Q_TRAN(&UserLed::Active);
@@ -273,8 +274,7 @@ QState UserLed::Idle(UserLed * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
-            // UW 2019
-            // ...
+            me->ConfigPwm(0);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -296,15 +296,15 @@ QState UserLed::Active(UserLed * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
-            // UW 2019
-            // FW_ASSERT(me->m_currPattern);
-            // ...
+            FW_ASSERT(me->m_currPattern);
+            LedInterval const &currInterval = me->m_currPattern->GetInterval(me->m_intervalIndex);                        
+            me->m_intervalTimer.Start(currInterval.GetDurationMs());
+            me->ConfigPwm(currInterval.GetLevelPermil());
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
             EVENT(e);
-            // UW 2019
-            // ...
+            me->m_intervalTimer.Stop();
             return Q_HANDLED();
         }
         case Q_INIT_SIG: {
@@ -325,29 +325,29 @@ QState UserLed::Active(UserLed * const me, QEvt const * const e) {
         }
         case INTERVAL_TIMER: {
             EVENT(e);
-            // UW 2019
-            // ...
+            uint32_t intervalCount = me->m_currPattern->GetCount();
+            FW_ASSERT(intervalCount > 0);
+            if (me->m_intervalIndex < (intervalCount - 1)) {
+                Evt *evt = new Evt(NEXT_INTERVAL, GET_HSMN(), GET_HSMN());
+                me->PostSync(evt);
+            } else if (me->m_intervalIndex == (intervalCount - 1)) {
+                Evt *evt = new Evt(LAST_INTERVAL, GET_HSMN(), GET_HSMN());
+                me->PostSync(evt);
+            } else {
+                FW_ASSERT(0);
+            }                
             return Q_HANDLED();
         }
-
-        // UW 2019
-        // Handle NEXT_INTERVAL (see DONE below for example).
-        /*
         case NEXT_INTERVAL: {
             EVENT(e);
-            ...
+            me->m_intervalIndex++;
+            return Q_TRAN(&UserLed::Active);
         }
-        */
-
-        // UW 2019
-        // Handle LAST_INTERVAL (see DONE below for example).
-        /*
         case LAST_INTERVAL: {
             EVENT(e);
-            ...
-        }
-        */
-
+            me->m_intervalIndex = 0;
+            return Q_TRAN(&UserLed::Active);
+        }       
         case DONE: {
             EVENT(e);
             return Q_TRAN(&UserLed::Idle);
@@ -382,8 +382,8 @@ QState UserLed::Once(UserLed * const me, QEvt const * const e) {
         }
         case LAST_INTERVAL: {
             EVENT(e);
-            // UW 2019
-            // ...
+            Evt *evt = new Evt(DONE, GET_HSMN(), GET_HSMN());
+            me->PostSync(evt);
             return Q_HANDLED();
         }        
     }
