@@ -39,6 +39,7 @@
 #include "app_hsmn.h"
 #include "fw_log.h"
 #include "fw_assert.h"
+#include "DispInterface.h"
 #include "LampInterface.h"
 #include "Lamp.h"
 
@@ -104,6 +105,19 @@ QState Lamp::Red(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[*][ ][ ]");
+
+            char const *buf;
+            uint32_t xoff = 10;
+            if (GET_HSMN() == LAMP_NS) {
+                buf = "NS";
+            } else {
+                buf = "EW";
+                xoff = 120;
+            }
+            //Evt *evt = new DispDrawTextReq(ILI9341, GET_HSMN(), buf, xoff, 90, COLOR24_RED, COLOR24_WHITE, 3);
+            Evt *evt = new DispDrawRectReq(ILI9341, GET_HSMN(), xoff, 90, 50,50, COLOR24_RED);
+            Fw::Post(evt);
+
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -123,6 +137,19 @@ QState Lamp::Green(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[ ][ ][*]");
+
+            char const *buf;
+            uint32_t xoff = 10;
+            if (GET_HSMN() == LAMP_NS) {
+                buf = "NS";
+            } else {
+                buf = "EW";
+                xoff = 120;
+            }
+            //Evt *evt = new DispDrawTextReq(ILI9341, GET_HSMN(), buf, xoff, 90 + 100, COLOR24_GREEN, COLOR24_WHITE, 3);
+            Evt *evt = new DispDrawRectReq(ILI9341, GET_HSMN(), xoff, 90 + 100, 50,50, COLOR24_GREEN);
+            Fw::Post(evt);
+
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -142,6 +169,19 @@ QState Lamp::Yellow(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[ ][*][ ]");
+
+            char const *buf;
+            uint32_t xoff = 10;
+            if (GET_HSMN() == LAMP_NS) {
+                buf = "NS";
+            } else {
+                buf = "EW";
+                xoff = 120;
+            }
+            Evt *evt = new DispDrawTextReq(ILI9341, GET_HSMN(), buf, xoff, 90 + 50, COLOR24_YELLOW, COLOR24_WHITE, 3);
+            Fw::Post(evt);
+
+
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {

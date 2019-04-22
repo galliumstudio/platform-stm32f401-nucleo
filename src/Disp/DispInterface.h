@@ -82,6 +82,7 @@ enum {
 #define COLOR24_RED          0xFF0000
 #define COLOR24_GREEN        0x00FF00
 #define COLOR24_BLUE         0x0000FF
+#define COLOR24_YELLOW       0xFFFF00
 
 class DispStartReq : public Evt {
 public:
