@@ -254,7 +254,7 @@ valign=top
 entry / LockDoor()
 CYCLE_SELECTED_IND / ErrorBeep()
 OPEN_DOOR_IND / PrintError("cannot open while door is locked")
-START_PAUSE_BUTTON_IND / ^WASH_DELAY
+START_PAUSE_BUTTON_IND / ^^WASH_DELAY
     
 valign=top
 </panel_attributes>
