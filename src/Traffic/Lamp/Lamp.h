@@ -62,6 +62,9 @@ protected:
         static QState Yellow(Lamp * const me, QEvt const * const e);
         static QState Off(Lamp * const me, QEvt const * const e);
 
+    // Helper functions
+    void Draw(Hsmn hsm, bool redOn, bool yellowOn, bool greenOn);
+
 // Placeholders
 #define LAMP_TIMER_EVT \
     ADD_EVT(STATE_TIMER)

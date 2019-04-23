@@ -65,6 +65,31 @@ static char const * const interfaceEvtName[] = {
     LAMP_INTERFACE_EVT
 };
 
+// Helper functions.
+void Lamp::Draw(Hsmn hsmn, bool redOn, bool yellowOn, bool greenOn) {
+    char const *buf;
+    uint32_t xOffset;
+    if (hsmn == LAMP_NS) {
+        buf = "NS";
+        xOffset = 10;
+    } else {
+        buf = "EW";
+        xOffset = 120;
+    }
+    // Draw label text.
+    Evt *evt = new DispDrawTextReq(ILI9341, hsmn, buf, xOffset, 50, COLOR24_BLACK, COLOR24_WHITE, 3);
+    Fw::Post(evt);
+    // Draw red lamp.
+    evt = new DispDrawRectReq(ILI9341, hsmn, xOffset, 100, 50, 50, redOn ? COLOR24_RED : COLOR24_BLACK);
+    Fw::Post(evt);
+    // Draw red lamp.
+    evt = new DispDrawRectReq(ILI9341, hsmn, xOffset, 155, 50, 50, yellowOn ? COLOR24_YELLOW : COLOR24_BLACK);
+    Fw::Post(evt);
+    // Draw red lamp.
+    evt = new DispDrawRectReq(ILI9341, hsmn, xOffset, 210, 50, 50, greenOn ? COLOR24_GREEN : COLOR24_BLACK);
+    Fw::Post(evt);
+}
+
 Lamp::Lamp(Hsmn hsmn, char const *name) :
     Region((QStateHandler)&Lamp::InitialPseudoState, hsmn, name) {
     SET_EVT_NAME(LAMP);
@@ -88,6 +113,7 @@ QState Lamp::Root(Lamp * const me, QEvt const * const e) {
         case Q_INIT_SIG: {
             return Q_TRAN(&Lamp::Red);
         }
+        case LAMP_RESET_REQ:
         case LAMP_RED_REQ: {
             EVENT(e);
             return Q_TRAN(&Lamp::Red);
@@ -105,19 +131,7 @@ QState Lamp::Red(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[*][ ][ ]");
-
-            char const *buf;
-            uint32_t xoff = 10;
-            if (GET_HSMN() == LAMP_NS) {
-                buf = "NS";
-            } else {
-                buf = "EW";
-                xoff = 120;
-            }
-            //Evt *evt = new DispDrawTextReq(ILI9341, GET_HSMN(), buf, xoff, 90, COLOR24_RED, COLOR24_WHITE, 3);
-            Evt *evt = new DispDrawRectReq(ILI9341, GET_HSMN(), xoff, 90, 50,50, COLOR24_RED);
-            Fw::Post(evt);
-
+            me->Draw(GET_HSMN(), true, false, false);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -137,19 +151,7 @@ QState Lamp::Green(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[ ][ ][*]");
-
-            char const *buf;
-            uint32_t xoff = 10;
-            if (GET_HSMN() == LAMP_NS) {
-                buf = "NS";
-            } else {
-                buf = "EW";
-                xoff = 120;
-            }
-            //Evt *evt = new DispDrawTextReq(ILI9341, GET_HSMN(), buf, xoff, 90 + 100, COLOR24_GREEN, COLOR24_WHITE, 3);
-            Evt *evt = new DispDrawRectReq(ILI9341, GET_HSMN(), xoff, 90 + 100, 50,50, COLOR24_GREEN);
-            Fw::Post(evt);
-
+            me->Draw(GET_HSMN(), false, false, true);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -169,19 +171,7 @@ QState Lamp::Yellow(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[ ][*][ ]");
-
-            char const *buf;
-            uint32_t xoff = 10;
-            if (GET_HSMN() == LAMP_NS) {
-                buf = "NS";
-            } else {
-                buf = "EW";
-                xoff = 120;
-            }
-            Evt *evt = new DispDrawTextReq(ILI9341, GET_HSMN(), buf, xoff, 90 + 50, COLOR24_YELLOW, COLOR24_WHITE, 3);
-            Fw::Post(evt);
-
-
+            me->Draw(GET_HSMN(), false, true, false);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -197,6 +187,7 @@ QState Lamp::Off(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[ ][ ][ ]");
+            me->Draw(GET_HSMN(), false, false, false);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {

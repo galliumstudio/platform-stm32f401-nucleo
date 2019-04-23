@@ -127,15 +127,15 @@ QState Traffic::Stopped(Traffic * const me, QEvt const * const e) {
         case TRAFFIC_START_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
-            Evt *evt = new TrafficStartCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
-            Fw::Post(evt);
 
             // @todo Need to wait for response.
-            evt = new DispStartReq(ILI9341, GET_HSMN(), GEN_SEQ());
+            Evt *evt = new DispStartReq(ILI9341, GET_HSMN(), GEN_SEQ());
             Fw::Post(evt);
             evt = new DispDrawBeginReq(ILI9341, GET_HSMN(), GEN_SEQ());
             Fw::Post(evt);
 
+            evt = new TrafficStartCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+            Fw::Post(evt);
             return Q_TRAN(&Traffic::Started);
         }
     }
@@ -158,7 +158,18 @@ QState Traffic::Started(Traffic * const me, QEvt const * const e) {
         case TRAFFIC_STOP_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
-            Evt *evt = new TrafficStopCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+
+            // @todo Need to wait for response.
+            Evt *evt = new LampResetReq(LAMP_NS, GET_HSMN());
+            me->PostSync(evt);
+            evt = new LampResetReq(LAMP_EW, GET_HSMN());
+            me->PostSync(evt);
+
+            // @todo Need to wait for response.
+            evt = new DispStopReq(ILI9341, GET_HSMN(), GEN_SEQ());
+            Fw::Post(evt);
+
+            evt = new TrafficStopCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
             Fw::Post(evt);
             return Q_TRAN(&Traffic::Stopped);
         }

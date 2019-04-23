@@ -250,9 +250,9 @@ QState System::Starting1(System * const me, QEvt const * const e) {
 
             // USER LED pin (PA.5) is shared with TFP display SPI clock pin.
             // It must not be enabled when the TFP is used (e.g. in LevelMeter).
-            evt = new UserLedStartReq(USER_LED, SYSTEM, GEN_SEQ());
-            me->GetHsm().SaveOutSeq(*evt);
-            Fw::Post(evt);
+            //evt = new UserLedStartReq(USER_LED, SYSTEM, GEN_SEQ());
+            //me->GetHsm().SaveOutSeq(*evt);
+            //Fw::Post(evt);
 
             // Additional LED pin. It requires additional hardware.
             //evt = new UserLedStartReq(TEST_LED, SYSTEM, GEN_SEQ());
@@ -477,13 +477,13 @@ QState System::Stopping2(System * const me, QEvt const * const e) {
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
 
-            //evt = new WifiStopReq(WIFI_ST, SYSTEM, GEN_SEQ());
-            //me->GetHsm().SaveOutSeq(*evt);
-            //Fw::Post(evt);
+            evt = new WifiStopReq(WIFI_ST, SYSTEM, GEN_SEQ());
+            me->GetHsm().SaveOutSeq(*evt);
+            Fw::Post(evt);
 
-            //evt = new SensorStopReq(IKS01A1, SYSTEM, GEN_SEQ());
-            //me->GetHsm().SaveOutSeq(*evt);
-            //Fw::Post(evt);
+            evt = new SensorStopReq(IKS01A1, SYSTEM, GEN_SEQ());
+            me->GetHsm().SaveOutSeq(*evt);
+            Fw::Post(evt);
 
             // USER LED pin (PA.5) is shared with TFP display SPI clock pin.
             // It must not be enabled when the TFP is used (e.g. in LevelMeter).
