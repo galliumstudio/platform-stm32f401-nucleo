@@ -54,7 +54,9 @@ namespace APP {
     ADD_EVT(GPIO_IN_STOP_REQ) \
     ADD_EVT(GPIO_IN_STOP_CFM) \
     ADD_EVT(GPIO_IN_INACTIVE_IND) \
-    ADD_EVT(GPIO_IN_ACTIVE_IND)
+    ADD_EVT(GPIO_IN_ACTIVE_IND) \
+    ADD_EVT(GPIO_IN_PULSE_IND) \
+    ADD_EVT(GPIO_IN_HOLD_IND)
 
 #undef ADD_EVT
 #define ADD_EVT(e_) e_,
@@ -101,6 +103,18 @@ public:
     GpioInStopCfm(Hsmn to, Hsmn from, Sequence seq,
                    Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
         ErrorEvt(GPIO_IN_STOP_CFM, to, from, seq, error, origin, reason) {}
+};
+
+class GpioInPulseInd : public Evt {
+public:
+    GpioInPulseInd(Hsmn to, Hsmn from, Sequence seq) :
+        Evt(GPIO_IN_PULSE_IND, to, from, seq) {}
+};
+
+class GpioInHoldInd : public Evt {
+public:
+    GpioInHoldInd(Hsmn to, Hsmn from, Sequence seq) :
+        Evt(GPIO_IN_HOLD_IND, to, from, seq) {}
 };
 
 } // namespace APP

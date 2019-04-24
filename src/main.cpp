@@ -184,6 +184,7 @@ int main(void)
     Log::Off(IKS01A1_PRESS);
     Log::Off(PRESS_INT);
     Log::Off(LEVEL_METER);
+    //Log::Off(USER_BTN);
 
     // Start active objects.
     compositeAct.Start(PRIO_COMPOSITE_ACT);

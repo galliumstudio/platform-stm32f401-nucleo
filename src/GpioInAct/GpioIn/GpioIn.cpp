@@ -203,7 +203,8 @@ bool GpioIn::IsActive() {
 GpioIn::GpioIn() :
     Region((QStateHandler)&GpioIn::InitialPseudoState, GetCurrHsmn(), GetName(GetCurrHsmn())),
     m_config(NULL), m_client(HSM_UNDEF), m_debouncing(true),
-    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {
+    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER), m_pulseTimer(GetHsm().GetHsmn(), PULSE_TIMER),
+    m_holdTimer(GetHsm().GetHsmn(), HOLD_TIMER) {
     SET_EVT_NAME(GPIO_IN);
     uint32_t i;
     for (i = 0; i < ARRAY_COUNT(CONFIG); i++) {
@@ -348,6 +349,9 @@ QState GpioIn::Active(GpioIn * const me, QEvt const * const e) {
             EVENT(e);
             return Q_HANDLED();
         }
+        case Q_INIT_SIG: {
+            return Q_TRAN(&GpioIn::PulseWait);
+        }
         case TRIGGER: {
             EVENT(e);
             EnableGpioInt(me->m_config->pin);
@@ -359,11 +363,73 @@ QState GpioIn::Active(GpioIn * const me, QEvt const * const e) {
             }
             return Q_HANDLED();
         }
+        case HOLD_TIMER: {
+            return Q_TRAN(&GpioIn::Held);
+        }
         case PIN_INACTIVE: {
             return Q_TRAN(&GpioIn::Inactive);
         }
     }
     return Q_SUPER(&GpioIn::Started);;
+}
+
+QState GpioIn::PulseWait(GpioIn * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            me->m_pulseTimer.Start(PULSE_TIMEOUT_MS);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            me->m_pulseTimer.Stop();
+            return Q_HANDLED();
+        }
+        case PULSE_TIMER: {
+            return Q_TRAN(&GpioIn::HoldWait);
+        }
+    }
+    return Q_SUPER(&GpioIn::Active);
+}
+
+
+QState GpioIn::HoldWait(GpioIn * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            me->m_holdTimer.Start(HOLD_TIMEOUT_MS);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            me->m_holdTimer.Stop();
+            return Q_HANDLED();
+        }
+        case PIN_INACTIVE: {
+            Evt *evt = new GpioInPulseInd(me->m_client, GET_HSMN(), GEN_SEQ());
+            Fw::Post(evt);
+            return Q_TRAN(&GpioIn::Inactive);
+        }
+    }
+    return Q_SUPER(&GpioIn::Active);
+}
+
+QState GpioIn::Held(GpioIn * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            Evt *evt = new GpioInHoldInd(me->m_client, GET_HSMN(), GEN_SEQ());
+            Fw::Post(evt);
+            me->m_holdTimer.Start(HOLD_TIMEOUT_MS);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            me->m_holdTimer.Stop();
+            return Q_HANDLED();
+        }
+    }
+    return Q_SUPER(&GpioIn::Active);
 }
 
 /*

@@ -537,6 +537,20 @@ QState System::Started(System * const me, QEvt const * const e) {
             EVENT(e);
             return Q_HANDLED();
         }
+        case GPIO_IN_PULSE_IND: {
+            EVENT(e);
+            LOG("Car arriving in NS direction");
+            Evt *evt = new TrafficCarNSReq(TRAFFIC, GET_HSMN());
+            Fw::Post(evt);
+            return Q_HANDLED();
+        }
+        case GPIO_IN_HOLD_IND: {
+            EVENT(e);
+            LOG("Car arriving in EW direction");
+            Evt *evt = new TrafficCarEWReq(TRAFFIC, GET_HSMN());
+            Fw::Post(evt);
+            return Q_HANDLED();
+        }
     }
     return Q_SUPER(&System::Root);
 }

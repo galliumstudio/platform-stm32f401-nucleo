@@ -68,6 +68,9 @@ protected:
         static QState Started(GpioIn * const me, QEvt const * const e);
             static QState Inactive(GpioIn * const me, QEvt const * const e);
             static QState Active(GpioIn * const me, QEvt const * const e);
+                static QState PulseWait(GpioIn * const me, QEvt const * const e);
+                static QState HoldWait(GpioIn * const me, QEvt const * const e);
+                static QState Held(GpioIn * const me, QEvt const * const e);
 
     void InitGpio();
     void DeInitGpio();
@@ -86,10 +89,20 @@ protected:
     Config const *m_config;
     Hsmn m_client;
     bool m_debouncing;      // True to enable debouncing.
+
+    enum {
+        PULSE_TIMEOUT_MS = 50,
+        HOLD_TIMEOUT_MS = 1000
+    };
+
     Timer m_stateTimer;
+    Timer m_pulseTimer;
+    Timer m_holdTimer;
 
 #define GPIO_IN_TIMER_EVT \
-    ADD_EVT(STATE_TIMER)
+    ADD_EVT(STATE_TIMER) \
+    ADD_EVT(PULSE_TIMER) \
+    ADD_EVT(HOLD_TIMER)
 
 #define GPIO_IN_INTERNAL_EVT \
     ADD_EVT(DONE) \
