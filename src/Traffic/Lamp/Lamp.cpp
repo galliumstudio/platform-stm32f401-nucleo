@@ -131,7 +131,7 @@ QState Lamp::Red(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[*][ ][ ]");
-            me->Draw(GET_HSMN(), true, false, false);
+            // UW 2019 Call me->Draw(GET_HSMN(), ...)
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -151,7 +151,7 @@ QState Lamp::Green(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[ ][ ][*]");
-            me->Draw(GET_HSMN(), false, false, true);
+            // UW 2019 Call me->Draw(GET_HSMN(), ...)
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -171,7 +171,7 @@ QState Lamp::Yellow(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[ ][*][ ]");
-            me->Draw(GET_HSMN(), false, true, false);
+            // UW 2019 Call me->Draw(GET_HSMN(), ...)
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
@@ -187,7 +187,7 @@ QState Lamp::Off(Lamp * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             LOG("[ ][ ][ ]");
-            me->Draw(GET_HSMN(), false, false, false);
+            // UW 2019 Call me->Draw(GET_HSMN(), ...)
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {

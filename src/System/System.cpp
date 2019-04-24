@@ -308,7 +308,7 @@ QState System::Starting2(System * const me, QEvt const * const e) {
         case SENSOR_DELAY_TIMER: {
             EVENT(e);
 
-            // UW 2009 Bypass sensor and display (level meter).
+            // Bypass sensor and display (level meter).
             return Q_TRAN(&System::Started);
 
             me->GetHsm().ResetOutSeq();
@@ -537,20 +537,8 @@ QState System::Started(System * const me, QEvt const * const e) {
             EVENT(e);
             return Q_HANDLED();
         }
-        case GPIO_IN_PULSE_IND: {
-            EVENT(e);
-            LOG("Car arriving in NS direction");
-            Evt *evt = new TrafficCarNSReq(TRAFFIC, GET_HSMN());
-            Fw::Post(evt);
-            return Q_HANDLED();
-        }
-        case GPIO_IN_HOLD_IND: {
-            EVENT(e);
-            LOG("Car arriving in EW direction");
-            Evt *evt = new TrafficCarEWReq(TRAFFIC, GET_HSMN());
-            Fw::Post(evt);
-            return Q_HANDLED();
-        }
+        // UW 2019 Use GPIO_IN_PULSE_IND to simulate TRAFFIC_CAR_NS_REQ (TrafficCarNsReq).
+        //         Use GPIO_IN_HOLD_IND to simulate TRAFFIC_CAR_EW_REQ (TrafficCarEwReq).
     }
     return Q_SUPER(&System::Root);
 }
