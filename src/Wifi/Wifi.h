@@ -54,7 +54,8 @@ public:
 
 protected:
 #define WIFI_TIMER_EVT \
-    ADD_EVT(STATE_TIMER)
+    ADD_EVT(STATE_TIMER) \
+    ADD_EVT(TEST_TIMER)
 
 #define WIFI_INTERNAL_EVT \
     ADD_EVT(DONE) \

@@ -65,6 +65,8 @@ protected:
             static QState Normal(WifiSt * const me, QEvt const * const e);
             static QState Interactive(WifiSt * const me, QEvt const * const e);
 
+    void Write(char *const atCmd);
+
     Hsmn m_ifHsmn;          // HSMN of the interface active object.
     Hsmn m_outIfHsmn;       // HSMN of the output interface region.
     Hsmn m_consoleOutIfHsmn; // HSMN of the console output interface used to output
@@ -78,8 +80,13 @@ protected:
     uint8_t m_inFifoStor[1 << IN_FIFO_ORDER];
     Fifo m_outFifo;
     Fifo m_inFifo;
+    uint32_t testCnt;
 
+    enum {
+        TEST_TIMEOUT_MS = 500,
+    };
     Timer m_stateTimer;
+    Timer m_testTimer;
 };
 
 } // namespace APP

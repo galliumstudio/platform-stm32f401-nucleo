@@ -59,6 +59,62 @@ static CmdStatus Test(Console &console, Evt const *e) {
     return CMD_DONE;
 }
 
+static CmdStatus Conn(Console &console, Evt const *e) {
+    Hsm &hsm = console.GetHsm();
+    switch (e->sig) {
+        case Console::CONSOLE_CMD: {
+            Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
+            if (ind.Argc() < 3) {
+                console.PutStr("wifi conn <host> <port>\n\r");
+                return CMD_DONE;
+            }
+            char const *host = ind.Argv(1);
+            uint16_t port = STRING_TO_NUM(ind.Argv(2), 0);
+            Evt *evt = new WifiConnectReq(WIFI_ST, hsm.GetHsmn(), hsm.GenSeq(), host, port);
+            Fw::Post(evt);
+            break;
+        }
+        // @todo - Wait for cfm.
+    }
+    //return CMD_CONTINUE;
+    return CMD_DONE;
+}
+
+static CmdStatus Disc(Console &console, Evt const *e) {
+    Hsm &hsm = console.GetHsm();
+    switch (e->sig) {
+        case Console::CONSOLE_CMD: {
+            Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
+            Evt *evt = new WifiDisconnectReq(WIFI_ST, hsm.GetHsmn(), hsm.GenSeq());
+            Fw::Post(evt);
+            break;
+        }
+        // @todo - Wait for cfm.
+    }
+    //return CMD_CONTINUE;
+    return CMD_DONE;
+}
+
+static CmdStatus Send(Console &console, Evt const *e) {
+    Hsm &hsm = console.GetHsm();
+    switch (e->sig) {
+        case Console::CONSOLE_CMD: {
+            Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
+            if (ind.Argc() < 2) {
+                console.PutStr("wifi send <text>\n\r");
+                return CMD_DONE;
+            }
+            char const *text = ind.Argv(1);
+            Evt *evt = new WifiSendReq(WIFI_ST, hsm.GetHsmn(), hsm.GenSeq(), text);
+            Fw::Post(evt);
+            break;
+        }
+        // @todo - Wait for cfm.
+    }
+    //return CMD_CONTINUE;
+    return CMD_DONE;
+}
+
 static CmdStatus Interact(Console &console, Evt const *e) {
     enum {
         STATE_WAIT,
@@ -116,6 +172,9 @@ static CmdStatus Interact(Console &console, Evt const *e) {
 static CmdStatus List(Console &console, Evt const *e);
 static CmdHandler const cmdHandler[] = {
     { "test",       Test,       "Test function", 0 },
+    { "conn",       Conn,       "Connect to host", 0 },
+    { "disc",       Disc,       "Disconnect", 0 },
+    { "send",       Send,       "Send", 0 },
     { "interact",   Interact,   "Interactive mode", 0 },
     { "?",          List,       "List commands", 0 },
 };

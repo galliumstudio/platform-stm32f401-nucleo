@@ -235,17 +235,17 @@ QState System::Starting1(System * const me, QEvt const * const e) {
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
 
-            evt = new TrafficStartReq(TRAFFIC, SYSTEM, GEN_SEQ());
-            me->GetHsm().SaveOutSeq(*evt);
-            Fw::Post(evt);
+            //evt = new TrafficStartReq(TRAFFIC, SYSTEM, GEN_SEQ());
+            //me->GetHsm().SaveOutSeq(*evt);
+            //Fw::Post(evt);
 
             evt = new GpioInStartReq(USER_BTN, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
 
-            //evt = new WifiStartReq(WIFI_ST, SYSTEM, GEN_SEQ(), UART1_ACT);
-            //me->GetHsm().SaveOutSeq(*evt);
-            //Fw::Post(evt);
+            evt = new WifiStartReq(WIFI_ST, SYSTEM, GEN_SEQ(), UART1_ACT);
+            me->GetHsm().SaveOutSeq(*evt);
+            Fw::Post(evt);
 
 
             // USER LED pin (PA.5) is shared with TFP display SPI clock pin.
