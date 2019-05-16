@@ -235,9 +235,9 @@ QState System::Starting1(System * const me, QEvt const * const e) {
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
 
-            //evt = new TrafficStartReq(TRAFFIC, SYSTEM, GEN_SEQ());
-            //me->GetHsm().SaveOutSeq(*evt);
-            //Fw::Post(evt);
+            evt = new TrafficStartReq(TRAFFIC, SYSTEM, GEN_SEQ());
+            me->GetHsm().SaveOutSeq(*evt);
+            Fw::Post(evt);
 
             evt = new GpioInStartReq(USER_BTN, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
