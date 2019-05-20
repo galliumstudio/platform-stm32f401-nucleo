@@ -324,7 +324,6 @@ QState WifiSt::Normal(WifiSt * const me, QEvt const * const e) {
                 FW_ASSERT(len < sizeof(buf));
                 buf[len] = 0;
                 LOG("Received: %s", buf);
-                // Test only.
                 if (strstr(buf, "+WIND:55")) {
                     char cmd[100];
                     snprintf(cmd, sizeof(cmd), "at+s.sockr=0,\n\r");
@@ -345,26 +344,10 @@ QState WifiSt::Interactive(WifiSt * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             Log::AddInterface(me->m_outIfHsmn, &me->m_outFifo, UART_OUT_WRITE_REQ, false);
-
-            // Test only
-            //char const *buf = "at+s.sockon=192.168.1.199,60002,,t\n\r";
-            //Log::Write(me->m_outIfHsmn, buf, strlen(buf));
-
-            // Test only
-            //me->m_testTimer.Start(TEST_TIMEOUT_MS, Timer::PERIODIC);
-
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
             EVENT(e);
-
-            // Test only
-            me->m_testTimer.Stop();
-
-            // Test only
-            //char const *buf = "at+s.sockc=0\n\r";
-            //Log::Write(me->m_outIfHsmn, buf, strlen(buf));
-
             Log::RemoveInterface(me->m_outIfHsmn);
             return Q_HANDLED();
         }
@@ -381,11 +364,6 @@ QState WifiSt::Interactive(WifiSt * const me, QEvt const * const e) {
                 Log::Write(me->m_consoleOutIfHsmn, buf, len);
             }
             return Q_HANDLED();
-        }
-        case TEST_TIMER: {
-            EVENT(e);
-            char const *buf = "at+s.sockw=0,5\n\rHello";
-            Log::Write(me->m_outIfHsmn, buf, strlen(buf));
         }
     }
     return Q_SUPER(&WifiSt::Started);
