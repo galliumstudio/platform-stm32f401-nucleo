@@ -52,6 +52,8 @@
 #include "UserLedCmd.h"
 #include "AOWashingMachineCmd.h"
 #include "TrafficCmd.h"
+#include "SimpleActCmd.h"
+#include "CompositeActCmd.h"
 #include <memory>
 
 FW_DEFINE_THIS_FILE("ConsoleCmd.cpp")
@@ -234,6 +236,8 @@ static CmdHandler const cmdHandler[] = {
     { "wash",       AOWashingMachineCmd, "Washing machine", 0 },
     { "traffic",    TrafficCmd, "Traffic light", 0 },
     { "perf",       Perf,       "Performance demo", 0 },
+    { "simp",       SimpleActCmd,    "Template/SimpleAct testing", 0 },
+    { "comp",       CompositeActCmd, "Template/CompositeAct testing", 0 },
     { "?",          List,       "List commands", 0 },
 };
 

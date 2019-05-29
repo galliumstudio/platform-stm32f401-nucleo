@@ -235,9 +235,9 @@ QState System::Starting1(System * const me, QEvt const * const e) {
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
 
-            evt = new TrafficStartReq(TRAFFIC, SYSTEM, GEN_SEQ());
-            me->GetHsm().SaveOutSeq(*evt);
-            Fw::Post(evt);
+            //evt = new TrafficStartReq(TRAFFIC, SYSTEM, GEN_SEQ());
+            //me->GetHsm().SaveOutSeq(*evt);
+            //Fw::Post(evt);
 
             evt = new GpioInStartReq(USER_BTN, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
@@ -246,7 +246,6 @@ QState System::Starting1(System * const me, QEvt const * const e) {
             evt = new WifiStartReq(WIFI_ST, SYSTEM, GEN_SEQ(), UART1_ACT);
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
-
 
             // USER LED pin (PA.5) is shared with TFP display SPI clock pin.
             // It must not be enabled when the TFP is used (e.g. in LevelMeter).
@@ -307,12 +306,7 @@ QState System::Starting2(System * const me, QEvt const * const e) {
         }
         case SENSOR_DELAY_TIMER: {
             EVENT(e);
-
-            // UW 2009 Bypass sensor and display (level meter).
-            return Q_TRAN(&System::Started);
-
             me->GetHsm().ResetOutSeq();
-
             Evt *evt = new SensorStartReq(IKS01A1, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
@@ -343,8 +337,17 @@ QState System::Starting3(System * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
+            Evt *evt;
+
+            // UW 2019 Uncomment this to bypass LEVEL_METER.
+            /*
+            evt = new Evt(DONE, GET_HSMN());
+            me->PostSync(evt);
+            return Q_HANDLED();
+            */
+
             me->GetHsm().ResetOutSeq();
-            Evt *evt = new LevelMeterStartReq(LEVEL_METER, SYSTEM, GEN_SEQ());
+            evt = new LevelMeterStartReq(LEVEL_METER, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
             return Q_HANDLED();
