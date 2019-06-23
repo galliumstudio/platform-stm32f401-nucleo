@@ -360,7 +360,7 @@ QState Iks01a1AccelGyro::On(Iks01a1AccelGyro * const me, QEvt const * const e) {
             SensorAxes_t accData;
             DrvStatusTypeDef status = BSP_ACCELERO_Get_Axes(me->m_handle, &accData);
             FW_ASSERT(status == COMPONENT_OK);
-            //LOG("%d %d %d", accData.AXIS_X, accData.AXIS_Y, accData.AXIS_Z);
+            INFO("%d %d %d", accData.AXIS_X, accData.AXIS_Y, accData.AXIS_Z);
             // @TODO - Perform any unit conversion. Currently just return raw values.
             //         Gyro data are not filled in, left as default 0.
             AccelGyroReport report(accData.AXIS_X, accData.AXIS_Y, accData.AXIS_Z);

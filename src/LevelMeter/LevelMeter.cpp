@@ -42,6 +42,7 @@
 #include "fw_assert.h"
 #include "DispInterface.h"
 #include "SensorInterface.h"
+#include "WifiInterface.h"
 #include "LevelMeterInterface.h"
 #include "LevelMeter.h"
 
@@ -292,9 +293,16 @@ QState LevelMeter::Started(LevelMeter * const me, QEvt const * const e) {
             me->m_avgReport.m_aX /= count;
             me->m_avgReport.m_aY /= count;
             me->m_avgReport.m_aZ /= count;
-            //LOG("(count = %d) %d, %d, %d", count, me->m_avgReport.m_aX, me->m_avgReport.m_aY, me->m_avgReport.m_aZ);
+            LOG("(count = %d) %d, %d, %d", count, me->m_avgReport.m_aX, me->m_avgReport.m_aY, me->m_avgReport.m_aZ);
+
             Evt *evt = new Evt(REDRAW, GET_HSMN());
             me->PostSync(evt);
+
+            // Send to server.
+            char buf[50];
+            snprintf(buf, sizeof(buf), "%d %d %d\n\r", (int)me->m_avgReport.m_aX, (int)me->m_avgReport.m_aY, (int)me->m_avgReport.m_aZ);
+            evt = new WifiSendReq(WIFI_ST, GET_HSMN(), 0, buf);
+            Fw::Post(evt);
             return Q_HANDLED();
         }
     }

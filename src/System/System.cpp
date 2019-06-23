@@ -82,8 +82,8 @@ static char const * const interfaceEvtName[] = {
 };
 
 System::System() :
-    Active((QStateHandler)&System::InitialPseudoState, SYSTEM, "SYSTEM"),
-    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER),
+    Active((QStateHandler)&System::InitialPseudoState, SYSTEM, "SYSTEM"), m_maxIdleCnt(0), m_cpuUtilPercent(0),
+    m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER), m_idleCntTimer(GetHsm().GetHsmn(), IDLE_CNT_TIMER),
     m_sensorDelayTimer(GetHsm().GetHsmn(), SENSOR_DELAY_TIMER),
     m_testTimer(GetHsm().GetHsmn(), TEST_TIMER) {
     SET_EVT_NAME(SYSTEM);
@@ -188,7 +188,7 @@ QState System::Starting(System * const me, QEvt const * const e) {
             return Q_HANDLED();
         }
         case Q_INIT_SIG: {
-            return Q_TRAN(&System::Starting1);
+            return Q_TRAN(&System::Prestarting);
         }
         case FAILED:
         case STATE_TIMER: {
@@ -213,6 +213,31 @@ QState System::Starting(System * const me, QEvt const * const e) {
     }
     return Q_SUPER(&System::Root);
 }
+
+QState System::Prestarting(System * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            // Reset idle count in bsp.cpp
+            GetIdleCnt();
+            me->m_idleCntTimer.Start(IDLE_CNT_INIT_TIMEOUT_MS);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            me->m_idleCntTimer.Stop();
+            return Q_HANDLED();
+        }
+        case IDLE_CNT_TIMER: {
+            EVENT(e);
+            me->m_maxIdleCnt = GetIdleCnt() * (IDLE_CNT_POLL_TIMEOUT_MS / IDLE_CNT_INIT_TIMEOUT_MS);
+            LOG("maxIdleCnt = %d", me->m_maxIdleCnt);
+            return Q_TRAN(&System::Starting1);
+        }
+    }
+    return Q_SUPER(&System::Starting);
+}
+
 
 QState System::Starting1(System * const me, QEvt const * const e) {
     switch (e->sig) {
@@ -538,6 +563,27 @@ QState System::Started(System * const me, QEvt const * const e) {
         }
         case Q_EXIT_SIG: {
             EVENT(e);
+            me->m_idleCntTimer.Stop();
+            return Q_HANDLED();
+        }
+        case IDLE_CNT_TIMER: {
+            uint32_t idleCnt = GetIdleCnt();
+            idleCnt = LESS(idleCnt, me->m_maxIdleCnt);
+            me->m_cpuUtilPercent = 100 - (idleCnt*100 / me->m_maxIdleCnt);
+            PRINT("Utilization = %d\n\r", me->m_cpuUtilPercent);
+            return Q_HANDLED();
+        }
+        case SYSTEM_CPU_UTIL_REQ: {
+            SystemCpuUtilReq const &req = static_cast<SystemCpuUtilReq const &>(*e);
+            if (req.GetEnable()) {
+                LOG("CPU util enabled");
+                // Reset idle count in bsp.cpp
+                GetIdleCnt();
+                me->m_idleCntTimer.Restart(IDLE_CNT_POLL_TIMEOUT_MS, Timer::PERIODIC);
+            } else {
+                LOG("CPU util disabled");
+                me->m_idleCntTimer.Stop();
+            }
             return Q_HANDLED();
         }
         case GPIO_IN_PULSE_IND: {

@@ -90,5 +90,6 @@ Q_ASSERT_COMPILE(MAX_KERNEL_AWARE_CMSIS_PRI <= (0xFF >>(8-__NVIC_PRIO_BITS)));
 void BspInit();
 void BspWrite(char const *buf, uint32_t len);
 uint32_t GetSystemMs();
+uint32_t GetIdleCnt();
 
 #endif // BSP_H

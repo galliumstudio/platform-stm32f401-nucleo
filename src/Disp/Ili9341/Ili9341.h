@@ -90,6 +90,8 @@ protected:
     void SetRotation(uint8_t rotation) override;
     void WritePixel(int16_t x, int16_t y, uint16_t color) override;
     void FillRect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color) override;
+    void WriteBitmap(int16_t x, int16_t y, uint16_t w, uint16_t h, uint8_t *buf, uint32_t len) override;
+
 
     Hsmn m_client;
     Timer m_stateTimer;

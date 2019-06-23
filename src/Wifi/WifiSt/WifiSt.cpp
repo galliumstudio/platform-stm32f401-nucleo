@@ -269,19 +269,18 @@ QState WifiSt::Normal(WifiSt * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
-
             // Test only
             //me->m_testTimer.Start(TEST_TIMEOUT_MS);
-
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
             EVENT(e);
-
             // Test only
             //me->m_testTimer.Stop();
-
             return Q_HANDLED();
+        }
+        case Q_INIT_SIG: {
+            return Q_TRAN(&WifiSt::Disconnected);
         }
         case WIFI_INTERACTIVE_ON_REQ: {
             EVENT(e);
@@ -299,13 +298,44 @@ QState WifiSt::Normal(WifiSt * const me, QEvt const * const e) {
             char cmd[100];
             snprintf(cmd, sizeof(cmd), "at+s.sockon=%s,%d,,t\n\r", req.GetDomain(), req.GetPort());
             me->Write(cmd);
-            return Q_HANDLED();
+            return Q_TRAN(&WifiSt::Connected);
         }
         case WIFI_DISCONNECT_REQ: {
             EVENT(e);
             char cmd[100];
             snprintf(cmd, sizeof(cmd), "at+s.sockc=%d\n\r", 0);
             me->Write(cmd);
+            return Q_TRAN(&WifiSt::Disconnected);
+        }
+        case TEST_TIMER: {
+            EVENT(e);
+        }
+    }
+    return Q_SUPER(&WifiSt::Started);
+}
+
+QState WifiSt::Disconnected(WifiSt * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
+            return Q_HANDLED();
+        }
+    }
+    return Q_SUPER(&WifiSt::Normal);
+}
+
+QState WifiSt::Connected(WifiSt * const me, QEvt const * const e) {
+    switch (e->sig) {
+        case Q_ENTRY_SIG: {
+            EVENT(e);
+            return Q_HANDLED();
+        }
+        case Q_EXIT_SIG: {
+            EVENT(e);
             return Q_HANDLED();
         }
         case WIFI_SEND_REQ: {
@@ -332,11 +362,8 @@ QState WifiSt::Normal(WifiSt * const me, QEvt const * const e) {
             }
             return Q_HANDLED();
         }
-        case TEST_TIMER: {
-            EVENT(e);
-        }
     }
-    return Q_SUPER(&WifiSt::Started);
+    return Q_SUPER(&WifiSt::Normal);
 }
 
 QState WifiSt::Interactive(WifiSt * const me, QEvt const * const e) {

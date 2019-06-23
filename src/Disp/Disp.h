@@ -115,6 +115,7 @@ protected:
     virtual void SetRotation(uint8_t rotation) { (void)rotation; };
     virtual void WritePixel(int16_t x, int16_t y, uint16_t color) { (void)x; (void)y; (void)color; };
     virtual void FillRect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color) { (void)x; (void)y; (void)w; (void)h; (void)color; };
+    virtual void WriteBitmap(int16_t x, int16_t y, uint16_t w, uint16_t h, uint8_t *buf, uint32_t len) { (void)x; (void)y; (void)w; (void)h; (void)buf; (void)len; };
 
     // High-level graphical functions for use by state-machines of derived classes.
     void WriteFastVLine(int16_t x, int16_t y, int16_t len, uint16_t color) { FillRect(x, y, 1, len, color); }
@@ -141,6 +142,9 @@ protected:
     uint8_t m_textsize;
     bool m_wrap;        // If set, 'wrap' text at right edge of display
     GFXfont *m_gfxFont;
+    // Test only
+    uint8_t m_memBuf[5*8*16*2];
+    void FillMem(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color);
 
 #define DISP_TIMER_EVT \
     ADD_EVT(STATE_TIMER)

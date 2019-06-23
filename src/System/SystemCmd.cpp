@@ -93,6 +93,22 @@ static CmdStatus Stop(Console &console, Evt const *e) {
     return CMD_CONTINUE;
 }
 
+static CmdStatus Cpu(Console &console, Evt const *e) {
+    switch (e->sig) {
+        case Console::CONSOLE_CMD: {
+            Console::ConsoleCmd const &ind = static_cast<Console::ConsoleCmd const &>(*e);
+            if (ind.Argc() < 2) {
+                console.Print("on - enable, off - disable\n\r");
+                break;
+            }
+            bool enable = STRING_EQUAL(ind.Argv(1), "on");
+            Evt *evt = new SystemCpuUtilReq(SYSTEM, console.GetHsmn(), 0, enable);
+            Fw::Post(evt);
+            break;
+        }
+    }
+    return CMD_DONE;
+}
 
 static CmdStatus List(Console &console, Evt const *e);
 static CmdHandler const cmdHandler[] = {
@@ -100,6 +116,7 @@ static CmdHandler const cmdHandler[] = {
     { "?",          List,       "List commands", 0 },
     { "stop",       Stop,       "Stop HSM", 0 },
     { "start",      Start,      "Start HSM", 0 },
+    { "cpu",        Cpu,        "Report CPU util", 0 },
 };
 
 static CmdStatus List(Console &console, Evt const *e) {

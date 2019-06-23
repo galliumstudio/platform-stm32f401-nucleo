@@ -63,6 +63,8 @@ protected:
         static QState Stopping(WifiSt * const me, QEvt const * const e);
         static QState Started(WifiSt * const me, QEvt const * const e);
             static QState Normal(WifiSt * const me, QEvt const * const e);
+                static QState Disconnected(WifiSt * const me, QEvt const * const e);
+                static QState Connected(WifiSt * const me, QEvt const * const e);
             static QState Interactive(WifiSt * const me, QEvt const * const e);
 
     void Write(char *const atCmd);

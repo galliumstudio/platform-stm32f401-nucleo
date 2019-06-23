@@ -421,6 +421,8 @@ QState GpioIn::Held(GpioIn * const me, QEvt const * const e) {
             Evt *evt = new GpioInHoldInd(me->m_client, GET_HSMN(), GEN_SEQ());
             Fw::Post(evt);
             me->m_holdTimer.Start(HOLD_TIMEOUT_MS);
+            // UW for test only to trigger hardfault
+            //*(uint32_t *)(0x7fffffff) = 0x1234;
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {

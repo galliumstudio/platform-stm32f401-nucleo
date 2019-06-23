@@ -51,12 +51,18 @@ static ssize_t
 _trace_write_semihosting_debug(const char* buf, size_t nbyte);
 #endif
 
+// Gallium
+void BspInitTrace();
+void BspTrace(char const *buf, uint32_t len);
+
 // ----------------------------------------------------------------------------
 
 void
 trace_initialize(void)
 {
   // For regular ITM / semihosting, no inits required.
+  // Gallium
+  BspInitTrace();
 }
 
 // ----------------------------------------------------------------------------
@@ -75,7 +81,8 @@ trace_write (const char* buf __attribute__((unused)),
 #elif defined(OS_USE_TRACE_SEMIHOSTING_DEBUG)
   return _trace_write_semihosting_debug(buf, nbyte);
 #endif
-
+  // Gallium
+  BspTrace(buf, nbyte);
   return -1;
 }
 

@@ -51,7 +51,8 @@ namespace APP {
     ADD_EVT(SYSTEM_START_REQ) \
     ADD_EVT(SYSTEM_START_CFM) \
     ADD_EVT(SYSTEM_STOP_REQ) \
-    ADD_EVT(SYSTEM_STOP_CFM)
+    ADD_EVT(SYSTEM_STOP_CFM) \
+    ADD_EVT(SYSTEM_CPU_UTIL_REQ)
 
 #undef ADD_EVT
 #define ADD_EVT(e_) e_,
@@ -97,6 +98,19 @@ public:
                    Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
         ErrorEvt(SYSTEM_STOP_CFM, to, from, seq, error, origin, reason) {}
 };
+
+class SystemCpuUtilReq : public Evt {
+public:
+    enum {
+        TIMEOUT_MS = 100
+    };
+    SystemCpuUtilReq(Hsmn to, Hsmn from, Sequence seq, bool enable) :
+        Evt(SYSTEM_CPU_UTIL_REQ, to, from, seq), m_enable(enable) {}
+    bool GetEnable() const { return m_enable; }
+private:
+    bool m_enable;
+};
+
 
 } // namespace APP
 

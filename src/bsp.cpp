@@ -47,6 +47,8 @@ Q_DEFINE_THIS_FILE
 // boot up process but allows all debug message to be seen since boot up.
 //#define ENABLE_BSP_PRINT
 
+static volatile uint32_t idleCnt = 0;
+
 static UART_HandleTypeDef usart;
 
 /* top of stack (highest address) defined in the linker script -------------*/
@@ -91,8 +93,25 @@ void BspWrite(char const *buf, uint32_t len) {
 #endif
 }
 
+// Trace functions used by exception_handlers.c
+// BspInitTrace() must be called before BspTrace() is called.
+// Must be declared as C functions.
+extern "C" void BspInitTrace() {
+    InitUart();
+}
+extern "C" void BspTrace(char const *buf, uint32_t len) {
+    WriteUart(buf, len);
+    WriteUart("\r", 1);
+}
+
 uint32_t GetSystemMs() {
     return HAL_GetTick() * BSP_MSEC_PER_TICK;
+}
+
+uint32_t GetIdleCnt() {
+    uint32_t cnt = idleCnt;
+    idleCnt = 0;
+    return cnt;
 }
 
 // Override the one defined in stm32f7xx_hal.c.
@@ -135,8 +154,8 @@ void QXK::onIdle(void) {
     QF_INT_DISABLE();
     //GPIOA->BSRR |= (LED_LD2);        // turn LED[n] on
     //GPIOA->BSRR |= (LED_LD2 << 16);  // turn LED[n] off
+    idleCnt++;
     QF_INT_ENABLE();
-
 
 #if defined NDEBUG
     // Put the CPU and peripherals to the low-power mode.
