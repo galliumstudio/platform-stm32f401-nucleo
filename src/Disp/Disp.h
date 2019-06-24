@@ -142,7 +142,9 @@ protected:
     uint8_t m_textsize;
     bool m_wrap;        // If set, 'wrap' text at right edge of display
     GFXfont *m_gfxFont;
-    // Test only
+    // Gallium - Optimization.
+    // Fast method using data buffer for a character bitmap (@todo - Replace hardcoded parameters.)
+    // (Hardcoded for 5x8 font, multiplied by 4 in each dimension and 2 bytes per pixel.)
     uint8_t m_memBuf[5*8*16*2];
     void FillMem(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t color);
 

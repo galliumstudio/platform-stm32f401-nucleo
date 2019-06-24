@@ -282,7 +282,7 @@ QState AOWashingMachine::DoorOpen(AOWashingMachine * const me, QEvt const * cons
         {
             EVENT(e);
             me->m_doorState = DOOR_OPEN;
-            // UW 2019
+            // Uncomment to hook up with LED.
             //Evt *evt = new UserLedOffReq(USER_LED, GET_HSMN(), GEN_SEQ());
             //Fw::Post(evt);
             return Q_HANDLED();
@@ -368,7 +368,7 @@ QState AOWashingMachine::DoorUnlocked(AOWashingMachine * const me, QEvt const * 
         {
             EVENT(e);
             me->UnlockDoor();
-            // UW 2019
+            // Uncomment to hook up with LED.
             //Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 0, true);
             //Fw::Post(evt);
             return Q_HANDLED();
@@ -415,7 +415,7 @@ QState AOWashingMachine::DoorLocked(AOWashingMachine * const me, QEvt const * co
         {
             EVENT(e);
             me->LockDoor();
-            // UW 2019
+            // Uncomment to hook up with LED.
             //Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 1, true);
             //Fw::Post(evt);
             return Q_HANDLED();

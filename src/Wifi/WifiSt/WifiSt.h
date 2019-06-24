@@ -82,13 +82,8 @@ protected:
     uint8_t m_inFifoStor[1 << IN_FIFO_ORDER];
     Fifo m_outFifo;
     Fifo m_inFifo;
-    uint32_t testCnt;
 
-    enum {
-        TEST_TIMEOUT_MS = 500,
-    };
     Timer m_stateTimer;
-    Timer m_testTimer;
 };
 
 } // namespace APP

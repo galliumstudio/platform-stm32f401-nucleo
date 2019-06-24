@@ -67,8 +67,8 @@ WifiSt::WifiSt() :
     Wifi((QStateHandler)&WifiSt::InitialPseudoState, WIFI_ST, "WIFI_ST"),
         m_ifHsmn(HSM_UNDEF), m_outIfHsmn(HSM_UNDEF), m_consoleOutIfHsmn(HSM_UNDEF),
         m_outFifo(m_outFifoStor, OUT_FIFO_ORDER),
-        m_inFifo(m_inFifoStor, IN_FIFO_ORDER), testCnt(0),
-        m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER), m_testTimer(GetHsm().GetHsmn(), TEST_TIMER) {
+        m_inFifo(m_inFifoStor, IN_FIFO_ORDER),
+        m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER) {
 }
 
 QState WifiSt::InitialPseudoState(WifiSt * const me, QEvt const * const e) {
@@ -269,14 +269,10 @@ QState WifiSt::Normal(WifiSt * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
-            // Test only
-            //me->m_testTimer.Start(TEST_TIMEOUT_MS);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
             EVENT(e);
-            // Test only
-            //me->m_testTimer.Stop();
             return Q_HANDLED();
         }
         case Q_INIT_SIG: {
@@ -306,9 +302,6 @@ QState WifiSt::Normal(WifiSt * const me, QEvt const * const e) {
             snprintf(cmd, sizeof(cmd), "at+s.sockc=%d\n\r", 0);
             me->Write(cmd);
             return Q_TRAN(&WifiSt::Disconnected);
-        }
-        case TEST_TIMER: {
-            EVENT(e);
         }
     }
     return Q_SUPER(&WifiSt::Started);

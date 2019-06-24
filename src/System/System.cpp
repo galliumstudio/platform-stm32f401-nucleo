@@ -363,14 +363,12 @@ QState System::Starting3(System * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             Evt *evt;
-
-            // UW 2019 Uncomment this to bypass LEVEL_METER.
+            // Uncomment this to bypass LEVEL_METER.
             /*
             evt = new Evt(DONE, GET_HSMN());
             me->PostSync(evt);
             return Q_HANDLED();
             */
-
             me->GetHsm().ResetOutSeq();
             evt = new LevelMeterStartReq(LEVEL_METER, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
@@ -586,6 +584,7 @@ QState System::Started(System * const me, QEvt const * const e) {
             }
             return Q_HANDLED();
         }
+        // Hooks up USER_BTN to Traffic for testing. 
         case GPIO_IN_PULSE_IND: {
             EVENT(e);
             LOG("Car arriving in NS direction");

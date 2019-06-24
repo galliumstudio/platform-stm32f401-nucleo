@@ -72,8 +72,7 @@ LevelMeter::LevelMeter() :
     Active((QStateHandler)&LevelMeter::InitialPseudoState, LEVEL_METER, "LEVEL_METER"),
     m_accelGyroPipe(m_accelGyroStor, ACCEL_GYRO_PIPE_ORDER),
     m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER),
-    m_reportTimer(GetHsm().GetHsmn(), REPORT_TIMER),
-	m_testCnt(0) {
+    m_reportTimer(GetHsm().GetHsmn(), REPORT_TIMER) {
     SET_EVT_NAME(LEVEL_METER);
 }
 
@@ -294,10 +293,8 @@ QState LevelMeter::Started(LevelMeter * const me, QEvt const * const e) {
             me->m_avgReport.m_aY /= count;
             me->m_avgReport.m_aZ /= count;
             LOG("(count = %d) %d, %d, %d", count, me->m_avgReport.m_aX, me->m_avgReport.m_aY, me->m_avgReport.m_aZ);
-
             Evt *evt = new Evt(REDRAW, GET_HSMN());
             me->PostSync(evt);
-
             // Send to server.
             char buf[50];
             snprintf(buf, sizeof(buf), "%d %d %d\n\r", (int)me->m_avgReport.m_aX, (int)me->m_avgReport.m_aY, (int)me->m_avgReport.m_aZ);
