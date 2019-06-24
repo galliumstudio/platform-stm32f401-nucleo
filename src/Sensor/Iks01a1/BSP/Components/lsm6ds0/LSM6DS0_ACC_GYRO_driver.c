@@ -359,6 +359,8 @@ status_t LSM6DS0_ACC_GYRO_Get_Acceleration(void *handle, u8_t *buff)
 
   numberOfByteForDimension = 6 / 3;
 
+  // Gallium - Optimization.
+  /*
   k = 0;
   for (i = 0; i < 3; i++ )
   {
@@ -369,6 +371,11 @@ status_t LSM6DS0_ACC_GYRO_Get_Acceleration(void *handle, u8_t *buff)
       k++;
     }
   }
+  */
+  ///*
+  if( !LSM6DS0_ACC_GYRO_ReadReg(handle, LSM6DS0_ACC_GYRO_OUT_X_L_XL, &buff[0], 6 ))
+    return MEMS_ERROR;
+  //*/
   return MEMS_SUCCESS;
 }
 

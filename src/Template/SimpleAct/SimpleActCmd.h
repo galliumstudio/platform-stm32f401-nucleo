@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Alternatively, this program may be distributed and modified under the
  * terms of Gallium Studio LLC commercial licenses, which expressly supersede
  * the GNU General Public License and are specifically designed for licensees
@@ -29,63 +29,22 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * Contact information:
  * Website - https://www.galliumstudio.com
  * Source repository - https://github.com/galliumstudio
  * Email - admin@galliumstudio.com
  ******************************************************************************/
 
-#ifndef WIFI_ST_H
-#define WIFI_ST_H
+#ifndef SIMPLEACT_CMD_H
+#define SIMPLEACT_CMD_H
 
-#include "qpcpp.h"
-#include "fw_active.h"
-#include "fw_timer.h"
-#include "fw_evt.h"
-#include "app_hsmn.h"
-#include "Wifi.h"
-
-using namespace QP;
-using namespace FW;
+#include "ConsoleInterface.h"
 
 namespace APP {
 
-class WifiSt : public Wifi {
-public:
-    WifiSt();
-
-protected:
-    static QState InitialPseudoState(WifiSt * const me, QEvt const * const e);
-    static QState Root(WifiSt * const me, QEvt const * const e);
-        static QState Stopped(WifiSt * const me, QEvt const * const e);
-        static QState Starting(WifiSt * const me, QEvt const * const e);
-        static QState Stopping(WifiSt * const me, QEvt const * const e);
-        static QState Started(WifiSt * const me, QEvt const * const e);
-            static QState Normal(WifiSt * const me, QEvt const * const e);
-                static QState Disconnected(WifiSt * const me, QEvt const * const e);
-                static QState Connected(WifiSt * const me, QEvt const * const e);
-            static QState Interactive(WifiSt * const me, QEvt const * const e);
-
-    void Write(char *const atCmd);
-
-    Hsmn m_ifHsmn;          // HSMN of the interface active object.
-    Hsmn m_outIfHsmn;       // HSMN of the output interface region.
-    Hsmn m_consoleOutIfHsmn; // HSMN of the console output interface used to output
-                            // WIFI responses in interactive state.
-
-    enum {
-        OUT_FIFO_ORDER = 9,
-        IN_FIFO_ORDER = 11,
-    };
-    uint8_t m_outFifoStor[1 << OUT_FIFO_ORDER];
-    uint8_t m_inFifoStor[1 << IN_FIFO_ORDER];
-    Fifo m_outFifo;
-    Fifo m_inFifo;
-
-    Timer m_stateTimer;
-};
+CmdStatus SimpleActCmd(Console &console, Evt const *e);
 
 } // namespace APP
 
-#endif // WIFI_ST_H
+#endif // SIMPLEACT_CMD_H

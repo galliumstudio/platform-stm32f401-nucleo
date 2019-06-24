@@ -167,7 +167,7 @@ int main(void)
     Fw::Init();
 
     // Configure log settings.
-    Log::SetVerbosity(5);
+    Log::SetVerbosity(4);
     Log::OnAll();
     Log::Off(UART2_IN);
     Log::Off(UART1_IN);
@@ -184,6 +184,7 @@ int main(void)
     Log::Off(IKS01A1_PRESS);
     Log::Off(PRESS_INT);
     Log::Off(LEVEL_METER);
+    Log::Off(WIFI_ST);
 
     // Start active objects.
     compositeAct.Start(PRIO_COMPOSITE_ACT);

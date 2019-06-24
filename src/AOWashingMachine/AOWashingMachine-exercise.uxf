@@ -69,7 +69,7 @@ valign=top
 --
 entry / m_doorState = OPEN
 START_PAUSE_BUTTON_IND / ErrorBeep()
-CLOSE_DOOR_IND / ^iWASH_CLOSE
+CLOSE_DOOR_IND / ^^WASH_CLOSE
 
     
 valign=top
@@ -117,7 +117,7 @@ valign=top
       <w>110</w>
       <h>22</h>
     </coordinates>
-    <panel_attributes>iWASH_CLOSE
+    <panel_attributes>WASH_CLOSE
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -212,7 +212,7 @@ style=wordwrap</panel_attributes>
     <panel_attributes>DoorUnlocked
 --
 entry / UnlockDoor()
-OPEN_DOOR_IND / ^iWASH_OPEN
+OPEN_DOOR_IND / ^^WASH_OPEN
      
     
 valign=top
@@ -351,7 +351,7 @@ valign=top
 --
 entry / history = &amp;Spinning, start timer
         StartSpinning()
-SPIN_TIMEOUT / history = &amp;FillingWash, ^iWASH_DONE
+SPIN_TIMEOUT / history = &amp;FillingWash, ^^WASH_DONE
 exit / disarm timer, StopSpinning(), 
        PlayCompletionSong()
 
@@ -502,7 +502,7 @@ valign=top
       <w>88</w>
       <h>22</h>
     </coordinates>
-    <panel_attributes>iWASH_DONE
+    <panel_attributes>WASH_DONE
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -690,7 +690,7 @@ style=wordwrap</panel_attributes>
       <w>99</w>
       <h>22</h>
     </coordinates>
-    <panel_attributes>iWASH_OPEN
+    <panel_attributes>WASH_OPEN
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>

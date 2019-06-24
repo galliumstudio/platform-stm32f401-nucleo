@@ -49,6 +49,7 @@ using namespace FW;
 namespace APP {
 
 #define LAMP_INTERFACE_EVT \
+    ADD_EVT(LAMP_RESET_REQ) \
     ADD_EVT(LAMP_RED_REQ) \
     ADD_EVT(LAMP_YELLOW_REQ) \
     ADD_EVT(LAMP_GREEN_REQ) \
@@ -64,6 +65,12 @@ enum {
 
 enum {
     LAMP_REASON_UNSPEC = 0,
+};
+
+class LampResetReq : public Evt {
+public:
+    LampResetReq(Hsmn to, Hsmn from, Sequence seq = 0) :
+        Evt(LAMP_RESET_REQ, to, from, seq) {}
 };
 
 class LampRedReq : public Evt {

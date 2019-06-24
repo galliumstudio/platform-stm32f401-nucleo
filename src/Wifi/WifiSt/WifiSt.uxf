@@ -64,7 +64,7 @@ valign=top
     <coordinates>
       <x>72</x>
       <y>720</y>
-      <w>1296</w>
+      <w>1320</w>
       <h>348</h>
     </coordinates>
     <panel_attributes>Started
@@ -301,7 +301,7 @@ style=wordwrap</panel_attributes>
       <x>120</x>
       <y>816</y>
       <w>492</w>
-      <h>204</h>
+      <h>216</h>
     </coordinates>
     <panel_attributes>Interactive
 --
@@ -319,12 +319,25 @@ valign=top
     <coordinates>
       <x>996</x>
       <y>816</y>
-      <w>324</w>
-      <h>204</h>
+      <w>348</w>
+      <h>216</h>
     </coordinates>
     <panel_attributes>Normal
 --
-entry/ 
+entry/
+WIFI_CONNECT_REQ
+/ write "at+s.sockon" cmd to module
+WIFI_DISCONNECT_REQ
+/ write "at+s.sockc" cmd to module
+WIFI_SEND_REQ
+/ write "at+s.sockw" cmd to module
+UART_IN_DATA_IND
+/ print received data to console
+  if (data == "+WIND:55")
+    write "at+s.sockr" cmd to module
+     
+
+          
     
 valign=top
 </panel_attributes>

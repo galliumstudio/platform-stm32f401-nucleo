@@ -373,6 +373,8 @@ HardFault_Handler_C (ExceptionStackFrame* frame __attribute__((unused)),
 #endif
 
 #if defined(TRACE)
+  // Gallium - Added trace_initialize().
+  trace_initialize();
   trace_printf ("[HardFault]\n");
   dumpExceptionStack (frame, cfsr, mmfar, bfar, lr);
 #endif // defined(TRACE)

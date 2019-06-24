@@ -59,6 +59,7 @@ protected:
     static QState Root(System * const me, QEvt const * const e);
         static QState Stopped(System * const me, QEvt const * const e);
         static QState Starting(System * const me, QEvt const * const e);
+            static QState Prestarting(System * const me, QEvt const * const e);
             static QState Starting1(System * const me, QEvt const * const e);
             static QState Starting2(System * const me, QEvt const * const e);
             static QState Starting3(System * const me, QEvt const * const e);
@@ -68,17 +69,24 @@ protected:
         static QState Started(System * const me, QEvt const * const e);
 
 
+    uint32_t m_maxIdleCnt;
+    uint32_t m_cpuUtilPercent;      // CPU utilization in percentage.
+
     Timer m_stateTimer;
+    Timer m_idleCntTimer;
     Timer m_sensorDelayTimer;
     Timer m_testTimer;
 
     enum {
+        IDLE_CNT_INIT_TIMEOUT_MS = 200,
+        IDLE_CNT_POLL_TIMEOUT_MS = 2000,
         SENSOR_DELAY_TIMEOUT_MS = 200,
     };
 
 
 #define SYSTEM_TIMER_EVT \
     ADD_EVT(STATE_TIMER) \
+    ADD_EVT(IDLE_CNT_TIMER) \
     ADD_EVT(SENSOR_DELAY_TIMER) \
     ADD_EVT(TEST_TIMER)
 

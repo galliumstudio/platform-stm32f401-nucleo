@@ -108,7 +108,7 @@ public:
 
 protected:
     enum {
-        OUT_HSMN_SEQ_MAP_COUNT = 8,
+        OUT_HSMN_SEQ_MAP_COUNT = 16,
         DEFER_QUEUE_COUNT = 16,
         REMINDER_QUEUE_COUNT = 4
     };

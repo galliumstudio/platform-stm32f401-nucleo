@@ -408,6 +408,36 @@ void Ili9341::FillRect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t co
   PushColor(color, w * h);
 }
 
+void Ili9341::WriteBitmap(int16_t x, int16_t y, uint16_t w, uint16_t h, uint8_t *buf, uint32_t len) {
+    FW_ASSERT(w*h*2 == len);
+    if ((x >= m_width) || (y >= m_height)) {
+        return;
+    }
+    int16_t x2 = x + w - 1;
+    int16_t y2 = y + h - 1;
+    if ((x2 < 0) || (y2 < 0)) {
+        return;
+    }
+    if (x < 0) {
+        x = 0;
+        w = x2 + 1;
+    }
+    if (y < 0) {
+        y = 0;
+        h = y2 + 1;
+    }
+    if (x2 >= m_width) {
+        w = m_width - x;
+    }
+    if (y2 >= m_height) {
+        h = m_height - y;
+    }
+
+    SetAddrWindow(x, y, w, h);
+    WriteDataBuf(buf, len);
+}
+
+
 Ili9341::Ili9341(XThread &container) :
     Disp((QStateHandler)&Ili9341::InitialPseudoState, ILI9341, "ILI9341"),
     m_client(HSM_UNDEF), m_stateTimer(this->GetHsm().GetHsmn(), STATE_TIMER), m_config(&CONFIG[0]), m_container(container) {
@@ -511,6 +541,7 @@ QState Ili9341::Started(Ili9341 * const me, QEvt const * const e) {
             me->m_container.DelayMs(100);
             me->InitDisp();
             me->SetRotation(0);
+            me->FillScreen(COLOR565_WHITE);
 
             // Test only.
             /*

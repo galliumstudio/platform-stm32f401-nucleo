@@ -56,7 +56,13 @@ namespace APP {
     ADD_EVT(WIFI_INTERACTIVE_ON_REQ) \
     ADD_EVT(WIFI_INTERACTIVE_ON_CFM) \
     ADD_EVT(WIFI_INTERACTIVE_OFF_REQ) \
-    ADD_EVT(WIFI_INTERACTIVE_OFF_CFM)
+    ADD_EVT(WIFI_INTERACTIVE_OFF_CFM) \
+    ADD_EVT(WIFI_CONNECT_REQ) \
+    ADD_EVT(WIFI_CONNECT_CFM) \
+    ADD_EVT(WIFI_DISCONNECT_REQ) \
+    ADD_EVT(WIFI_DISCONNECT_CFM) \
+    ADD_EVT(WIFI_SEND_REQ) \
+    ADD_EVT(WIFI_SEND_CFM)
 
 #undef ADD_EVT
 #define ADD_EVT(e_) e_,
@@ -144,6 +150,66 @@ public:
     WifiInteractiveOffCfm(Hsmn to, Hsmn from, Sequence seq,
                    Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
         ErrorEvt(WIFI_INTERACTIVE_OFF_CFM, to, from, seq, error, origin, reason) {}
+};
+
+class WifiConnectReq : public Evt {
+public:
+    enum {
+        TIMEOUT_MS = 5000
+    };
+    WifiConnectReq(Hsmn to, Hsmn from, Sequence seq, char const *domain, uint16_t port) :
+        Evt(WIFI_CONNECT_REQ, to, from, seq), m_port(port) {
+        STRING_COPY(m_domain, domain, sizeof(m_domain));
+    }
+    char const *GetDomain() const { return m_domain; }
+    uint16_t GetPort() const { return m_port; }
+private:
+    char m_domain[100];
+    uint16_t m_port;
+};
+
+class WifiConnectCfm : public ErrorEvt {
+public:
+    WifiConnectCfm(Hsmn to, Hsmn from, Sequence seq,
+                   Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
+        ErrorEvt(WIFI_CONNECT_CFM, to, from, seq, error, origin, reason) {}
+};
+
+class WifiDisconnectReq : public Evt {
+public:
+    enum {
+        TIMEOUT_MS = 5000
+    };
+    WifiDisconnectReq(Hsmn to, Hsmn from, Sequence seq) :
+        Evt(WIFI_DISCONNECT_REQ, to, from, seq) {}
+};
+
+class WifiDisconnectCfm : public ErrorEvt {
+public:
+    WifiDisconnectCfm(Hsmn to, Hsmn from, Sequence seq,
+                   Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
+        ErrorEvt(WIFI_DISCONNECT_CFM, to, from, seq, error, origin, reason) {}
+};
+
+class WifiSendReq : public Evt {
+public:
+    enum {
+        TIMEOUT_MS = 5000
+    };
+    WifiSendReq(Hsmn to, Hsmn from, Sequence seq, char const *data) :
+        Evt(WIFI_SEND_REQ, to, from, seq) {
+        STRING_COPY(m_data, data, sizeof(m_data));
+    }
+    char const *GetData() const { return m_data; }
+private:
+    char m_data[128];
+};
+
+class WifiSendCfm : public ErrorEvt {
+public:
+    WifiSendCfm(Hsmn to, Hsmn from, Sequence seq,
+                   Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
+        ErrorEvt(WIFI_SEND_CFM, to, from, seq, error, origin, reason) {}
 };
 
 } // namespace APP

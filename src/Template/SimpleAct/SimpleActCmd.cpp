@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Alternatively, this program may be distributed and modified under the
  * terms of Gallium Studio LLC commercial licenses, which expressly supersede
  * the GNU General Public License and are specifically designed for licensees
@@ -29,63 +29,46 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * Contact information:
  * Website - https://www.galliumstudio.com
  * Source repository - https://github.com/galliumstudio
  * Email - admin@galliumstudio.com
  ******************************************************************************/
 
-#ifndef WIFI_ST_H
-#define WIFI_ST_H
+#include <string.h>
+#include "fw_log.h"
+#include "fw_assert.h"
+#include "Console.h"
+#include "SimpleActCmd.h"
+#include "SimpleActInterface.h"
 
-#include "qpcpp.h"
-#include "fw_active.h"
-#include "fw_timer.h"
-#include "fw_evt.h"
-#include "app_hsmn.h"
-#include "Wifi.h"
-
-using namespace QP;
-using namespace FW;
+FW_DEFINE_THIS_FILE("SimpleActCmd.cpp")
 
 namespace APP {
 
-class WifiSt : public Wifi {
-public:
-    WifiSt();
+static CmdStatus Test(Console &console, Evt const *e) {
+    switch (e->sig) {
+        case Console::CONSOLE_CMD: {
+            console.PutStr("A simple active object. Add your own commands here.\n\r");
+            break;
+        }
+    }
+    return CMD_DONE;
+}
 
-protected:
-    static QState InitialPseudoState(WifiSt * const me, QEvt const * const e);
-    static QState Root(WifiSt * const me, QEvt const * const e);
-        static QState Stopped(WifiSt * const me, QEvt const * const e);
-        static QState Starting(WifiSt * const me, QEvt const * const e);
-        static QState Stopping(WifiSt * const me, QEvt const * const e);
-        static QState Started(WifiSt * const me, QEvt const * const e);
-            static QState Normal(WifiSt * const me, QEvt const * const e);
-                static QState Disconnected(WifiSt * const me, QEvt const * const e);
-                static QState Connected(WifiSt * const me, QEvt const * const e);
-            static QState Interactive(WifiSt * const me, QEvt const * const e);
-
-    void Write(char *const atCmd);
-
-    Hsmn m_ifHsmn;          // HSMN of the interface active object.
-    Hsmn m_outIfHsmn;       // HSMN of the output interface region.
-    Hsmn m_consoleOutIfHsmn; // HSMN of the console output interface used to output
-                            // WIFI responses in interactive state.
-
-    enum {
-        OUT_FIFO_ORDER = 9,
-        IN_FIFO_ORDER = 11,
-    };
-    uint8_t m_outFifoStor[1 << OUT_FIFO_ORDER];
-    uint8_t m_inFifoStor[1 << IN_FIFO_ORDER];
-    Fifo m_outFifo;
-    Fifo m_inFifo;
-
-    Timer m_stateTimer;
+static CmdStatus List(Console &console, Evt const *e);
+static CmdHandler const cmdHandler[] = {
+    { "test",       Test,       "Test command", 0 },
+    { "?",          List,       "List commands", 0 }
 };
 
-} // namespace APP
+static CmdStatus List(Console &console, Evt const *e) {
+    return console.ListCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler));
+}
 
-#endif // WIFI_ST_H
+CmdStatus SimpleActCmd(Console &console, Evt const *e) {
+    return console.HandleCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler));
+}
+
+}
