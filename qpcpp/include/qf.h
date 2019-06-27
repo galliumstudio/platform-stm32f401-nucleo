@@ -3,14 +3,14 @@
 /// @ingroup qf
 /// @cond
 ///***************************************************************************
-/// Last updated for version 6.2.0
-/// Last updated on  2018-03-16
+/// Last updated for version 6.5.0
+/// Last updated on  2019-03-21
 ///
-///                    Q u a n t u m     L e a P s
-///                    ---------------------------
-///                    innovating embedded systems
+///                    Q u a n t u m  L e a P s
+///                    ------------------------
+///                    Modern Embedded Software
 ///
-/// Copyright (C) 2002-2018 Quantum Leaps. All rights reserved.
+/// Copyright (C) 2005-2019 Quantum Leaps. All rights reserved.
 ///
 /// This program is open source software: you can redistribute it and/or
 /// modify it under the terms of the GNU General Public License as published
@@ -63,7 +63,10 @@
 
 #ifndef QF_MAX_TICK_RATE
     //! Default value of the macro configurable value in qf_port.h
+    //! Valid values: [0..15]; default 1
     #define QF_MAX_TICK_RATE     1
+#elif (QF_MAX_TICK_RATE > 15)
+    #error "QF_MAX_TICK_RATE exceeds the maximum of 15"
 #endif
 
 #ifndef QF_TIMEEVT_CTR_SIZE
@@ -202,6 +205,12 @@ public:
                     static_cast<QEvt const *>(0));
     }
 
+#ifdef QF_ACTIVE_STOP
+    //! Stops execution of an active object and removes it from the
+    //! framework's supervision.
+    void stop(void);
+#endif
+
 #ifndef Q_SPY
     //! Posts an event @p e directly to the event queue of the active
     //! object @p me using the First-In-First-Out (FIFO) policy.
@@ -217,10 +226,6 @@ public:
 
     //! Un-subscribes from the delivery of all signals to the active object.
     void unsubscribeAll(void) const;
-
-    //! Stops execution of an active object and removes it from the
-    //! framework's supervision.
-    void stop(void);
 
     //! Subscribes for delivery of signal @p sig to the active object
     void subscribe(enum_t const sig) const;
@@ -291,6 +296,9 @@ private:
     friend class QXMutex;
     friend class QXSemaphore;
 #endif // qxk_h
+#ifdef Q_UTEST
+    friend class QActiveDummy;
+#endif // Q_UTEST
 };
 
 //****************************************************************************
@@ -428,8 +436,11 @@ public:
     //! Rearm a time event.
     bool rearm(QTimeEvtCtr const nTicks);
 
+    //! Check the "was disarmed" status of a time event.
+    bool wasDisarmed(void);
+
     //! Get the current value of the down-counter of a time event.
-    QTimeEvtCtr ctr(void) const;
+    QTimeEvtCtr currCtr(void) const;
 
 #if (!defined QP_IMPL) && (QP_API_VERSION < 500)
     //! @deprecated TimeEvt ctor provided for backwards compatibility.
@@ -482,6 +493,7 @@ private:
     QTimeEvt *toTimeEvt(void) { return static_cast<QTimeEvt *>(m_act); }
 
     friend class QF;
+    friend class QS;
 #ifdef qxk_h
     friend class QXThread;
     friend void QXK_activate_(void);
@@ -617,6 +629,7 @@ private:
 
     friend class QActive;
     friend class QTimeEvt;
+    friend class QS;
 #ifdef qxk_h
     friend class QXThread;
 #endif // qxk_h

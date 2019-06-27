@@ -171,6 +171,7 @@ private:
     static HsmnInfMap m_hsmnInfMap;
     static char const * const m_typeName[NUM_TYPE];
     static char const m_truncatedError[];
+    static QP::QSignal const m_entrySig;
     static char const * const m_builtinEvtName[];
     static char const m_undefName[];
 };

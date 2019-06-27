@@ -3,14 +3,14 @@
 /// @brief Internal (package scope) QF/C++ interface.
 /// @cond
 ///***************************************************************************
-/// Last updated for version 6.2.0
-/// Last updated on  2018-03-21
+/// Last updated for version 6.3.7
+/// Last updated on  2018-11-07
 ///
-///                    Q u a n t u m     L e a P s
-///                    ---------------------------
-///                    innovating embedded systems
+///                    Q u a n t u m  L e a P s
+///                    ------------------------
+///                    Modern Embedded Software
 ///
-/// Copyright (C) Quantum Leaps, LLC. All rights reserved.
+/// Copyright (C) 2002-2018 Quantum Leaps, LLC. All rights reserved.
 ///
 /// This program is open source software: you can redistribute it and/or
 /// modify it under the terms of the GNU General Public License as published
@@ -82,6 +82,31 @@
     #define QF_CRIT_EXIT_()     QF_CRIT_EXIT(critStat_)
 #endif  // QF_CRIT_STAT_TYPE
 
+// Assertions inside the crticial section ------------------------------------
+#ifdef Q_NASSERT // Q_NASSERT defined--assertion checking disabled
+
+    #define Q_ASSERT_CRIT_(id_, test_)  ((void)0)
+    #define Q_REQUIRE_CRIT_(id_, test_) ((void)0)
+    #define Q_ERROR_CRIT_(id_)          ((void)0)
+
+#else  // Q_NASSERT not defined--assertion checking enabled
+
+    #define Q_ASSERT_CRIT_(id_, test_) do {\
+        if ((test_)) {} else { \
+            QF_CRIT_EXIT_(); \
+            Q_onAssert(&Q_this_module_[0], static_cast<int_t>(id_)); \
+        } \
+    } while (false)
+
+    #define Q_REQUIRE_CRIT_(id_, test_) Q_ASSERT_CRIT_((id_), (test_))
+
+    #define Q_ERROR_CRIT_(id_) do { \
+        QF_CRIT_EXIT_(); \
+        Q_onAssert(&Q_this_module_[0], static_cast<int_t>(id_)); \
+    } while (false)
+
+#endif // Q_NASSERT
+
 
 namespace QP {
 
@@ -96,6 +121,18 @@ extern enum_t QF_maxPubSignal_;      //!< the maximum published signal
 /// @sa QP::QMPool
 struct QFreeBlock {
     QFreeBlock * volatile m_next;    //!< link to the next free block
+};
+
+//............................................................................
+// The following flags and bitmasks are for the fields of the @c refCtr_
+// attribute of the QP::QTimeEvt class (inherited from QEvt). This attribute
+// is NOT used for reference counting in time events, because the @c poolId_
+// attribute is zero ("static events").
+//
+enum {
+    TE_IS_LINKED    = static_cast<uint8_t>(1U << 7), // flag
+    TE_WAS_DISARMED = static_cast<uint8_t>(1U << 6), // flag
+    TE_TICK_RATE    = static_cast<uint8_t>(0x0F)     // bitmask
 };
 
 //****************************************************************************

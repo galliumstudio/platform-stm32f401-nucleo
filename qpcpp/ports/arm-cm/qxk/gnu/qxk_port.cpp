@@ -3,14 +3,14 @@
 * @brief QXK/C++ port to ARM Cortex-M, GNU-ARM toolset
 * @cond
 ******************************************************************************
-* Last Updated for Version: 6.1.1
-* Date of the Last Update:  2018-03-06
+* Last updated for version 6.3.8
+* Last updated on  2019-01-10
 *
-*                    Q u a n t u m     L e a P s
-*                    ---------------------------
-*                    innovating embedded systems
+*                    Q u a n t u m  L e a P s
+*                    ------------------------
+*                    Modern Embedded Software
 *
-* Copyright (C) 2005-2018 Quantum Leaps, LLC. All rights reserved.
+* Copyright (C) 2005-2019 Quantum Leaps, LLC. All rights reserved.
 *
 * This program is open source software: you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as published
@@ -146,7 +146,7 @@ void QXK_stackInit_(void *act, QP::QActionHandler thread,
 #endif                       /* VFP available */
 
     /* save the top of the stack in the thread's attibute */
-    ((QP::QActive *)act)->m_osObject = sp;
+    static_cast<QP::QActive *>(act)->m_osObject = sp;
 
     /* pre-fill the unused part of the stack with 0xDEADBEEF */
     sp_limit = (uint32_t *)(((((uint32_t)stkSto - 1U) >> 3) + 1U) << 3);
@@ -205,7 +205,7 @@ void QXK_stackInit_(void *act, QP::QActionHandler thread,
 * but for Cortex-M0/M0+/M1 the mnemonics MOV, LSR and ADD always set the
 * condition flags in the PSR.
 *****************************************************************************/
-__attribute__ ((naked))
+__attribute__ ((naked, optimize("-fno-stack-protector")))
 void PendSV_Handler(void) {
 __asm volatile (
 
@@ -505,7 +505,7 @@ __asm volatile (
 * NOTE: Thread_ret does not execute in the PendSV context!
 * NOTE: Thread_ret executes entirely with interrupts DISABLED.
 *****************************************************************************/
-__attribute__ ((naked))
+__attribute__ ((naked, optimize("-fno-stack-protector")))
 void Thread_ret(void) {
 __asm volatile (
 
@@ -547,7 +547,7 @@ __asm volatile (
 * NOTE: The NMI exception is entered with interrupts DISABLED, so it needs
 * to re-enable interrupts before it returns to the preempted task.
 *****************************************************************************/
-__attribute__ ((naked))
+__attribute__ ((naked, optimize("-fno-stack-protector")))
 void NMI_Handler(void) {
 __asm volatile (
 
@@ -568,30 +568,35 @@ __asm volatile (
     );
 }
 
-#if (__ARM_ARCH == 6) /* Cortex-M0/M0+/M1 (v6-M, v6S-M)? */
-
 /*****************************************************************************
-* Hand-optimized quick LOG2 in assembly (M0/M0+ have no CLZ instruction)
-*
+* hand-optimized quick LOG2 in assembly (M0/M0+ have no CLZ instruction)
+*****************************************************************************/
+#if (__ARM_ARCH == 6) /* Cortex-M0/M0+/M1 ? */
+
+/*
 * NOTE:
 * The inline GNU assembler does not accept mnemonics MOVS, LSRS and ADDS,
 * but for Cortex-M0/M0+/M1 the mnemonics MOV, LSR and ADD always set the
 * condition flags in the PSR.
-*****************************************************************************/
-__attribute__ ((naked))
+*/
+__attribute__ ((naked, optimize("-fno-stack-protector")))
 uint_fast8_t QF_qlog2(uint32_t x) {
 __asm volatile (
     "  MOV     r1,#0            \n"
+#if (QF_MAX_ACTIVE > 16)
     "  LSR     r2,r0,#16        \n"
     "  BEQ     QF_qlog2_1       \n"
     "  MOV     r1,#16           \n"
     "  MOV     r0,r2            \n"
     "QF_qlog2_1:                \n"
+#endif
+#if (QF_MAX_ACTIVE > 8)
     "  LSR     r2,r0,#8         \n"
     "  BEQ     QF_qlog2_2       \n"
     "  ADD     r1, r1,#8        \n"
     "  MOV     r0, r2           \n"
     "QF_qlog2_2:                \n"
+#endif
     "  LSR     r2,r0,#4         \n"
     "  BEQ     QF_qlog2_3       \n"
     "  ADD     r1,r1,#4         \n"
@@ -599,8 +604,9 @@ __asm volatile (
     "QF_qlog2_3:                \n"
     "  LDR     r2,=QF_qlog2_LUT \n"
     "  LDRB    r0,[r2,r0]       \n"
-    "  ADD     r0,r1, r0        \n"
+    "  ADD     r0,r1,r0         \n"
     "  BX      lr               \n"
+    "  .align                   \n"
     "QF_qlog2_LUT:              \n"
     "  .byte 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4"
     );

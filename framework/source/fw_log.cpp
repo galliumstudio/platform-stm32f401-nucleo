@@ -67,6 +67,7 @@ char const * const Log::m_typeName[NUM_TYPE] = {
 };
 char const Log::m_truncatedError[] = "<##TRUN##>";
 
+QSignal const Log::m_entrySig = 1;
 char const * const Log::m_builtinEvtName[] = {
     "NULL",
     "ENTRY",
@@ -281,7 +282,7 @@ void Log::Event(Type type, Hsmn hsmn, QP::QEvt const *e, char const *func) {
     FW_ASSERT(e && func);
     Hsm *hsm = Fw::GetHsm(hsmn);
     FW_ASSERT(hsm);
-    if (e->sig == QHsm::Q_ENTRY_SIG) {
+    if (e->sig == m_entrySig) {
         hsm->SetState(func);
     }
     if (!IsOutput(type, hsmn)) {

@@ -2,14 +2,14 @@
 /// @brief QP::QEQueue implementation
 /// @cond
 ///***************************************************************************
-/// Last updated for version 6.2.0
-/// Last updated on  2018-03-16
+/// Last updated for version 6.3.6
+/// Last updated on  2018-10-04
 ///
-///                    Q u a n t u m     L e a P s
-///                    ---------------------------
-///                    innovating embedded systems
+///                    Q u a n t u m  L e a P s
+///                    ------------------------
+///                    Modern Embedded Software
 ///
-/// Copyright (C) 2002-2018 Quantum Leaps. All rights reserved.
+/// Copyright (C) 2005-2018 Quantum Leaps, LLC. All rights reserved.
 ///
 /// This program is open source software: you can redistribute it and/or
 /// modify it under the terms of the GNU General Public License as published
@@ -134,6 +134,12 @@ bool QEQueue::post(QEvt const * const e, uint_fast16_t const margin) {
             QF_EVT_REF_CTR_INC_(e); // increment the reference counter
         }
 
+        --nFree; // one free entry just used up
+        m_nFree = nFree; // update the volatile
+        if (m_nMin > nFree) {
+            m_nMin = nFree; // update minimum so far
+        }
+
         QS_BEGIN_NOCRIT_(QS_QF_EQUEUE_POST_FIFO,
                          QS::priv_.locFilter[QS::EQ_OBJ], this)
             QS_TIME_();                      // timestamp
@@ -143,12 +149,6 @@ bool QEQueue::post(QEvt const * const e, uint_fast16_t const margin) {
             QS_EQC_(nFree);                  // number of free entries
             QS_EQC_(m_nMin);                 // min number of free entries
         QS_END_NOCRIT_()
-
-        --nFree; // one free entry just used up
-        m_nFree = nFree; // update the volatile
-        if (m_nMin > nFree) {
-            m_nMin = nFree; // update minimum so far
-        }
 
         // is the queue empty?
         if (m_frontEvt == static_cast<QEvt const *>(0)) {
@@ -170,7 +170,7 @@ bool QEQueue::post(QEvt const * const e, uint_fast16_t const margin) {
     else {
         /// @note assert if event cannot be posted and dropping events is
         /// not acceptable
-        Q_ASSERT_ID(210, margin != QF_NO_MARGIN);
+        Q_ASSERT_CRIT_(210, margin != QF_NO_MARGIN);
 
         QS_BEGIN_NOCRIT_(QS_QF_EQUEUE_POST_ATTEMPT,
                          QS::priv_.locFilter[QS::EQ_OBJ], this)
@@ -217,11 +217,17 @@ void QEQueue::postLIFO(QEvt const * const e) {
     QEQueueCtr nFree = m_nFree; // temporary to avoid UB for volatile access
 
     /// @pre the queue must be able to accept the event (cannot overflow)
-    Q_REQUIRE_ID(300, nFree != static_cast<QEQueueCtr>(0));
+    Q_REQUIRE_CRIT_(300, nFree != static_cast<QEQueueCtr>(0));
 
     // is it a dynamic event?
     if (e->poolId_ != static_cast<uint8_t>(0)) {
         QF_EVT_REF_CTR_INC_(e); // increment the reference counter
+    }
+
+    --nFree; // one free entry just used up
+    m_nFree = nFree; // update the volatile
+    if (m_nMin > nFree) {
+        m_nMin = nFree; // update minimum so far
     }
 
     QS_BEGIN_NOCRIT_(QS_QF_EQUEUE_POST_LIFO,
@@ -233,12 +239,6 @@ void QEQueue::postLIFO(QEvt const * const e) {
         QS_EQC_(nFree);                  // number of free entries
         QS_EQC_(m_nMin);                 // min number of free entries
     QS_END_NOCRIT_()
-
-    --nFree; // one free entry just used up
-    m_nFree = nFree; // update the volatile
-    if (m_nMin > nFree) {
-        m_nMin = nFree; // update minimum so far
-    }
 
     QEvt const *frontEvt = m_frontEvt; // read volatile into temporary
     m_frontEvt = e; // deliver event directly to the front of the queue
@@ -304,7 +304,7 @@ QEvt const *QEQueue::get(void) {
             m_frontEvt = static_cast<QEvt const *>(0); // queue becomes empty
 
             // all entries in the queue must be free (+1 for fronEvt)
-            Q_ASSERT_ID(410, nFree == (m_end + static_cast<QEQueueCtr>(1)));
+            Q_ASSERT_CRIT_(410, nFree == (m_end + static_cast<QEQueueCtr>(1)));
 
             QS_BEGIN_NOCRIT_(QS_QF_EQUEUE_GET_LAST,
                              QS::priv_.locFilter[QS::EQ_OBJ],

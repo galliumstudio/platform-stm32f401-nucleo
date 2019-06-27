@@ -2,14 +2,14 @@
 /// @brief QF/C++ memory management services
 /// @cond
 ///***************************************************************************
-/// Last updated for version 6.2.0
-/// Last updated on  2018-03-16
+/// Last updated for version 6.3.6
+/// Last updated on  2018-10-04
 ///
-///                    Q u a n t u m     L e a P s
-///                    ---------------------------
-///                    innovating embedded systems
+///                    Q u a n t u m  L e a P s
+///                    ------------------------
+///                    Modern Embedded Software
 ///
-/// Copyright (C) 2002-2018 Quantum Leaps. All rights reserved.
+/// Copyright (C) 2005-2018 Quantum Leaps, LLC. All rights reserved.
 ///
 /// This program is open source software: you can redistribute it and/or
 /// modify it under the terms of the GNU General Public License as published
@@ -186,9 +186,9 @@ void QMPool::put(void * const b) {
     ++m_nFree;       // one more free block in this pool
 
     QS_BEGIN_NOCRIT_(QS_QF_MPOOL_PUT,
-                     QS::priv_.locFilter[QS::MP_OBJ], m_start)
+                     QS::priv_.locFilter[QS::MP_OBJ], this)
         QS_TIME_();       // timestamp
-        QS_OBJ_(m_start); // the memory managed by this pool
+        QS_OBJ_(this);    // this memory pool
         QS_MPC_(m_nFree); // the number of free blocks in the pool
     QS_END_NOCRIT_()
 
@@ -229,7 +229,7 @@ void *QMPool::get(uint_fast16_t const margin) {
         fb = static_cast<QFreeBlock *>(m_free_head);  // get a free block
 
         // the pool has some free blocks, so a free block must be available
-        Q_ASSERT_ID(310, fb != static_cast<QFreeBlock *>(0));
+        Q_ASSERT_CRIT_(310, fb != static_cast<QFreeBlock *>(0));
 
         void *fb_next = fb->m_next; // put volatile to a temporary to avoid UB
 
@@ -237,7 +237,7 @@ void *QMPool::get(uint_fast16_t const margin) {
         --m_nFree;  // one free block less
         if (m_nFree == static_cast<QMPoolCtr>(0)) {
             // pool is becoming empty, so the next free block must be NULL
-            Q_ASSERT_ID(320, fb_next == static_cast<QFreeBlock *>(0));
+            Q_ASSERT_CRIT_(320, fb_next == static_cast<QFreeBlock *>(0));
 
             m_nMin = static_cast<QMPoolCtr>(0);// remember that pool got empty
         }
@@ -247,7 +247,7 @@ void *QMPool::get(uint_fast16_t const margin) {
             // NOTE: the next free block pointer can fall out of range
             // when the client code writes past the memory block, thus
             // corrupting the next block.
-            Q_ASSERT_ID(330, QF_PTR_RANGE_(fb_next, m_start, m_end));
+            Q_ASSERT_CRIT_(330, QF_PTR_RANGE_(fb_next, m_start, m_end));
 
             // is the number of free blocks the new minimum so far?
             if (m_nMin > m_nFree) {
@@ -258,9 +258,9 @@ void *QMPool::get(uint_fast16_t const margin) {
         m_free_head = fb_next; // set the head to the next free block
 
         QS_BEGIN_NOCRIT_(QS_QF_MPOOL_GET,
-                         QS::priv_.locFilter[QS::MP_OBJ], m_start)
+                         QS::priv_.locFilter[QS::MP_OBJ], this)
             QS_TIME_();        // timestamp
-            QS_OBJ_(m_start);  // the memory managed by this pool
+            QS_OBJ_(this);    // this memory pool
             QS_MPC_(m_nFree);  // the number of free blocks in the pool
             QS_MPC_(m_nMin);   // the mninimum # free blocks in the pool
         QS_END_NOCRIT_()

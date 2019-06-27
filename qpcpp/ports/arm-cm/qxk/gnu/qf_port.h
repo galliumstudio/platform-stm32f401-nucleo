@@ -2,12 +2,12 @@
 /// @brief QF/C++ port to ARM Cortex-M, dual-mode QXK kernel, GNU-ARM toolset
 /// @cond
 ///***************************************************************************
-/// Last Updated for Version: 6.1.1
-/// Date of the Last Update:  2018-03-05
+/// Last Updated for Version: 6.3.8
+/// Date of the Last Update:  2019-01-11
 ///
-///                    Q u a n t u m     L e a P s
-///                    ---------------------------
-///                    innovating embedded systems
+///                    Q u a n t u m  L e a P s
+///                    ------------------------
+///                    Modern Embedded Software
 ///
 /// Copyright (C) 2005-2018 Quantum Leaps, LLC. All rights reserved.
 ///
@@ -38,26 +38,23 @@
 #ifndef qf_port_h
 #define qf_port_h
 
-// The maximum number of active objects in the application, see NOTE1
-#define QF_MAX_ACTIVE           32
-
 // The maximum number of system clock tick rates
 #define QF_MAX_TICK_RATE        2
 
 // QF interrupt disable/enable and log2()...
 #if (__ARM_ARCH == 6) // Cortex-M0/M0+/M1(v6-M, v6S-M)?
 
+    // The maximum number of active objects in the application, see NOTE1
+    #define QF_MAX_ACTIVE       16
+
     // Cortex-M0/M0+/M1(v6-M, v6S-M) interrupt disabling policy, see NOTE2
     #define QF_INT_DISABLE()    __asm volatile ("cpsid i")
     #define QF_INT_ENABLE()     __asm volatile ("cpsie i")
 
-    // Gallium
-    // QF critical section (save and restore interrupt status), see NOTE6
+    // QF critical section (save and restore interrupt status), see NOTE2
     #define QF_CRIT_STAT_TYPE   uint32_t
-    #define QF_CRIT_ENTRY(primask_) do { \
-        __asm volatile ("mrs %0,PRIMASK" : "=r" (primask_) ::); \
-        __asm volatile ("cpsid i" :: "" (primask_) : ); \
-    } while (false)
+    #define QF_CRIT_ENTRY(primask_) \
+        __asm volatile ("mrs %0,PRIMASK\n" "cpsid i" : "=r" (primask_) ::)
     #define QF_CRIT_EXIT(primask_) \
         __asm volatile ("msr PRIMASK,%0" :: "r" (primask_) : )
 
@@ -65,9 +62,12 @@
     #define QF_AWARE_ISR_CMSIS_PRI 0
 
     // hand-optimized LOG2 in assembly for Cortex-M0/M0+/M1(v6-M, v6S-M)
-    #define QF_LOG2(n_) QF_qlog2((n_))
+    #define QF_LOG2(n_) QF_qlog2(static_cast<uint32_t>(n_))
 
 #else // Cortex-M3/M4/M7
+
+    // The maximum number of active objects in the application, see NOTE1
+    #define QF_MAX_ACTIVE       32
 
     // Cortex-M3/M4/M7 alternative interrupt disabling with PRIMASK
     #define QF_PRIMASK_DISABLE() __asm volatile ("cpsid i")
@@ -79,14 +79,12 @@
     #define QF_INT_ENABLE()  __asm volatile (\
         "msr BASEPRI,%0" :: "r" (0) : )
 
-    // Gallium
-    // QF critical section (save and restore interrupt status), see NOTE5,6
+    // QF critical section (save and restore interrupt status), see NOTE5
     #define QF_CRIT_STAT_TYPE   uint32_t
     #define QF_CRIT_ENTRY(basepri_) do { \
         __asm volatile ("mrs %0,BASEPRI" : "=r" (basepri_) :: ); \
-        __asm volatile ("cpsid i" :: "" (basepri_) : ); \
-        __asm volatile ("msr BASEPRI,%0" :: "r" (QF_BASEPRI) : ); \
-        __asm volatile ("cpsie i" :: "" (basepri_) : ); \
+        __asm volatile ("cpsid i\n msr BASEPRI,%0\n cpsie i" \
+                        :: "r" (QF_BASEPRI) : ); \
     } while (0)
     #define QF_CRIT_EXIT(basepri_) \
         __asm volatile ("msr BASEPRI,%0" :: "r" (basepri_) : )
@@ -98,7 +96,8 @@
     #define QF_AWARE_ISR_CMSIS_PRI (QF_BASEPRI >> (8 - __NVIC_PRIO_BITS))
 
     // Cortex-M3/M4/M7 provide the CLZ instruction for fast LOG2
-    #define QF_LOG2(n_) (static_cast<uint_fast8_t>(32U - __builtin_clz(n_)))
+    #define QF_LOG2(n_) (static_cast<uint_fast8_t>( \
+        32U - __builtin_clz(static_cast<unsigned>(n_))))
 
 #endif
 
@@ -113,7 +112,7 @@
 
 #include "qxk_port.h" // QXK dual-mode kernel port
 #include "qf.h"       // QF platform-independent public interface
-#include "qxthread.h" // QXK extended thread
+#include "qxthread.h" // QXK extended thread interface
 
 //****************************************************************************
 // NOTE1:
