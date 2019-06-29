@@ -274,9 +274,9 @@ QState System::Starting1(System * const me, QEvt const * const e) {
 
             // USER LED pin (PA.5) is shared with TFP display SPI clock pin.
             // It must not be enabled when the TFP is used (e.g. in LevelMeter).
-            evt = new GpioOutStartReq(USER_LED, SYSTEM, GEN_SEQ());
-            me->GetHsm().SaveOutSeq(*evt);
-            Fw::Post(evt);
+            //evt = new GpioOutStartReq(USER_LED, SYSTEM, GEN_SEQ());
+            //me->GetHsm().SaveOutSeq(*evt);
+            //Fw::Post(evt);
 
             // Additional LED pin. It requires additional hardware.
             //evt = new GpioOutStartReq(TEST_LED, SYSTEM, GEN_SEQ());
@@ -364,11 +364,11 @@ QState System::Starting3(System * const me, QEvt const * const e) {
             EVENT(e);
             Evt *evt;
             // Uncomment this to bypass LEVEL_METER.
-            ///*
+            /*
             evt = new Evt(DONE, GET_HSMN());
             me->PostSync(evt);
             return Q_HANDLED();
-            //*/
+            */
             me->GetHsm().ResetOutSeq();
             evt = new LevelMeterStartReq(LEVEL_METER, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
