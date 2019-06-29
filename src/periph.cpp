@@ -133,7 +133,7 @@ void Periph::Reset() {
     __HAL_RCC_DMA2_CLK_DISABLE();
     __HAL_RCC_DMA1_CLK_DISABLE();
     __GPIOC_CLK_DISABLE();
-    __GPIOB_CLK_ENABLE();
+    __GPIOB_CLK_DISABLE();
     __GPIOA_CLK_DISABLE();
     // TBD.
 }

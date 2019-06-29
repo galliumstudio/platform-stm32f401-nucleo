@@ -46,7 +46,7 @@
 #include "CompositeActInterface.h"
 #include "SimpleActInterface.h"
 #include "DemoInterface.h"
-#include "UserLedInterface.h"
+#include "GpioOutInterface.h"
 #include "AOWashingMachineInterface.h"
 #include "TrafficInterface.h"
 #include "LevelMeterInterface.h"
@@ -274,12 +274,12 @@ QState System::Starting1(System * const me, QEvt const * const e) {
 
             // USER LED pin (PA.5) is shared with TFP display SPI clock pin.
             // It must not be enabled when the TFP is used (e.g. in LevelMeter).
-            //evt = new UserLedStartReq(USER_LED, SYSTEM, GEN_SEQ());
-            //me->GetHsm().SaveOutSeq(*evt);
-            //Fw::Post(evt);
+            evt = new GpioOutStartReq(USER_LED, SYSTEM, GEN_SEQ());
+            me->GetHsm().SaveOutSeq(*evt);
+            Fw::Post(evt);
 
             // Additional LED pin. It requires additional hardware.
-            //evt = new UserLedStartReq(TEST_LED, SYSTEM, GEN_SEQ());
+            //evt = new GpioOutStartReq(TEST_LED, SYSTEM, GEN_SEQ());
             //me->GetHsm().SaveOutSeq(*evt);
             //Fw::Post(evt);
 
@@ -296,7 +296,7 @@ QState System::Starting1(System * const me, QEvt const * const e) {
         case TRAFFIC_START_CFM:
         case GPIO_IN_START_CFM:
         case WIFI_START_CFM:
-        case USER_LED_START_CFM: {
+        case GPIO_OUT_START_CFM: {
             EVENT(e);
             ErrorEvt const &cfm = ERROR_EVT_CAST(*e);
             bool allReceived;
@@ -364,11 +364,11 @@ QState System::Starting3(System * const me, QEvt const * const e) {
             EVENT(e);
             Evt *evt;
             // Uncomment this to bypass LEVEL_METER.
-            /*
+            ///*
             evt = new Evt(DONE, GET_HSMN());
             me->PostSync(evt);
             return Q_HANDLED();
-            */
+            //*/
             me->GetHsm().ResetOutSeq();
             evt = new LevelMeterStartReq(LEVEL_METER, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
@@ -513,12 +513,12 @@ QState System::Stopping2(System * const me, QEvt const * const e) {
 
             // USER LED pin (PA.5) is shared with TFP display SPI clock pin.
             // It must not be enabled when the TFP is used (e.g. in LevelMeter).
-            evt = new UserLedStopReq(USER_LED, SYSTEM, GEN_SEQ());
+            evt = new GpioOutStopReq(USER_LED, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
 
             // Additional LED pin. It requires additional hardware.
-            //evt = new UserLedStopReq(TEST_LED, SYSTEM, GEN_SEQ());
+            //evt = new GpioOutStopReq(TEST_LED, SYSTEM, GEN_SEQ());
             //me->GetHsm().SaveOutSeq(*evt);
             //Fw::Post(evt);
 
@@ -536,7 +536,7 @@ QState System::Stopping2(System * const me, QEvt const * const e) {
         case GPIO_IN_STOP_CFM:
         case WIFI_STOP_CFM:
         case SENSOR_STOP_CFM:
-        case USER_LED_STOP_CFM: {
+        case GPIO_OUT_STOP_CFM: {
             EVENT(e);
             ErrorEvt const &cfm = ERROR_EVT_CAST(*e);
             bool allReceived;

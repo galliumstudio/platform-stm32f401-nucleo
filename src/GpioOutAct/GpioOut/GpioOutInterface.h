@@ -36,8 +36,8 @@
  * Email - admin@galliumstudio.com
  ******************************************************************************/
 
-#ifndef USER_LED_INTERFACE_H
-#define USER_LED_INTERFACE_H
+#ifndef GPIO_OUT_INTERFACE_H
+#define GPIO_OUT_INTERFACE_H
 
 #include "fw_def.h"
 #include "fw_evt.h"
@@ -48,66 +48,66 @@ using namespace FW;
 
 namespace APP {
 
-#define USER_LED_INTERFACE_EVT \
-    ADD_EVT(USER_LED_START_REQ) \
-    ADD_EVT(USER_LED_START_CFM) \
-    ADD_EVT(USER_LED_STOP_REQ) \
-    ADD_EVT(USER_LED_STOP_CFM) \
-    ADD_EVT(USER_LED_PATTERN_REQ) \
-    ADD_EVT(USER_LED_PATTERN_CFM) \
-    ADD_EVT(USER_LED_OFF_REQ) \
-    ADD_EVT(USER_LED_OFF_CFM)
+#define GPIO_OUT_INTERFACE_EVT \
+    ADD_EVT(GPIO_OUT_START_REQ) \
+    ADD_EVT(GPIO_OUT_START_CFM) \
+    ADD_EVT(GPIO_OUT_STOP_REQ) \
+    ADD_EVT(GPIO_OUT_STOP_CFM) \
+    ADD_EVT(GPIO_OUT_PATTERN_REQ) \
+    ADD_EVT(GPIO_OUT_PATTERN_CFM) \
+    ADD_EVT(GPIO_OUT_OFF_REQ) \
+    ADD_EVT(GPIO_OUT_OFF_CFM)
 
 #undef ADD_EVT
 #define ADD_EVT(e_) e_,
 
 enum {
-    USER_LED_INTERFACE_EVT_START = INTERFACE_EVT_START(USER_LED),
-    USER_LED_INTERFACE_EVT
+    GPIO_OUT_INTERFACE_EVT_START = INTERFACE_EVT_START(GPIO_OUT),
+    GPIO_OUT_INTERFACE_EVT
 };
 
 enum {
-    USER_LED_REASON_UNSPEC = 0,
-    USER_LED_REASON_INVALID_PATTERN,
+    GPIO_OUT_REASON_UNSPEC = 0,
+    GPIO_OUT_REASON_INVALID_PATTERN,
 };
 
-class UserLedStartReq : public Evt {
+class GpioOutStartReq : public Evt {
 public:
     enum {
         TIMEOUT_MS = 100
     };
-    UserLedStartReq(Hsmn to, Hsmn from, Sequence seq) :
-        Evt(USER_LED_START_REQ, to, from, seq) {}
+    GpioOutStartReq(Hsmn to, Hsmn from, Sequence seq) :
+        Evt(GPIO_OUT_START_REQ, to, from, seq) {}
 };
 
-class UserLedStartCfm : public ErrorEvt {
+class GpioOutStartCfm : public ErrorEvt {
 public:
-    UserLedStartCfm(Hsmn to, Hsmn from, Sequence seq, Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
-        ErrorEvt(USER_LED_START_CFM, to, from, seq, error, origin, reason) {}
+    GpioOutStartCfm(Hsmn to, Hsmn from, Sequence seq, Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
+        ErrorEvt(GPIO_OUT_START_CFM, to, from, seq, error, origin, reason) {}
 };
 
-class UserLedStopReq : public Evt {
-public:
-    enum {
-        TIMEOUT_MS = 100
-    };
-    UserLedStopReq(Hsmn to, Hsmn from, Sequence seq) :
-        Evt(USER_LED_STOP_REQ, to, from, seq) {}
-};
-
-class UserLedStopCfm : public ErrorEvt {
-public:
-    UserLedStopCfm(Hsmn to, Hsmn from, Sequence seq, Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
-        ErrorEvt(USER_LED_STOP_CFM, to, from, seq, error, origin, reason) {}
-};
-
-class UserLedPatternReq : public Evt {
+class GpioOutStopReq : public Evt {
 public:
     enum {
         TIMEOUT_MS = 100
     };
-    UserLedPatternReq(Hsmn to, Hsmn from, Sequence seq, uint32_t patternIndex, bool isRepeat = false) :
-        Evt(USER_LED_PATTERN_REQ, to, from, seq), m_patternIndex(patternIndex), m_isRepeat(isRepeat) {}
+    GpioOutStopReq(Hsmn to, Hsmn from, Sequence seq) :
+        Evt(GPIO_OUT_STOP_REQ, to, from, seq) {}
+};
+
+class GpioOutStopCfm : public ErrorEvt {
+public:
+    GpioOutStopCfm(Hsmn to, Hsmn from, Sequence seq, Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
+        ErrorEvt(GPIO_OUT_STOP_CFM, to, from, seq, error, origin, reason) {}
+};
+
+class GpioOutPatternReq : public Evt {
+public:
+    enum {
+        TIMEOUT_MS = 100
+    };
+    GpioOutPatternReq(Hsmn to, Hsmn from, Sequence seq, uint32_t patternIndex, bool isRepeat = false) :
+        Evt(GPIO_OUT_PATTERN_REQ, to, from, seq), m_patternIndex(patternIndex), m_isRepeat(isRepeat) {}
     uint32_t GetPatternIndex() const { return m_patternIndex; }
     bool IsRepeat() const { return m_isRepeat; }
 private:
@@ -115,27 +115,27 @@ private:
     bool m_isRepeat;
 };
 
-class UserLedPatternCfm : public ErrorEvt {
+class GpioOutPatternCfm : public ErrorEvt {
 public:
-    UserLedPatternCfm(Hsmn to, Hsmn from, Sequence seq, Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
-        ErrorEvt(USER_LED_PATTERN_CFM, to, from, seq, error, origin, reason) {}
+    GpioOutPatternCfm(Hsmn to, Hsmn from, Sequence seq, Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
+        ErrorEvt(GPIO_OUT_PATTERN_CFM, to, from, seq, error, origin, reason) {}
 };
 
-class UserLedOffReq : public Evt {
+class GpioOutOffReq : public Evt {
 public:
     enum {
         TIMEOUT_MS = 100
     };
-    UserLedOffReq(Hsmn to, Hsmn from, Sequence seq) :
-        Evt(USER_LED_OFF_REQ, to, from, seq) {}
+    GpioOutOffReq(Hsmn to, Hsmn from, Sequence seq) :
+        Evt(GPIO_OUT_OFF_REQ, to, from, seq) {}
 };
 
-class UserLedOffCfm : public ErrorEvt {
+class GpioOutOffCfm : public ErrorEvt {
 public:
-    UserLedOffCfm(Hsmn to, Hsmn from, Sequence seq, Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
-        ErrorEvt(USER_LED_OFF_CFM, to, from, seq, error, origin, reason) {}
+    GpioOutOffCfm(Hsmn to, Hsmn from, Sequence seq, Error error, Hsmn origin = HSM_UNDEF, Reason reason = 0) :
+        ErrorEvt(GPIO_OUT_OFF_CFM, to, from, seq, error, origin, reason) {}
 };
 
 } // namespace APP
 
-#endif // USER_LED_INTERFACE_H
+#endif // GPIO_OUT_INTERFACE_H

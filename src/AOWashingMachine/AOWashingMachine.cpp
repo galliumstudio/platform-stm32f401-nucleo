@@ -39,7 +39,7 @@
 #include "app_hsmn.h"
 #include "fw_log.h"
 #include "fw_assert.h"
-#include "UserLedInterface.h"
+#include "GpioOutInterface.h"
 #include "AOWashingMachineInterface.h"
 #include "AOWashingMachine.h"
 
@@ -283,7 +283,7 @@ QState AOWashingMachine::DoorOpen(AOWashingMachine * const me, QEvt const * cons
             EVENT(e);
             me->m_doorState = DOOR_OPEN;
             // Uncomment to hook up with LED.
-            //Evt *evt = new UserLedOffReq(USER_LED, GET_HSMN(), GEN_SEQ());
+            //Evt *evt = new GpioOutOffReq(USER_LED, GET_HSMN(), GEN_SEQ());
             //Fw::Post(evt);
             return Q_HANDLED();
         }
@@ -369,7 +369,7 @@ QState AOWashingMachine::DoorUnlocked(AOWashingMachine * const me, QEvt const * 
             EVENT(e);
             me->UnlockDoor();
             // Uncomment to hook up with LED.
-            //Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 0, true);
+            //Evt *evt = new GpioOutPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 0, true);
             //Fw::Post(evt);
             return Q_HANDLED();
         }
@@ -416,7 +416,7 @@ QState AOWashingMachine::DoorLocked(AOWashingMachine * const me, QEvt const * co
             EVENT(e);
             me->LockDoor();
             // Uncomment to hook up with LED.
-            //Evt *evt = new UserLedPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 1, true);
+            //Evt *evt = new GpioOutPatternReq(USER_LED, GET_HSMN(), GEN_SEQ(), 1, true);
             //Fw::Post(evt);
             return Q_HANDLED();
         }

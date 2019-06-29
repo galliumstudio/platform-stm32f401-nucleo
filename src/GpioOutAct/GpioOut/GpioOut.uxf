@@ -33,9 +33,9 @@ fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
       <w>1368</w>
       <h>1152</h>
     </coordinates>
-    <panel_attributes>UserLed::Root
+    <panel_attributes>GpioOut::Root
 --
-USER_LED_START_REQ/ ^USER_LED_START_CFM(STATE)
+GPIO_OUT_START_REQ/ ^GPIO_OUT_START_CFM(STATE)
 valign=top
 </panel_attributes>
     <additional_attributes/>
@@ -52,8 +52,8 @@ valign=top
 --
 entry/ InitGpio()
 exit/ DeInitGpio()
-USER_LED_PATTERN_REQ[patternIndex invalid]
-/ ^USER_LED_PATTERN_CFM(ERROR_PARAM)
+GPIO_OUT_PATTERN_REQ[patternIndex invalid]
+/ ^GPIO_OUT_PATTERN_CFM(ERROR_PARAM)
 
 valign=top
 </panel_attributes>
@@ -69,8 +69,8 @@ valign=top
     </coordinates>
     <panel_attributes>Stopped
 --
-USER_LED_STOP_REQ
-/ ^USER_LED_STOP_CFM(SUCCESS)
+GPIO_OUT_STOP_REQ
+/ ^GPIO_OUT_STOP_CFM(SUCCESS)
 
 valign=top
 </panel_attributes>
@@ -106,10 +106,10 @@ valign=top
       <w>384</w>
       <h>108</h>
     </coordinates>
-    <panel_attributes>USER_LED_PATTERN_REQ[patternIndex valid]
+    <panel_attributes>GPIO_OUT_PATTERN_REQ[patternIndex valid]
 / save isRepeat, intervalIndex = 0,
   currPattern = indexed pattern,
-  ^USER_LED_PATTERN_CFM(SUCCESS),
+  ^GPIO_OUT_PATTERN_CFM(SUCCESS),
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -121,8 +121,8 @@ style=wordwrap</panel_attributes>
       <w>252</w>
       <h>60</h>
     </coordinates>
-    <panel_attributes>USER_LED_STOP_REQ
-/ ^USER_LED_STOP_CFM(SUCCESS)
+    <panel_attributes>GPIO_OUT_STOP_REQ
+/ ^GPIO_OUT_STOP_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -151,7 +151,7 @@ entry/ currInterval = indexed interval,
        start intervalTimer(currInterval.duration),
        ConfigPwm(currInterval.level)
 exit / stop intervalTimer
-USER_LED_OFF_REQ/ ^USER_LED_OFF_CFM(SUCCESS), ^^DONE
+GPIO_OUT_OFF_REQ/ ^GPIO_OUT_OFF_CFM(SUCCESS), ^^DONE
 INTERVAL_TIMER[intervalIndex &lt; currPattern.count-1]/ ^^NEXT_INTERVAL
 INTERVAL_TIMER[intervalIndex = currPattern.count-1]/ ^^LAST_INTERVAL
 valign=top
@@ -169,7 +169,7 @@ valign=top
     <panel_attributes>Idle
 --
 entry/ ConfigPwm(0)
-USER_LED_OFF_REQ/ ^USER_LED_OFF_CFM(SUCCESS)
+GPIO_OUT_OFF_REQ/ ^GPIO_OUT_OFF_CFM(SUCCESS)
 
 valign=top
 </panel_attributes>
@@ -205,8 +205,8 @@ valign=top
       <w>276</w>
       <h>60</h>
     </coordinates>
-    <panel_attributes>USER_LED_START_REQ
-/ ^USER_LED_START_CFM(SUCCESS)
+    <panel_attributes>GPIO_OUT_START_REQ
+/ ^GPIO_OUT_START_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>

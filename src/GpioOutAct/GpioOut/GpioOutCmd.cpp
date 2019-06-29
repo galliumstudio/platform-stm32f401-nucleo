@@ -40,17 +40,17 @@
 #include "fw_log.h"
 #include "fw_assert.h"
 #include "Console.h"
-#include "UserLedInterface.h"
-#include "UserLedCmd.h"
+#include "GpioOutInterface.h"
+#include "GpioOutCmd.h"
 
-FW_DEFINE_THIS_FILE("UserLedCmd.cpp")
+FW_DEFINE_THIS_FILE("GpioOutCmd.cpp")
 
 namespace APP {
 
 static CmdStatus Test(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
-            console.PutStr("UserLedCmd Test\n\r");
+            console.PutStr("GpioOutCmd Test\n\r");
             break;
         }
     }
@@ -68,16 +68,16 @@ static CmdStatus On(Console &console, Evt const *e) {
                     repeat = false;
                 }
                 console.Print("pattern = %d, repeat = %d\n\r", pattern, repeat);
-                Evt *evt = new UserLedPatternReq(USER_LED, console.GetHsmn(), console.GenSeq(), pattern, repeat);
+                Evt *evt = new GpioOutPatternReq(GPIO_OUT, console.GetHsmn(), console.GenSeq(), pattern, repeat);
                 Fw::Post(evt);
-                evt = new UserLedPatternReq(TEST_LED, console.GetHsmn(), console.GenSeq(), pattern, repeat);
+                evt = new GpioOutPatternReq(TEST_LED, console.GetHsmn(), console.GenSeq(), pattern, repeat);
                 Fw::Post(evt);
                 break;
             }
             console.Print("led on <pattern idx> [0=once,*other=repeat]\n\r");
             return CMD_DONE;
         }
-        case USER_LED_PATTERN_CFM: {
+        case GPIO_OUT_PATTERN_CFM: {
             ErrorEvt const &cfm = ERROR_EVT_CAST(*e);
             console.PrintErrorEvt(&cfm);
             return CMD_DONE;
@@ -89,13 +89,13 @@ static CmdStatus On(Console &console, Evt const *e) {
 static CmdStatus Off(Console &console, Evt const *e) {
     switch (e->sig) {
         case Console::CONSOLE_CMD: {
-            Evt *evt = new UserLedOffReq(USER_LED, console.GetHsmn(), console.GenSeq());
+            Evt *evt = new GpioOutOffReq(GPIO_OUT, console.GetHsmn(), console.GenSeq());
             Fw::Post(evt);
-            evt = new UserLedOffReq(TEST_LED, console.GetHsmn(), console.GenSeq());
+            evt = new GpioOutOffReq(TEST_LED, console.GetHsmn(), console.GenSeq());
             Fw::Post(evt);
             break;
         }
-        case USER_LED_OFF_CFM: {
+        case GPIO_OUT_OFF_CFM: {
             ErrorEvt const &cfm = ERROR_EVT_CAST(*e);
             console.PrintErrorEvt(&cfm);
             return CMD_DONE;
@@ -117,7 +117,7 @@ static CmdStatus List(Console &console, Evt const *e) {
     return console.ListCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler));
 }
 
-CmdStatus UserLedCmd(Console &console, Evt const *e) {
+CmdStatus GpioOutCmd(Console &console, Evt const *e) {
     return console.HandleCmd(e, cmdHandler, ARRAY_COUNT(cmdHandler));
 }
 

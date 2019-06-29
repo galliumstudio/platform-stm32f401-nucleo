@@ -36,34 +36,34 @@
  * Email - admin@galliumstudio.com
  ******************************************************************************/
 
-#ifndef USER_LED_H
-#define USER_LED_H
+#ifndef GPIO_OUT_H
+#define GPIO_OUT_H
 
 #include "qpcpp.h"
-#include "fw_active.h"
+#include "fw_region.h"
 #include "fw_timer.h"
 #include "fw_evt.h"
 #include "app_hsmn.h"
-#include "LedPattern.h"
+#include "GpioPattern.h"
 
 using namespace QP;
 using namespace FW;
 
 namespace APP {
 
-class UserLed : public Active {
+class GpioOut : public Region {
 public:
-    UserLed(Hsmn hsmn, char const *name);
+    GpioOut();
 
 protected:
-    static QState InitialPseudoState(UserLed * const me, QEvt const * const e);
-    static QState Root(UserLed * const me, QEvt const * const e);
-        static QState Stopped(UserLed * const me, QEvt const * const e);
-        static QState Started(UserLed * const me, QEvt const * const e);
-            static QState Idle(UserLed * const me, QEvt const * const e);
-            static QState Active(UserLed * const me, QEvt const * const e);
-                static QState Repeating(UserLed * const me, QEvt const * const e);
-                static QState Once(UserLed * const me, QEvt const * const e);
+    static QState InitialPseudoState(GpioOut * const me, QEvt const * const e);
+    static QState Root(GpioOut * const me, QEvt const * const e);
+        static QState Stopped(GpioOut * const me, QEvt const * const e);
+        static QState Started(GpioOut * const me, QEvt const * const e);
+            static QState Idle(GpioOut * const me, QEvt const * const e);
+            static QState Active(GpioOut * const me, QEvt const * const e);
+                static QState Repeating(GpioOut * const me, QEvt const * const e);
+                static QState Once(GpioOut * const me, QEvt const * const e);
 
     void InitGpio();
     void DeInitGpio();
@@ -82,20 +82,20 @@ protected:
         TIM_TypeDef *pwmTimer;
         uint32_t pwmChannel;
         bool pwmComplementary;
-        LedPatternSet const &patternSet;
+        GpioPatternSet const &patternSet;
     } Config;
     static Config const CONFIG[];
 
     Config const *m_config;
-    LedPattern const *m_currPattern;
+    GpioPattern const *m_currPattern;
     uint32_t m_intervalIndex;
     bool m_isRepeat;
     Timer m_intervalTimer;
 
-#define USER_LED_TIMER_EVT \
+#define GPIO_OUT_TIMER_EVT \
     ADD_EVT(INTERVAL_TIMER)
 
-#define USER_LED_INTERNAL_EVT \
+#define GPIO_OUT_INTERNAL_EVT \
     ADD_EVT(DONE) \
     ADD_EVT(NEXT_INTERVAL) \
     ADD_EVT(LAST_INTERVAL)
@@ -104,16 +104,16 @@ protected:
 #define ADD_EVT(e_) e_,
 
     enum {
-        USER_LED_TIMER_EVT_START = TIMER_EVT_START(USER_LED),
-        USER_LED_TIMER_EVT
+        GPIO_OUT_TIMER_EVT_START = TIMER_EVT_START(GPIO_OUT),
+        GPIO_OUT_TIMER_EVT
     };
     enum {
-        USER_LED_INTERNAL_EVT_START = INTERNAL_EVT_START(USER_LED),
-        USER_LED_INTERNAL_EVT
+        GPIO_OUT_INTERNAL_EVT_START = INTERNAL_EVT_START(GPIO_OUT),
+        GPIO_OUT_INTERNAL_EVT
     };
 };
 
 } // namespace APP
 
-#endif // USER_LED_H
+#endif // GPIO_OUT_H
 

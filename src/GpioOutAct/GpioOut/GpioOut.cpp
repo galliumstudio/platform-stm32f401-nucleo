@@ -40,12 +40,12 @@
 #include "fw_log.h"
 #include "fw_assert.h"
 #include "fw_active.h"
-#include "UserLedInterface.h"
-#include "UserLed.h"
-#include "LedPattern.h"
+#include "GpioOutInterface.h"
+#include "GpioOut.h"
+#include "GpioPattern.h"
 #include "periph.h"
 
-FW_DEFINE_THIS_FILE("UserLed.cpp")
+FW_DEFINE_THIS_FILE("GpioOut.cpp")
 
 namespace APP {
 
@@ -53,31 +53,56 @@ namespace APP {
 #define ADD_EVT(e_) #e_,
 
 static char const * const timerEvtName[] = {
-    "USER_LED_TIMER_EVT_START",
-    USER_LED_TIMER_EVT
+    "GPIO_OUT_TIMER_EVT_START",
+    GPIO_OUT_TIMER_EVT
 };
 
 static char const * const internalEvtName[] = {
-    "USER_LED_INTERNAL_EVT_START",
-    USER_LED_INTERNAL_EVT
+    "GPIO_OUT_INTERNAL_EVT_START",
+    GPIO_OUT_INTERNAL_EVT
 };
 
 static char const * const interfaceEvtName[] = {
-    "USER_LED_INTERFACE_EVT_START",
-    USER_LED_INTERFACE_EVT
+    "GPIO_OUT_INTERFACE_EVT_START",
+    GPIO_OUT_INTERFACE_EVT
 };
 
-// Define LED configurations.
+// The order below must match that in app_hsmn.h.
+static char const * const hsmName[] = {
+    "USER_LED",
+    "TEST_LED",
+    // Add more regions here.
+};
+
+static char const * GetName(Hsmn hsmn) {
+    uint16_t inst = hsmn - GPIO_OUT;
+    FW_ASSERT(inst < ARRAY_COUNT(hsmName));
+    return hsmName[inst];
+}
+
+static Hsmn &GetCurrHsmn() {
+    static Hsmn hsmn = GPIO_OUT;
+    FW_ASSERT(hsmn <= GPIO_OUT_LAST);
+    return hsmn;
+}
+
+static void IncCurrHsmn() {
+    Hsmn &currHsmn = GetCurrHsmn();
+    ++currHsmn;
+    FW_ASSERT(currHsmn > 0);
+}
+
+// Define GPIO output pin configurations.
 // Set pwmTimer to NULL if PWM is not supported for an LED (no brightness control).
 // If pwmTimer is NULL, af and pwmChannel are don't-care, and mode must be OUTPUT_PP or OUTPUT_OD.
-UserLed::Config const UserLed::CONFIG[] = {
-    { USER_LED, GPIOA, GPIO_PIN_5, true, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2, TIM2, TIM_CHANNEL_1, false, TEST_LED_PATTERN_SET },
-    { TEST_LED, GPIOC, GPIO_PIN_7, true, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF2_TIM3, TIM3, TIM_CHANNEL_2, false, TEST_LED_PATTERN_SET },
+GpioOut::Config const GpioOut::CONFIG[] = {
+    { USER_LED, GPIOA, GPIO_PIN_5, true, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2, TIM2, TIM_CHANNEL_1, false, TEST_GPIO_PATTERN_SET },
+    { TEST_LED, GPIOC, GPIO_PIN_7, true, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF2_TIM3, TIM3, TIM_CHANNEL_2, false, TEST_GPIO_PATTERN_SET },
     // Add more LED here.
 };
 
 // Corresponds to what was done in _msp.cpp file.
-void UserLed::InitGpio() {
+void GpioOut::InitGpio() {
     // Clock has been initialized by System via Periph.
     GPIO_InitTypeDef gpioInit;
     gpioInit.Pin = m_config->pin;
@@ -94,14 +119,14 @@ void UserLed::InitGpio() {
     HAL_GPIO_Init(m_config->port, &gpioInit);
 }
 
-void UserLed::DeInitGpio() {
+void GpioOut::DeInitGpio() {
     if (m_config->pwmTimer) {
         StopPwm(Periph::GetHal(m_config->pwmTimer));
     }
     HAL_GPIO_DeInit(m_config->port, m_config->pin);
 }
 
-void UserLed::ConfigPwm(uint32_t levelPermil) {
+void GpioOut::ConfigPwm(uint32_t levelPermil) {
     // If PWM is not supported, turn off GPIO if level = 0; turn on GPIO if level > 0.
     if (m_config->pwmTimer == NULL) {
         if (levelPermil == 0) {
@@ -132,7 +157,7 @@ void UserLed::ConfigPwm(uint32_t levelPermil) {
     StartPwm(hal);
 }
 
-void UserLed::StartPwm(TIM_HandleTypeDef *hal) {
+void GpioOut::StartPwm(TIM_HandleTypeDef *hal) {
     FW_ASSERT(hal);
     HAL_StatusTypeDef status;
     if (m_config->pwmComplementary) {
@@ -144,7 +169,7 @@ void UserLed::StartPwm(TIM_HandleTypeDef *hal) {
 }
 
 
-void UserLed::StopPwm(TIM_HandleTypeDef *hal) {
+void GpioOut::StopPwm(TIM_HandleTypeDef *hal) {
     FW_ASSERT(hal);
     HAL_StatusTypeDef status;
     if (m_config->pwmComplementary) {
@@ -155,11 +180,11 @@ void UserLed::StopPwm(TIM_HandleTypeDef *hal) {
     FW_ASSERT(status == HAL_OK);
 }
 
-UserLed::UserLed(Hsmn hsmn, char const *name) :
-    FW::Active((QStateHandler)&UserLed::InitialPseudoState, hsmn, name),
+GpioOut::GpioOut() :
+    FW::Region((QStateHandler)&GpioOut::InitialPseudoState, GetCurrHsmn(), GetName(GetCurrHsmn())),
     m_config(NULL), m_currPattern(NULL), m_intervalIndex(0), m_isRepeat(false),
     m_intervalTimer(GetHsm().GetHsmn(), INTERVAL_TIMER) {
-    SET_EVT_NAME(USER_LED);
+    SET_EVT_NAME(GPIO_OUT);
     uint32_t i;
     for (i = 0; i < ARRAY_COUNT(CONFIG); i++) {
         if (CONFIG[i].hsmn == GetHsm().GetHsmn()) {
@@ -168,14 +193,15 @@ UserLed::UserLed(Hsmn hsmn, char const *name) :
         }
     }
     FW_ASSERT(i < ARRAY_COUNT(CONFIG));
+    IncCurrHsmn();
 }
 
-QState UserLed::InitialPseudoState(UserLed * const me, QEvt const * const e) {
+QState GpioOut::InitialPseudoState(GpioOut * const me, QEvt const * const e) {
     (void)e;
-    return Q_TRAN(&UserLed::Root);
+    return Q_TRAN(&GpioOut::Root);
 }
 
-QState UserLed::Root(UserLed * const me, QEvt const * const e) {
+QState GpioOut::Root(GpioOut * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
@@ -186,12 +212,12 @@ QState UserLed::Root(UserLed * const me, QEvt const * const e) {
             return Q_HANDLED();
         }
         case Q_INIT_SIG: {
-            return Q_TRAN(&UserLed::Stopped);
+            return Q_TRAN(&GpioOut::Stopped);
         }
-        case USER_LED_START_REQ: {
+        case GPIO_OUT_START_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
-            Evt *evt = new UserLedStartCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_STATE, GET_HSMN());
+            Evt *evt = new GpioOutStartCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_STATE, GET_HSMN());
             Fw::Post(evt);
             return Q_HANDLED();
         }
@@ -199,7 +225,7 @@ QState UserLed::Root(UserLed * const me, QEvt const * const e) {
     return Q_SUPER(&QHsm::top);
 }
 
-QState UserLed::Stopped(UserLed * const me, QEvt const * const e) {
+QState GpioOut::Stopped(GpioOut * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
@@ -209,25 +235,25 @@ QState UserLed::Stopped(UserLed * const me, QEvt const * const e) {
             EVENT(e);
             return Q_HANDLED();
         }
-        case USER_LED_STOP_REQ: {
+        case GPIO_OUT_STOP_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
-            Evt *evt = new UserLedStopCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+            Evt *evt = new GpioOutStopCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
             Fw::Post(evt);
             return Q_HANDLED();
         }
-        case USER_LED_START_REQ: {
+        case GPIO_OUT_START_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
-            Evt *evt = new UserLedStartCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(),ERROR_SUCCESS);
+            Evt *evt = new GpioOutStartCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(),ERROR_SUCCESS);
             Fw::Post(evt);
-            return Q_TRAN(&UserLed::Started);
+            return Q_TRAN(&GpioOut::Started);
         }
     }
-    return Q_SUPER(&UserLed::Root);
+    return Q_SUPER(&GpioOut::Root);
 }
 
-QState UserLed::Started(UserLed * const me, QEvt const * const e) {
+QState GpioOut::Started(GpioOut * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
@@ -240,37 +266,37 @@ QState UserLed::Started(UserLed * const me, QEvt const * const e) {
             return Q_HANDLED();
         }
         case Q_INIT_SIG: {
-            return Q_TRAN(&UserLed::Idle);
+            return Q_TRAN(&GpioOut::Idle);
         }
-        case USER_LED_STOP_REQ: {
+        case GPIO_OUT_STOP_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
-            Evt *evt = new UserLedStopCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+            Evt *evt = new GpioOutStopCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
             Fw::Post(evt);
-            return Q_TRAN(&UserLed::Stopped);
+            return Q_TRAN(&GpioOut::Stopped);
         }
-        case USER_LED_PATTERN_REQ: {
+        case GPIO_OUT_PATTERN_REQ: {
             EVENT(e);
-            UserLedPatternReq const &req = static_cast<UserLedPatternReq const &>(*e);
-            LedPattern const *pattern = me->m_config->patternSet.GetPattern(req.GetPatternIndex());
+            GpioOutPatternReq const &req = static_cast<GpioOutPatternReq const &>(*e);
+            GpioPattern const *pattern = me->m_config->patternSet.GetPattern(req.GetPatternIndex());
             if (pattern) {
                 me->m_isRepeat = req.IsRepeat();
                 me->m_intervalIndex = 0;
                 me->m_currPattern = pattern;
-                Evt *evt = new UserLedPatternCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+                Evt *evt = new GpioOutPatternCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
                 Fw::Post(evt);
-                return Q_TRAN(&UserLed::Active);
+                return Q_TRAN(&GpioOut::Active);
             } else {
-                Evt *evt = new UserLedPatternCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_PARAM, GET_HSMN(), USER_LED_REASON_INVALID_PATTERN);
+                Evt *evt = new GpioOutPatternCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_PARAM, GET_HSMN(), GPIO_OUT_REASON_INVALID_PATTERN);
                 Fw::Post(evt);
                 return Q_HANDLED();
             }
         }        
     }
-    return Q_SUPER(&UserLed::Root);
+    return Q_SUPER(&GpioOut::Root);
 }
 
-QState UserLed::Idle(UserLed * const me, QEvt const * const e) {
+QState GpioOut::Idle(GpioOut * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
@@ -281,23 +307,23 @@ QState UserLed::Idle(UserLed * const me, QEvt const * const e) {
             EVENT(e);
             return Q_HANDLED();
         }
-        case USER_LED_OFF_REQ: {
+        case GPIO_OUT_OFF_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
-            Evt *evt = new UserLedOffCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+            Evt *evt = new GpioOutOffCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
             Fw::Post(evt);
             return Q_HANDLED();
         }        
     }
-    return Q_SUPER(&UserLed::Started);
+    return Q_SUPER(&GpioOut::Started);
 }
 
-QState UserLed::Active(UserLed * const me, QEvt const * const e) {
+QState GpioOut::Active(GpioOut * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             FW_ASSERT(me->m_currPattern);
-            LedInterval const &currInterval = me->m_currPattern->GetInterval(me->m_intervalIndex);                        
+            GpioInterval const &currInterval = me->m_currPattern->GetInterval(me->m_intervalIndex);
             me->m_intervalTimer.Start(currInterval.GetDurationMs());
             me->ConfigPwm(currInterval.GetLevelPermil());
             return Q_HANDLED();
@@ -309,15 +335,15 @@ QState UserLed::Active(UserLed * const me, QEvt const * const e) {
         }
         case Q_INIT_SIG: {
             if (me->m_isRepeat) {
-                return Q_TRAN(&UserLed::Repeating);
+                return Q_TRAN(&GpioOut::Repeating);
             } else {
-                return Q_TRAN(&UserLed::Once);
+                return Q_TRAN(&GpioOut::Once);
             }
         }
-        case USER_LED_OFF_REQ: {
+        case GPIO_OUT_OFF_REQ: {
             EVENT(e);
             Evt const &req = EVT_CAST(*e);
-            Evt *evt = new UserLedOffCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
+            Evt *evt = new GpioOutOffCfm(req.GetFrom(), GET_HSMN(), req.GetSeq(), ERROR_SUCCESS);
             Fw::Post(evt);
             evt = new Evt(DONE, GET_HSMN(), GET_HSMN());
             me->PostSync(evt);
@@ -341,22 +367,22 @@ QState UserLed::Active(UserLed * const me, QEvt const * const e) {
         case NEXT_INTERVAL: {
             EVENT(e);
             me->m_intervalIndex++;
-            return Q_TRAN(&UserLed::Active);
+            return Q_TRAN(&GpioOut::Active);
         }
         case LAST_INTERVAL: {
             EVENT(e);
             me->m_intervalIndex = 0;
-            return Q_TRAN(&UserLed::Active);
+            return Q_TRAN(&GpioOut::Active);
         }       
         case DONE: {
             EVENT(e);
-            return Q_TRAN(&UserLed::Idle);
+            return Q_TRAN(&GpioOut::Idle);
         }   
     }
-    return Q_SUPER(&UserLed::Started);
+    return Q_SUPER(&GpioOut::Started);
 }
 
-QState UserLed::Repeating(UserLed * const me, QEvt const * const e) {
+QState GpioOut::Repeating(GpioOut * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
@@ -367,10 +393,10 @@ QState UserLed::Repeating(UserLed * const me, QEvt const * const e) {
             return Q_HANDLED();
         }
     }
-    return Q_SUPER(&UserLed::Active);
+    return Q_SUPER(&GpioOut::Active);
 }
 
-QState UserLed::Once(UserLed * const me, QEvt const * const e) {
+QState GpioOut::Once(GpioOut * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
@@ -387,11 +413,11 @@ QState UserLed::Once(UserLed * const me, QEvt const * const e) {
             return Q_HANDLED();
         }        
     }
-    return Q_SUPER(&UserLed::Active);
+    return Q_SUPER(&GpioOut::Active);
 }
 
 /*
-QState UserLed::MyState(UserLed * const me, QEvt const * const e) {
+QState GpioOut::MyState(GpioOut * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
@@ -402,10 +428,10 @@ QState UserLed::MyState(UserLed * const me, QEvt const * const e) {
             return Q_HANDLED();
         }
         case Q_INIT_SIG: {
-            return Q_TRAN(&UserLed::SubState);
+            return Q_TRAN(&GpioOut::SubState);
         }
     }
-    return Q_SUPER(&UserLed::SuperState);
+    return Q_SUPER(&GpioOut::SuperState);
 }
 */
 

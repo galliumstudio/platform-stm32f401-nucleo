@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * Alternatively, this program may be distributed and modified under the
  * terms of Gallium Studio LLC commercial licenses, which expressly supersede
  * the GNU General Public License and are specifically designed for licensees
@@ -29,22 +29,38 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * 
  * Contact information:
  * Website - https://www.galliumstudio.com
  * Source repository - https://github.com/galliumstudio
  * Email - admin@galliumstudio.com
  ******************************************************************************/
 
-#ifndef USER_LED_CMD_H
-#define USER_LED_CMD_H
+#ifndef GPIO_OUT_ACT_H
+#define GPIO_OUT_ACT_H
 
-#include "ConsoleInterface.h"
+#include "qpcpp.h"
+#include "fw_active.h"
+#include "fw_evt.h"
+#include "app_hsmn.h"
+#include "GpioOut.h"
+
+using namespace QP;
+using namespace FW;
 
 namespace APP {
 
-CmdStatus UserLedCmd(Console &console, Evt const *e);
+class GpioOutAct : public Active {
+public:
+    GpioOutAct();
+
+protected:
+    static QState InitialPseudoState(GpioOutAct * const me, QEvt const * const e);
+    static QState Root(GpioOutAct * const me, QEvt const * const e);
+
+    GpioOut m_gpioOut[GPIO_OUT_COUNT];
+};
 
 } // namespace APP
 
-#endif // USER_LED_CMD_H
+#endif // GPIO_OUT_ACT_H

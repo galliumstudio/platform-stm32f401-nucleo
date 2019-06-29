@@ -49,7 +49,7 @@
 #include "SystemCmd.h"
 #include "WifiStCmd.h"
 #include "DemoCmd.h"
-#include "UserLedCmd.h"
+#include "GpioOutCmd.h"
 #include "AOWashingMachineCmd.h"
 #include "TrafficCmd.h"
 #include "SimpleActCmd.h"
@@ -232,7 +232,7 @@ static CmdHandler const cmdHandler[] = {
     { "sys",        SystemCmd,  "System", 0 },
     { "wifi",       WifiStCmd,  "Wifi(stm32) control", 0 },
     { "demo",       DemoCmd,    "Demo from Psicc", 0 },
-    { "led",        UserLedCmd, "User LED control", 0 },
+    { "gpio",       GpioOutCmd, "GPIO output control", 0 },
     { "wash",       AOWashingMachineCmd, "Washing machine", 0 },
     { "traffic",    TrafficCmd, "Traffic light", 0 },
     { "perf",       Perf,       "Performance demo", 0 },

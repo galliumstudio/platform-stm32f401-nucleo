@@ -1,17 +1,17 @@
-#include "LedPattern.h"
+#include "GpioPattern.h"
 
 namespace APP {
 
 // Illustration only.
 /*
-LedInterval testInterval = {1, 2};
+GpioInterval testInterval = {1, 2};
 
-LedPattern testPattern = {
+GpioPattern testPattern = {
     2, {{1,2}, {2, 3}}
 };
 */
 
-LedPatternSet const TEST_LED_PATTERN_SET = {
+GpioPatternSet const TEST_GPIO_PATTERN_SET = {
     2, 
     {
         // Pattern 0
