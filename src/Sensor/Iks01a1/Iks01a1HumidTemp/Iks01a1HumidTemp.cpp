@@ -42,6 +42,7 @@
 #include "GpioInInterface.h"
 #include "SensorHumidTempInterface.h"
 #include "Iks01a1HumidTemp.h"
+#include "x_nucleo_iks01a1_temperature.h"
 
 FW_DEFINE_THIS_FILE("Iks01a1HumidTemp.cpp")
 
@@ -229,10 +230,14 @@ QState Iks01a1HumidTemp::Started(Iks01a1HumidTemp * const me, QEvt const * const
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
+            DrvStatusTypeDef status = BSP_TEMPERATURE_Init(HTS221_T_0, &me->m_handle);
+            FW_ASSERT(status == COMPONENT_OK);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
             EVENT(e);
+            DrvStatusTypeDef status = BSP_TEMPERATURE_DeInit(&me->m_handle);
+            FW_ASSERT(status == COMPONENT_OK);
             return Q_HANDLED();
         }
         // Test only.

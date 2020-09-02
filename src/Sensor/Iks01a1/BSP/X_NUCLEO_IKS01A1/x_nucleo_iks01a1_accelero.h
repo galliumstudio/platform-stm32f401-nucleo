@@ -49,6 +49,7 @@ extern "C" {
 
 #include "LSM6DS0_ACC_GYRO_driver_HL.h"
 #include "LSM6DS3_ACC_GYRO_driver_HL.h"
+#include "LSM6DSL_ACC_GYRO_driver_HL.h"
 #include "x_nucleo_iks01a1.h"
 
 
@@ -73,7 +74,8 @@ typedef enum
 {
   ACCELERO_SENSORS_AUTO = -1,    /* Always first element and equal to -1 */
   LSM6DS0_X_0,                   /* Default on board. */
-  LSM6DS3_X_0                    /* DIL24 adapter. */
+  LSM6DS3_X_0,                    /* DIL24 adapter. */
+  LSM6DSL_X_0,                   /* Default on board. */
 } ACCELERO_ID_t;
 
 /**
@@ -84,7 +86,7 @@ typedef enum
   * @{
   */
 
-#define ACCELERO_SENSORS_MAX_NUM 2
+#define ACCELERO_SENSORS_MAX_NUM 3
 
 /**
  * @}

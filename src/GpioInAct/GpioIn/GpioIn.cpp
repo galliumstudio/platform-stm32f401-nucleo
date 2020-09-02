@@ -132,14 +132,14 @@ GpioIn::Config const GpioIn::CONFIG[] = {
 void GpioIn::InitGpio() {
     FW_ASSERT(m_config->port);
     switch((uint32_t)m_config->port) {
-        case (uint32_t)GPIOA: __HAL_RCC_GPIOA_CLK_ENABLE(); break;
-        case (uint32_t)GPIOB: __HAL_RCC_GPIOB_CLK_ENABLE(); break;
-        case (uint32_t)GPIOC: __HAL_RCC_GPIOC_CLK_ENABLE(); break;
-        case (uint32_t)GPIOD: __HAL_RCC_GPIOD_CLK_ENABLE(); break;
-        case (uint32_t)GPIOE: __HAL_RCC_GPIOE_CLK_ENABLE(); break;
-        //case (uint32_t)GPIOF: __HAL_RCC_GPIOF_CLK_ENABLE(); break;
-        //case (uint32_t)GPIOG: __HAL_RCC_GPIOG_CLK_ENABLE(); break;
-        case (uint32_t)GPIOH: __HAL_RCC_GPIOH_CLK_ENABLE(); break;
+        case GPIOA_BASE: __HAL_RCC_GPIOA_CLK_ENABLE(); break;
+        case GPIOB_BASE: __HAL_RCC_GPIOB_CLK_ENABLE(); break;
+        case GPIOC_BASE: __HAL_RCC_GPIOC_CLK_ENABLE(); break;
+        case GPIOD_BASE: __HAL_RCC_GPIOD_CLK_ENABLE(); break;
+        case GPIOE_BASE: __HAL_RCC_GPIOE_CLK_ENABLE(); break;
+        //case GPIOF_BASE: __HAL_RCC_GPIOF_CLK_ENABLE(); break;
+        //case GPIOG_BASE: __HAL_RCC_GPIOG_CLK_ENABLE(); break;
+        case GPIOH_BASE: __HAL_RCC_GPIOH_CLK_ENABLE(); break;
         default: FW_ASSERT(0); break;
     }
     GPIO_InitTypeDef gpioInit;

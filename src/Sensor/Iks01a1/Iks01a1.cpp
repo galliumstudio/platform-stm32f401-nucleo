@@ -124,13 +124,13 @@ void Iks01a1::InitI2c() {
     HAL_GPIO_Init(m_config->i2cPort, &gpioInit);
 
     switch((uint32_t)(m_config->i2c)) {
-        case (uint32_t)I2C1: {
+        case I2C1_BASE: {
             __I2C1_CLK_ENABLE();
             __I2C1_FORCE_RESET();
             __I2C1_RELEASE_RESET();
             break;
         }
-        case (uint32_t)I2C2:{
+        case I2C2_BASE:{
             __I2C2_CLK_ENABLE();
             __I2C2_FORCE_RESET();
             __I2C2_RELEASE_RESET();
@@ -153,8 +153,8 @@ void Iks01a1::InitI2c() {
 
 void Iks01a1::DeInitI2c() {
     switch((uint32_t)(m_hal.Instance)) {
-        case (uint32_t)I2C1: __I2C1_FORCE_RESET(); __I2C1_RELEASE_RESET(); __I2C1_CLK_DISABLE(); break;
-        case (uint32_t)I2C2: __I2C2_FORCE_RESET(); __I2C2_RELEASE_RESET(); __I2C2_CLK_DISABLE(); break;
+        case I2C1_BASE: __I2C1_FORCE_RESET(); __I2C1_RELEASE_RESET(); __I2C1_CLK_DISABLE(); break;
+        case I2C2_BASE: __I2C2_FORCE_RESET(); __I2C2_RELEASE_RESET(); __I2C2_CLK_DISABLE(); break;
         // Add more cases here...
         default: FW_ASSERT(0); break;
     }
@@ -286,9 +286,9 @@ QState Iks01a1::Starting(Iks01a1 * const me, QEvt const * const e) {
             Evt *evt = new SensorAccelGyroStartReq(SENSOR_ACCEL_GYRO, GET_HSMN(), GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
-            evt = new SensorMagStartReq(SENSOR_MAG, GET_HSMN(), GEN_SEQ());
-            me->GetHsm().SaveOutSeq(*evt);
-            Fw::Post(evt);
+            //evt = new SensorMagStartReq(SENSOR_MAG, GET_HSMN(), GEN_SEQ());
+            //me->GetHsm().SaveOutSeq(*evt);
+            //Fw::Post(evt);
             evt = new SensorHumidTempStartReq(SENSOR_HUMID_TEMP, GET_HSMN(), GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);

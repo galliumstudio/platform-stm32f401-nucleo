@@ -72,6 +72,7 @@ static DrvContextTypeDef ACCELERO_SensorHandle[ ACCELERO_SENSORS_MAX_NUM ];
 static ACCELERO_Data_t ACCELERO_Data[ ACCELERO_SENSORS_MAX_NUM ]; // Accelerometer - all.
 static LSM6DS0_X_Data_t LSM6DS0_X_0_Data; // Accelerometer - sensor 0.
 static LSM6DS3_X_Data_t LSM6DS3_X_0_Data; // Accelerometer - sensor 1.
+static LSM6DSL_X_Data_t LSM6DSL_X_0_Data; // Accelerometer - sensor 0.
 
 /**
  * @}
@@ -83,6 +84,7 @@ static LSM6DS3_X_Data_t LSM6DS3_X_0_Data; // Accelerometer - sensor 1.
 
 static DrvStatusTypeDef BSP_LSM6DS0_ACCELERO_Init( void **handle );
 static DrvStatusTypeDef BSP_LSM6DS3_ACCELERO_Init( void **handle );
+static DrvStatusTypeDef BSP_LSM6DSL_ACCELERO_Init( void **handle );
 
 /**
  * @}
@@ -132,6 +134,14 @@ DrvStatusTypeDef BSP_ACCELERO_Init( ACCELERO_ID_t id, void **handle )
     case LSM6DS3_X_0:
     {
       if( BSP_LSM6DS3_ACCELERO_Init(handle) == COMPONENT_ERROR )
+      {
+        return COMPONENT_ERROR;
+      }
+      break;
+    }
+    case LSM6DSL_X_0:
+    {
+      if( BSP_LSM6DSL_ACCELERO_Init(handle) == COMPONENT_ERROR )
       {
         return COMPONENT_ERROR;
       }
@@ -251,6 +261,61 @@ static DrvStatusTypeDef BSP_LSM6DS3_ACCELERO_Init( void **handle )
   return COMPONENT_OK;
 }
 
+
+static DrvStatusTypeDef BSP_LSM6DSL_ACCELERO_Init( void **handle )
+{
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ACCELERO_SensorHandle[ LSM6DSL_X_0 ].isInitialized == 1)
+  {
+    /* We have reached the max num of instance for this component */
+    return COMPONENT_ERROR;
+  }
+
+  if ( Sensor_IO_Init() == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  /* Setup sensor handle. */
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].who_am_i      = LSM6DSL_ACC_GYRO_WHO_AM_I;
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].ifType        = 0; /* I2C interface */
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].address       = LSM6DSL_ACC_GYRO_I2C_ADDRESS_HIGH;
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].instance      = LSM6DSL_X_0;
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].isInitialized = 0;
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].isEnabled     = 0;
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].isCombo       = 1;
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].pData         = ( void * )&ACCELERO_Data[ LSM6DSL_X_0 ];
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].pVTable       = ( void * )&LSM6DSL_X_Drv;
+  ACCELERO_SensorHandle[ LSM6DSL_X_0 ].pExtVTable    = ( void * )&LSM6DSL_X_ExtDrv;
+
+  LSM6DSL_X_0_Data.comboData = &LSM6DSL_Combo_Data[0];
+  ACCELERO_Data[ LSM6DSL_X_0 ].pComponentData = ( void * )&LSM6DSL_X_0_Data;
+  ACCELERO_Data[ LSM6DSL_X_0 ].pExtData       = 0;
+
+  *handle = (void *)&ACCELERO_SensorHandle[ LSM6DSL_X_0 ];
+
+  driver = ( ACCELERO_Drv_t * )((DrvContextTypeDef *)(*handle))->pVTable;
+
+  if ( driver->Init == NULL )
+  {
+    memset((*handle), 0, sizeof(DrvContextTypeDef));
+    *handle = NULL;
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Init( (DrvContextTypeDef *)(*handle) ) == COMPONENT_ERROR )
+  {
+    memset((*handle), 0, sizeof(DrvContextTypeDef));
+    *handle = NULL;
+    return COMPONENT_ERROR;
+  }
+
+  /* Configure interrupt lines for LSM6DSL */
+  LSM6DSL_Sensor_IO_ITConfig();
+
+  return COMPONENT_OK;
+}
 
 /**
  * @brief Deinitialize accelerometer sensor

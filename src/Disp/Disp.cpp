@@ -128,7 +128,7 @@ void Disp::DrawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint1
             return;
         // Gallium - Optimization.
         // Original library method.
-        /*
+        ///*
         for(int8_t i=0; i<5; i++ ) { // Char bitmap = 5 columns
             uint8_t line = font[c * 5 + i];
             for(int8_t j=0; j<8; j++, line >>= 1) {
@@ -149,9 +149,9 @@ void Disp::DrawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint1
             if(size == 1) WriteFastVLine(x+5, y, 8, bg);
             else          FillRect(x+5*size, y, size, 8*size, bg);
         }
-        */
+        //*/
         // Fast method using data buffer for a character bitmap (@todo - Replace hardcoded parameters.)
-        ///*
+        /*
         if (bg != color) {
             FillMem(0, 0, 5*size, 8*size, bg);
         }
@@ -173,7 +173,7 @@ void Disp::DrawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint1
             if(size == 1) WriteFastVLine(x+5, y, 8, bg);
             else          FillRect(x+5*size, y, size, 8*size, bg);
         }
-        //*/
+        */
 
     } else { // Custom font
 

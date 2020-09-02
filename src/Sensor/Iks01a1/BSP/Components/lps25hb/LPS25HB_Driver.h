@@ -46,7 +46,8 @@ extern "C" {
 #endif
 
 /* Uncomment the line below to expanse the "assert_param" macro in the  drivers code */
-#define USE_FULL_ASSERT_LPS25HB
+// Gallium - Commented as assert_param() calls printf() which is not supported.
+//#define USE_FULL_ASSERT_LPS25HB
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT_LPS25HB

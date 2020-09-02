@@ -42,6 +42,7 @@
 #include "GpioInInterface.h"
 #include "SensorPressInterface.h"
 #include "Iks01a1Press.h"
+#include "x_nucleo_iks01a1_pressure.h"
 
 FW_DEFINE_THIS_FILE("Iks01a1Press.cpp")
 
@@ -229,10 +230,14 @@ QState Iks01a1Press::Started(Iks01a1Press * const me, QEvt const * const e) {
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
+            DrvStatusTypeDef status = BSP_PRESSURE_Init(LPS22HB_P_0, &me->m_handle);
+            FW_ASSERT(status == COMPONENT_OK);
             return Q_HANDLED();
         }
         case Q_EXIT_SIG: {
             EVENT(e);
+            DrvStatusTypeDef status = BSP_PRESSURE_DeInit(&me->m_handle);
+            FW_ASSERT(status == COMPONENT_OK);
             return Q_HANDLED();
         }
         // Test only.

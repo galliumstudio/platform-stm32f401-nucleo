@@ -72,7 +72,8 @@ extern "C" uint8_t Sensor_IO_Write(void *handle, uint8_t memAddr, uint8_t *pBuff
             break;
         }
         case IKS01A1_LSM6DS0_WHO_AM_I:
-        case IKS01A1_LSM6DS3_WHO_AM_I: {
+        case IKS01A1_LSM6DS3_WHO_AM_I:
+        case IKS01A2_LSM6DSL_WHO_AM_I: {
             result = Iks01a1::I2cWriteInt(ctx->address, memAddr, pBuffer, nBytes);
             break;
         }
@@ -109,7 +110,8 @@ extern "C" uint8_t Sensor_IO_Read(void *handle, uint8_t memAddr, uint8_t *pBuffe
             break;
         }
         case IKS01A1_LSM6DS0_WHO_AM_I:
-        case IKS01A1_LSM6DS3_WHO_AM_I: {
+        case IKS01A1_LSM6DS3_WHO_AM_I:
+        case IKS01A2_LSM6DSL_WHO_AM_I: {
             result = Iks01a1::I2cReadInt(ctx->address, memAddr, pBuffer, nBytes);
             break;
         }
@@ -130,6 +132,10 @@ extern "C" DrvStatusTypeDef LSM6DS0_Sensor_IO_ITConfig(void) {
     return COMPONENT_OK;
 }
 extern "C" DrvStatusTypeDef LSM6DS3_Sensor_IO_ITConfig(void) {
+    // Dummy. Interrupt handled by GpioIn HSM.
+    return COMPONENT_OK;
+}
+extern "C" DrvStatusTypeDef LSM6DSL_Sensor_IO_ITConfig(void) {
     // Dummy. Interrupt handled by GpioIn HSM.
     return COMPONENT_OK;
 }

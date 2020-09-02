@@ -257,7 +257,8 @@ QState Iks01a1AccelGyro::Started(Iks01a1AccelGyro * const me, QEvt const * const
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             EVENT(e);
-            DrvStatusTypeDef status = BSP_ACCELERO_Init(LSM6DS0_X_0, &me->m_handle);
+            //DrvStatusTypeDef status = BSP_ACCELERO_Init(LSM6DS0_X_0, &me->m_handle);
+            DrvStatusTypeDef status = BSP_ACCELERO_Init(LSM6DSL_X_0, &me->m_handle);
             FW_ASSERT(status == COMPONENT_OK);
             return Q_HANDLED();
         }
@@ -299,7 +300,8 @@ QState Iks01a1AccelGyro::Off(Iks01a1AccelGyro * const me, QEvt const * const e) 
                     ERROR("BSP_ACCELERO_Sensor_Enable failed (%d)", status);
                     break;
                 }
-                status_t result = LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(me->m_handle, LSM6DS0_ACC_GYRO_INT_DRDY_XL_ENABLE);
+                //status_t result = LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(me->m_handle, LSM6DS0_ACC_GYRO_INT_DRDY_XL_ENABLE);
+                status_t result = LSM6DSL_ACC_GYRO_W_DRDY_XL_on_INT1(me->m_handle, LSM6DSL_ACC_GYRO_INT1_DRDY_XL_ENABLED);
                 if (result != MEMS_SUCCESS) {
                     ERROR("LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT failed (%d)", result);
                     BSP_ACCELERO_Sensor_Disable(me->m_handle);
@@ -345,7 +347,8 @@ QState Iks01a1AccelGyro::On(Iks01a1AccelGyro * const me, QEvt const * const e) {
         case SENSOR_ACCEL_GYRO_OFF_REQ: {
             SensorAccelGyroOffReq const &req = static_cast<SensorAccelGyroOffReq const &>(*e);
             me->m_pipe = NULL;
-            status_t result = LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(me->m_handle, LSM6DS0_ACC_GYRO_INT_DRDY_XL_DISABLE);
+            //status_t result = LSM6DS0_ACC_GYRO_W_XL_DataReadyOnINT(me->m_handle, LSM6DS0_ACC_GYRO_INT_DRDY_XL_DISABLE);
+            status_t result = LSM6DSL_ACC_GYRO_W_DRDY_XL_on_INT1(me->m_handle, LSM6DSL_ACC_GYRO_INT1_DRDY_XL_DISABLED);
             FW_ASSERT(result == MEMS_SUCCESS);
             DrvStatusTypeDef status = BSP_ACCELERO_Sensor_Disable(me->m_handle);
             FW_ASSERT(status == COMPONENT_OK);

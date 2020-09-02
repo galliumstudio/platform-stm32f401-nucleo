@@ -150,7 +150,9 @@ bool QXSemaphore::wait(uint_fast16_t const nTicks) {
         Q_ASSERT_ID(240, curr->isBlockedOn(this));
 
         // did the blocking time-out? (signal of zero means that it did)
-        if (curr->m_timeEvt.sig != static_cast<QSignal>(0)) {
+        // Gallium - Fixed bug (revsersed logic).
+        //if (curr->m_timeEvt.sig != static_cast<QSignal>(0)) {
+        if (curr->m_timeEvt.sig == static_cast<QSignal>(0)) {
             if (m_waitSet.hasElement(p)) { // still waiting?
                 m_waitSet.remove(p); // remove the unblocked thread
                 signaled = false; // the semaphore was NOT signaled

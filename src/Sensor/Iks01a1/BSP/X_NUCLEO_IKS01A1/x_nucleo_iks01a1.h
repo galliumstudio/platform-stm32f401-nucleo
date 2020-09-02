@@ -91,6 +91,7 @@ extern "C" {
 #define IKS01A1_LPS22HB_WHO_AM_I (uint8_t)0xB1
 #define IKS01A1_LSM6DS0_WHO_AM_I (uint8_t)0x68
 #define IKS01A1_LSM6DS3_WHO_AM_I (uint8_t)0x69
+#define IKS01A2_LSM6DSL_WHO_AM_I (uint8_t)0x6A
 #define IKS01A1_LIS3MDL_WHO_AM_I (uint8_t)0x3D
 
 /* I2C clock speed configuration (in Hz) */
@@ -258,6 +259,7 @@ extern "C" {
 DrvStatusTypeDef Sensor_IO_Init( void );
 DrvStatusTypeDef LSM6DS0_Sensor_IO_ITConfig( void );
 DrvStatusTypeDef LSM6DS3_Sensor_IO_ITConfig( void );
+DrvStatusTypeDef LSM6DSL_Sensor_IO_ITConfig( void );
 DrvStatusTypeDef LPS22HB_Sensor_IO_ITConfig( void );
 
 /**

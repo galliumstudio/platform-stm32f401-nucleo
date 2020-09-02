@@ -289,9 +289,11 @@ QState LevelMeter::Started(LevelMeter * const me, QEvt const * const e) {
                 //LOG("%d, %d, %d", me->m_avgReport.m_aX, me->m_avgReport.m_aY, me->m_avgReport.m_aZ);
                 count++;
             }
-            me->m_avgReport.m_aX /= count;
-            me->m_avgReport.m_aY /= count;
-            me->m_avgReport.m_aZ /= count;
+            if (count) {
+                me->m_avgReport.m_aX /= count;
+                me->m_avgReport.m_aY /= count;
+                me->m_avgReport.m_aZ /= count;
+            }
             LOG("(count = %d) %d, %d, %d", count, me->m_avgReport.m_aX, me->m_avgReport.m_aY, me->m_avgReport.m_aZ);
             Evt *evt = new Evt(REDRAW, GET_HSMN());
             me->PostSync(evt);
@@ -336,8 +338,12 @@ QState LevelMeter::Redrawing(LevelMeter * const me, QEvt const * const e) {
             volatile float x = me->m_avgReport.m_aX;
             volatile float y = me->m_avgReport.m_aY;
             volatile float z = me->m_avgReport.m_aZ;
+            /*
             float pitch = atan(y/sqrt((x*x) + (z*z))) * 180/PI;
             float roll  = atan(x/sqrt((y*y) + (z*z))) * 180/PI;
+            */
+            volatile float pitch = atan(x/sqrt((y*y) + (z*z))) * 180/PI;
+            volatile float roll  = atan(y/sqrt((x*x) + (z*z))) * 180/PI;
             //PRINT("%f %f %f\n\r", x, y, z);
             //PRINT("pitch=%06.2f, roll=%06.2f\n\r", pitch, roll);
             snprintf(buf, sizeof(buf), "P= %06.2f", pitch);
@@ -359,8 +365,12 @@ QState LevelMeter::Redrawing(LevelMeter * const me, QEvt const * const e) {
             } else {
                 y = GREATER(y, -G);
             }
+            /*
             pitch = asin(y/G) * 180/PI;
             roll = asin(x/G) * 180/PI;
+            */
+            pitch = asin(x/G) * 180/PI;
+            roll = asin(y/G) * 180/PI;
             //PRINT("(2) pitch=%06.2f, roll=%06.2f\n\r", pitch, roll);
             snprintf(buf, sizeof(buf), "P= %06.2f", pitch);
             evt = new DispDrawTextReq(ILI9341, GET_HSMN(), buf, 10, 150, COLOR24_RED, COLOR24_WHITE,4);

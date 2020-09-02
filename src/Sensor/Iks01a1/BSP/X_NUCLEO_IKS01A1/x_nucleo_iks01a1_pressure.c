@@ -271,7 +271,7 @@ static DrvStatusTypeDef BSP_LPS22HB_PRESSURE_Init( void **handle )
   /* Setup sensor handle. */
   PRESSURE_SensorHandle[ LPS22HB_P_0 ].who_am_i      = LPS22HB_WHO_AM_I_VAL;
   PRESSURE_SensorHandle[ LPS22HB_P_0 ].ifType        = 0; /* I2C interface */
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].address       = LPS22HB_ADDRESS_LOW;
+  PRESSURE_SensorHandle[ LPS22HB_P_0 ].address       = LPS22HB_ADDRESS_HIGH; // Gallium - LPS22HB_ADDRESS_LOW;
   PRESSURE_SensorHandle[ LPS22HB_P_0 ].instance      = LPS22HB_P_0;
   PRESSURE_SensorHandle[ LPS22HB_P_0 ].isInitialized = 0;
   PRESSURE_SensorHandle[ LPS22HB_P_0 ].isEnabled     = 0;

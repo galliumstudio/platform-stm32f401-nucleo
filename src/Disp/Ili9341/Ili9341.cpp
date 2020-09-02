@@ -86,8 +86,8 @@ void Ili9341::InitSpi() {
     // GPIO and DMA clocks enabled in periph.cpp
     // Enable SPI clock
     switch((uint32_t)(m_config->spi)) {
-        case (uint32_t)SPI1: __HAL_RCC_SPI1_CLK_ENABLE(); __HAL_RCC_SPI1_FORCE_RESET(); __HAL_RCC_SPI1_RELEASE_RESET(); break;
-        case (uint32_t)SPI2: __HAL_RCC_SPI2_CLK_ENABLE(); __HAL_RCC_SPI2_FORCE_RESET(); __HAL_RCC_SPI2_RELEASE_RESET(); break;
+        case SPI1_BASE: __HAL_RCC_SPI1_CLK_ENABLE(); __HAL_RCC_SPI1_FORCE_RESET(); __HAL_RCC_SPI1_RELEASE_RESET(); break;
+        case SPI2_BASE: __HAL_RCC_SPI2_CLK_ENABLE(); __HAL_RCC_SPI2_FORCE_RESET(); __HAL_RCC_SPI2_RELEASE_RESET(); break;
         // Add more cases here...
         default: FW_ASSERT(0); break;
     }
@@ -158,8 +158,8 @@ void Ili9341::InitSpi() {
 
 void Ili9341::DeInitSpi() {
     switch((uint32_t)(m_config->spi)) {
-        case (uint32_t)SPI1: __HAL_RCC_SPI1_FORCE_RESET(); __HAL_RCC_SPI1_RELEASE_RESET(); __HAL_RCC_SPI1_CLK_DISABLE(); break;
-        case (uint32_t)SPI2: __HAL_RCC_SPI2_FORCE_RESET(); __HAL_RCC_SPI2_RELEASE_RESET(); __HAL_RCC_SPI2_CLK_DISABLE(); break;
+        case SPI1_BASE: __HAL_RCC_SPI1_FORCE_RESET(); __HAL_RCC_SPI1_RELEASE_RESET(); __HAL_RCC_SPI1_CLK_DISABLE(); break;
+        case SPI2_BASE: __HAL_RCC_SPI2_FORCE_RESET(); __HAL_RCC_SPI2_RELEASE_RESET(); __HAL_RCC_SPI2_CLK_DISABLE(); break;
         // Add more cases here...
         default: FW_ASSERT(0); break;
     }

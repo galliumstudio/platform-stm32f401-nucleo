@@ -57,6 +57,15 @@
 #include <vector>
 #include <memory>
 
+// Compile options to enable demo application.
+// Only one of the following can be enabled at a time.
+//#define ENABLE_TRAFFIC
+#define ENABLE_LEVEL_METER
+
+#if (defined(ENABLE_TRAFFIC) && defined(ENABLE_LEVEL_METER))
+#error ENABLE_TRAFFIC and ENABLE_LEVEL_METER cannot be both defined
+#endif
+
 FW_DEFINE_THIS_FILE("System.cpp")
 
 using namespace FW;
@@ -260,9 +269,11 @@ QState System::Starting1(System * const me, QEvt const * const e) {
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
 
-            //evt = new TrafficStartReq(TRAFFIC, SYSTEM, GEN_SEQ());
-            //me->GetHsm().SaveOutSeq(*evt);
-            //Fw::Post(evt);
+#ifdef ENABLE_TRAFFIC
+            evt = new TrafficStartReq(TRAFFIC, SYSTEM, GEN_SEQ());
+            me->GetHsm().SaveOutSeq(*evt);
+            Fw::Post(evt);
+#endif
 
             evt = new GpioInStartReq(USER_BTN, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
@@ -363,17 +374,17 @@ QState System::Starting3(System * const me, QEvt const * const e) {
         case Q_ENTRY_SIG: {
             EVENT(e);
             Evt *evt;
-            // Uncomment this to bypass LEVEL_METER.
-            /*
-            evt = new Evt(DONE, GET_HSMN());
-            me->PostSync(evt);
-            return Q_HANDLED();
-            */
+#ifdef ENABLE_LEVEL_METER
             me->GetHsm().ResetOutSeq();
             evt = new LevelMeterStartReq(LEVEL_METER, SYSTEM, GEN_SEQ());
             me->GetHsm().SaveOutSeq(*evt);
             Fw::Post(evt);
             return Q_HANDLED();
+#else
+            evt = new Evt(DONE, GET_HSMN());
+            me->PostSync(evt);
+            return Q_HANDLED();
+#endif
         }
         case Q_EXIT_SIG: {
             EVENT(e);
