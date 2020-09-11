@@ -35,7 +35,7 @@ fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
     </coordinates>
     <panel_attributes>WifiSt::Root
 --
-WIFI_ST_START_REQ/ ^WIFI_ST_START_CFM(STATE)
+WIFI_START_REQ/ ^WIFI_START_CFM(STATE)
 
 
 valign=top
@@ -52,8 +52,8 @@ valign=top
     </coordinates>
     <panel_attributes>Stopped
 --
-WIFI_ST_STOP_REQ 
-/ ^WIFI_ST_STOP_CFM(SUCCESS)
+WIFI_STOP_REQ 
+/ ^WIFI_STOP_CFM(SUCCESS)
 
 valign=top
 </panel_attributes>
@@ -217,7 +217,7 @@ valign=top
       <w>300</w>
       <h>60</h>
     </coordinates>
-    <panel_attributes>WIFI_ST_START_REQ
+    <panel_attributes>WIFI_START_REQ
 / ifHsmn = interface active object,
   SaveInSeq()
 style=wordwrap</panel_attributes>
@@ -232,7 +232,7 @@ style=wordwrap</panel_attributes>
       <h>60</h>
     </coordinates>
     <panel_attributes>FAILED, STATE_TIMER
-/ ^WIFI_ST_START_CFM(error)
+/ ^WIFI_START_CFM(error)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -244,7 +244,7 @@ style=wordwrap</panel_attributes>
       <w>300</w>
       <h>36</h>
     </coordinates>
-    <panel_attributes>DONE/ ^WIFI_ST_STOP_CFM(SUCCESS)
+    <panel_attributes>DONE/ ^WIFI_STOP_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -268,7 +268,7 @@ style=wordwrap</panel_attributes>
       <w>324</w>
       <h>48</h>
     </coordinates>
-    <panel_attributes>DONE/ ^WIFI_ST_START_CFM(SUCCESS)
+    <panel_attributes>DONE/ ^WIFI_START_CFM(SUCCESS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -280,7 +280,7 @@ style=wordwrap</panel_attributes>
       <w>288</w>
       <h>36</h>
     </coordinates>
-    <panel_attributes>WIFI_ST_STOP_REQ /SaveInSeq()
+    <panel_attributes>WIFI_STOP_REQ /SaveInSeq()
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -384,9 +384,9 @@ valign=top
       <w>336</w>
       <h>72</h>
     </coordinates>
-    <panel_attributes>WIFI_ST_INTERACTIVE_ON_REQ 
+    <panel_attributes>WIFI_INTERACTIVE_ON_REQ 
 / save consoleOutIfHsmn, 
-  ^WIFI_ST_INTERACTIVE_ON_CFM(outIfHsmn)
+  ^WIFI_INTERACTIVE_ON_CFM(outIfHsmn)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -409,8 +409,8 @@ style=wordwrap</panel_attributes>
       <w>264</w>
       <h>36</h>
     </coordinates>
-    <panel_attributes>WIFI_ST_INTERACTIVE_OFF_REQ
-/ ^WIFI_ST_INTERACTIVE_OFF_CFM
+    <panel_attributes>WIFI_INTERACTIVE_OFF_REQ
+/ ^WIFI_INTERACTIVE_OFF_CFM
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>

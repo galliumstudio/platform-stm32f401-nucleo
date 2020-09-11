@@ -50,6 +50,12 @@ template <class Type, size_t N>
 class Array {
 public:
     Array() : m_count(0) {}
+    Array(uint32_t count, Type const &unused) : m_unused(unused), m_count(count) {
+        FW_ARRAY_ASSERT(count <= N);
+        for (uint32_t i = 0; i < count; i++) {
+            m_array[i] = unused;
+        }
+    }
     // Use built-in copy constructor and copy assignment operators.
     virtual ~Array() {}
 
@@ -77,8 +83,22 @@ public:
             }
         }
     }
+    // Mark an allocated entry as unused.
+    // It is different from DelAt() since it does not shift entries following it.
+    void Clear(uint32_t index) {
+        FW_ARRAY_ASSERT(index < m_count);
+        m_array[index] = m_unused;
+    }
     uint32_t GetMax() const { return N; }
     uint32_t GetCount() const { return m_count; }
+    uint32_t GetUsedCount() const {
+        uint32_t count = 0;
+        for (uint32_t i = 0; i < m_count; i++) {
+            // Assumes Type has == operator.
+            count += (m_array[i] == m_unused) ? 0 : 1;
+        }
+        return count;
+    }
     // The following functions must be used with extreme caution:
     void SetCount(uint32_t count) {
         FW_ARRAY_ASSERT(count <= N);
@@ -88,6 +108,7 @@ public:
     Type const *GetRawConst() const { return m_array; }
 private:
     Type m_array[N];
+    Type m_unused;      // Used to mark unused but allocated entries.
     uint32_t m_count;
 };
 

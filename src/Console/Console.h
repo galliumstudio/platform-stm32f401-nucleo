@@ -52,7 +52,7 @@
 using namespace QP;
 using namespace FW;
 
-#define FW_CONSOLE_ASSERT(t_) ((t_) ? (void)0 : Q_onAssert("Console.h", (int_t)__LINE__))
+#define CONSOLE_ASSERT(t_) ((t_) ? (void)0 : Q_onAssert("Console.h", (int_t)__LINE__))
 
 namespace APP {
 
@@ -111,13 +111,11 @@ protected:
     CmdParser m_cmdParser;  // Region to parse command line.
 
     enum {
-        OUT_FIFO_ORDER = 13,
-        IN_FIFO_ORDER = 10,
         MAX_ARGC = 8,
         MAX_VAR = 8,
     };
-    uint8_t m_outFifoStor[1 << OUT_FIFO_ORDER];
-    uint8_t m_inFifoStor[1 << IN_FIFO_ORDER];
+
+    // FIFO storage is defined in cpp to allow custom memory location.
     Fifo m_outFifo;
     Fifo m_inFifo;
     char m_cmdStr[CmdInput::MAX_LEN];
@@ -156,7 +154,7 @@ public:
         ConsoleCmd(Hsmn hsmn, char const **argv, uint32_t argc) :
             Evt(CONSOLE_CMD, hsmn, hsmn), m_argv(argv), m_argc(argc) {}
         char const **Argv() const { return m_argv; }
-        char const *Argv(uint32_t index) const { FW_CONSOLE_ASSERT(index < m_argc); return m_argv[index]; }
+        char const *Argv(uint32_t index) const { CONSOLE_ASSERT(index < m_argc); return m_argv[index]; }
         uint32_t Argc() const { return m_argc; }
     private:
         char const **m_argv;

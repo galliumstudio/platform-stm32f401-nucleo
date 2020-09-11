@@ -81,7 +81,8 @@ __initialize_hardware(void)
 {
   // Call the CSMSIS system clock routine to store the clock frequency
   // in the SystemCoreClock global RAM location.
-  SystemCoreClockUpdate();
+  // Gallium - Commented. System clock will be set up in SystemClock_Config() in main.cpp.
+  //SystemCoreClockUpdate();
 }
 
 // ----------------------------------------------------------------------------

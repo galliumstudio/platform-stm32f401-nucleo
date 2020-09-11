@@ -152,9 +152,12 @@ void GpioOut::ConfigPwm(uint32_t levelPermil) {
     timConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
     timConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
     timConfig.Pulse        = (hal->Init.Period + 1) * levelPermil / 1000;
+    QF_CRIT_STAT_TYPE crit;
+    QF_CRIT_ENTRY(crit);
     HAL_StatusTypeDef status = HAL_TIM_PWM_ConfigChannel(hal, &timConfig, m_config->pwmChannel);
     FW_ASSERT(status== HAL_OK);
     StartPwm(hal);
+    QF_CRIT_EXIT(crit);
 }
 
 void GpioOut::StartPwm(TIM_HandleTypeDef *hal) {

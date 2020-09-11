@@ -36,6 +36,7 @@
  * Email - admin@galliumstudio.com
  ******************************************************************************/
 
+#include <cstdio>
 #include "app_hsmn.h"
 #include "fw_log.h"
 #include "fw_assert.h"

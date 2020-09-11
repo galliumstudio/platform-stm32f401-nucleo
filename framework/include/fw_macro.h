@@ -43,6 +43,12 @@
 #include <stdint.h>
 #include <string.h>
 
+#define FW_CRIT_ENTRY() \
+    QF_CRIT_STAT_TYPE crit_; \
+    QF_CRIT_ENTRY(crit_)
+
+#define FW_CRIT_EXIT() QF_CRIT_EXIT(crit_)
+
 #define STRING_COPY(to_, from_, len_) \
     do { \
         strncpy((to_), (from_), (len_)); \

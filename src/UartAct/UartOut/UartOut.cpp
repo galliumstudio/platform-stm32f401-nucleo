@@ -82,7 +82,6 @@ void UartOut::DmaCompleteCallback(Hsmn hsmn) {
 }
 
 void UartOut::CleanCache(uint32_t addr, uint32_t len) {
-    //SCB_CleanDCache();
     // Cache not available on this platform.
     //SCB_CleanDCache_by_Addr(reinterpret_cast<uint32_t *>(ROUND_DOWN_32(addr)), ROUND_UP_32(addr + len) - ROUND_DOWN_32(addr));
     (void)addr;
@@ -300,6 +299,7 @@ QState UartOut::Normal(UartOut * const me, QEvt const * const e) {
                 len = fifo.GetEndAddr() - addr;
             }
             FW_ASSERT((len > 0) && (len <= fifo.GetUsedCount()));
+            // Must enable the following call when write-back policy is used. See MPU_Config() in main.cpp.
             me->m_fifo->CacheOp(UartOut::CleanCache, len);
             HAL_UART_Transmit_DMA(&me->m_hal, (uint8_t*)addr, len);
             me->m_writeCount = len;

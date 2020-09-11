@@ -54,8 +54,9 @@ Q_ASSERT_COMPILE((HSMN_BIT_SIZE) <= (8 * sizeof(Hsmn)));
 
 enum {
     HSM_UNDEF = 0,          // HSM number 0 is reserved. Must not be used.
-    MAX_HSM_COUNT = 64      // Maximum number of HSM's including HSM_UNDEF.
+    MAX_HSM_COUNT = 64,     // Maximum number of HSM's including HSM_UNDEF.
                             // That is valid HSM number is from 1 to MAX_HSM_COUNT - 1.
+    INSTANCE_UNDEF = (uint32_t)-1
 };
 
 #define EVT_TYPE_BIT_SIZE                   8

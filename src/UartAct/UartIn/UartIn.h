@@ -99,7 +99,7 @@ protected:
         DONE = INTERNAL_EVT_START(UART_IN),
         DATA_RDY,
         DMA_RECV,
-        OVERFLOW,
+        FIFO_OVERFLOW,      // Can't use OVERFLOW since it conflicts with math.h
         HW_FAIL,
     };
 };

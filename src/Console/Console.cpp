@@ -37,6 +37,7 @@
  ******************************************************************************/
 
 #include <stdarg.h>
+#include <stdio.h>
 #include "app_hsmn.h"
 #include "fw_log.h"
 #include "fw_assert.h"
@@ -72,6 +73,29 @@ static char const * const interfaceEvtName[] = {
     "CONSOLE_CMD_IND",
     "CONSOLE_RAW_ENABLE_REQ",
 };
+
+enum {
+    OUT_FIFO_ORDER = 13,
+    IN_FIFO_ORDER = 10,
+};
+
+// UART buffers can be allocated to TCM by uncommenting the section __attribute__ below. (Note TCM is limited to 128K.)
+// Make sure the beginning and end of the buffers are aligned to cache line size (32 bytes).
+// (Not strictly required for output buffer; Only required for input buffer that needs invalidation.)
+uint8_t consoleOutFifoStor[CONSOLE_COUNT][ROUND_UP_32(1 << OUT_FIFO_ORDER)] __attribute__((aligned(32))); // __attribute__ ((section (".data.DTCM")));
+uint8_t consoleInFifoStor[CONSOLE_COUNT][ROUND_UP_32(1 << IN_FIFO_ORDER)] __attribute__((aligned(32)));   // __attribute__ ((section (".data.DTCM")));
+
+static uint8_t *GetOutFifoStor(Hsmn hsmn) {
+    uint16_t inst = hsmn - CONSOLE;
+    FW_ASSERT(inst < ARRAY_COUNT(consoleOutFifoStor));
+    return consoleOutFifoStor[inst];
+}
+
+static uint8_t *GetInFifoStor(Hsmn hsmn) {
+    uint16_t inst = hsmn - CONSOLE;
+    FW_ASSERT(inst < ARRAY_COUNT(consoleInFifoStor));
+    return consoleInFifoStor[inst];
+}
 
 uint16_t Console::GetInst(Hsmn hsmn) {
     uint16_t inst = hsmn - CONSOLE;
@@ -216,6 +240,9 @@ CmdStatus Console::RunCmd(char const **argv, uint32_t argc, CmdHandler const *cm
             ConsoleCmd evt(GetHsm().GetHsmn(), argv, argc);
             m_lastCmdFunc = cmd[i].func;
             FW_ASSERT(m_lastCmdFunc);
+            // Ensures the console timer is stopped before running a new command, in case it is currently running
+            // and the new command handler uses it.
+            m_consoleTimer.Stop();
             return m_lastCmdFunc(*this, &evt);
         }
     }
@@ -248,8 +275,8 @@ Console::Console(Hsmn hsmn, char const *name, char const *cmdInputName, char con
     m_ifHsmn(HSM_UNDEF), m_outIfHsmn(HSM_UNDEF), m_isDefault(false),
     m_cmdInput(GetCmdInputHsmn(hsmn), cmdInputName, *this),
     m_cmdParser(GetCmdParserHsmn(hsmn), cmdParserName),
-    m_outFifo(m_outFifoStor, OUT_FIFO_ORDER),
-    m_inFifo(m_inFifoStor, IN_FIFO_ORDER),
+    m_outFifo(GetOutFifoStor(hsmn), OUT_FIFO_ORDER),
+    m_inFifo(GetInFifoStor(hsmn), IN_FIFO_ORDER),
     m_argc(0), m_rootCmdFunc(NULL), m_lastCmdFunc(NULL),
     m_stateTimer(GetHsm().GetHsmn(), STATE_TIMER),
     m_consoleTimer(GetHsm().GetHsmn(), CONSOLE_TIMER) {

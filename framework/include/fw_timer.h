@@ -53,13 +53,15 @@ public:
         INVALID
     };
 
-    Timer(Hsmn hsmn, QP::QSignal signal);
+    // tickRate - 0 is default rate triggered by SysTick_Handler().
+    //            Others up to QF_MAX_TICK_RATE are controlled by application (see bsp.h).
+    Timer(Hsmn hsmn, QP::QSignal signal, uint8_t tickRate = 0, uint32_t msPerTick = BSP_MSEC_PER_TICK);
     ~Timer() {}
 
     Hsmn GetHsmn() const { return m_hsmn; }
     void Start(uint32_t timeoutMs, Type type = ONCE);
-    void Stop();
     void Restart(uint32_t timeoutMs, Type type = ONCE);
+    void Stop();
 
 protected:
     bool IsMatch(QEvt const *other) {
@@ -67,11 +69,11 @@ protected:
         // since the same signal can be used by multiple region instances.
         // Note if sig matches, it is guaranteed that 'other' is a timer event,
         // so casting is safe.
-        return (other->sig == sig) &&
-               (static_cast<Timer const *>(other)->GetHsmn() == m_hsmn);
+        return other && (other->sig == sig) && (static_cast<Timer const *>(other)->GetHsmn() == m_hsmn);
     }
 
     Hsmn m_hsmn;
+    uint32_t m_msPerTick;
 };
 
 } // namespace FW

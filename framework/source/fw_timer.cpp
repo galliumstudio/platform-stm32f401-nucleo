@@ -55,20 +55,25 @@ namespace FW {
 Timer const CANCELED_TIMER(HSM_UNDEF, Q_USER_SIG);
 
 // Allow hsmn == HSM_UNDEF. In that case GetContainer() returns NULL.
-Timer::Timer(Hsmn hsmn, QP::QSignal signal) :
-    QTimeEvt(signal),
-    m_hsmn(hsmn) {
-}
+Timer::Timer(Hsmn hsmn, QP::QSignal signal, uint8_t tickRate, uint32_t msPerTick) :
+    // QP requires an active object to be provided along with tickRate, which is not available during construction.
+    // A placeholder is used here and it will be set in Start().
+    QTimeEvt(NULL, signal, tickRate), m_hsmn(hsmn), m_msPerTick(msPerTick) {}
 
 void Timer::Start(uint32_t timeoutMs, Type type) {
-    QTimeEvtCtr timeoutTick = ROUND_UP_DIV(timeoutMs, BSP_MSEC_PER_TICK);
     QActive *act = Fw::GetContainer(m_hsmn);
-    FW_ASSERT(act && (type < INVALID));
+    FW_ASSERT(act && (type < INVALID) && (m_msPerTick > 0));
+    QTimeEvtCtr timeoutTick = ROUND_UP_DIV(timeoutMs, m_msPerTick);
     if (type == ONCE) {
         QTimeEvt::postIn(act, timeoutTick);
     } else {
         QTimeEvt::postEvery(act, timeoutTick);
     }
+}
+
+void Timer::Restart(uint32_t timeoutMs, Type type) {
+    Stop();
+    Start(timeoutMs, type);
 }
 
 void Timer::Stop() {
@@ -78,55 +83,32 @@ void Timer::Stop() {
     QTimeEvt::disarm();
     QActive *act = Fw::GetContainer(m_hsmn);
     FW_ASSERT(act);
-    QEQueue *eQueue = &act->m_eQueue;
-    FW_ASSERT(eQueue);
-    QEQueueCtr queueCount = 0;
-    QEvt const **queueStor = eQueue->getStor(&queueCount);
-    FW_ASSERT(queueStor && queueCount);
+    QEQueue *queue = &act->m_eQueue;
+    FW_ASSERT(queue);
     // Critical section must support nesting.
     QF_CRIT_STAT_TYPE crit;
     QF_CRIT_ENTRY(crit);
-    // Remove timer event in front of queue.
-    QEvt const * frontEvt = eQueue->get();
-    if (frontEvt) {
-        // Check if a queued event matches the timer event being stopped.
-        if (IsMatch(frontEvt)) {
-            // frontEvt must be a timer event and static.
-            FW_ASSERT(IS_TIMER_EVT(frontEvt->sig) && QF_EVT_POOL_ID_(frontEvt) == 0);
-            frontEvt = &CANCELED_TIMER;
+    if (queue->m_frontEvt) {
+        if (IsMatch(queue->m_frontEvt)) {
+            FW_ASSERT(IS_TIMER_EVT(queue->m_frontEvt->sig) && QF_EVT_POOL_ID_(queue->m_frontEvt) == 0);
+            queue->m_frontEvt = &CANCELED_TIMER;
         }
-        // Put back front event.
-        eQueue->postLIFO(frontEvt);
-        // Since QEQueue::get() does not decrement reference counter, we need to
-        // decrement it explicitly after postLIFO() increments it again.
-        // We must only do it for dynamic events.
-        if (QF_EVT_POOL_ID_(frontEvt) != 0) {
-            FW_ASSERT(QF_EVT_REF_CTR_(frontEvt) > 1);
-            QF_EVT_REF_CTR_DEC_(frontEvt);
-        }
-        // Remove timer event in queue storage if it is used.
-        // Note queueCount does NOT include frontEvt while getNFree() does include frontEvt.
-        // Since here frontEvt must be used, max of getNFree() is queueCount.
-        // If getNFree() < queueCount, one or more of queue storage must be in use.
-        // If a match is found, it is replaced with CANCELED_TIMER regardless to whether
-        // it is actually being used of not.
-        if (eQueue->getNFree() < queueCount) {
-            for (QEQueueCtr i = 0; i < queueCount; i++) {
-                if (IsMatch(queueStor[i])) {
-                    // Matched event must be a timer event and static.
-                    FW_ASSERT(IS_TIMER_EVT(queueStor[i]->sig) && QF_EVT_POOL_ID_(queueStor[i]) == 0);
-                    queueStor[i] = &CANCELED_TIMER;
-                }
+        QEQueueCtr i = queue->m_tail;
+        while (i != queue->m_head) {
+            QEvt const *e = queue->m_ring[i];
+            if (IsMatch(e)) {
+                FW_ASSERT(IS_TIMER_EVT(e->sig) && QF_EVT_POOL_ID_(e) == 0);
+                queue->m_ring[i] = &CANCELED_TIMER;
             }
+            if (i == static_cast<QEQueueCtr>(0)) {
+                i = queue->m_end;
+            }
+            --i;
         }
     }
     // Nothing to do if queue empty (frontEvt == NULL).
     QF_CRIT_EXIT(crit);
 }
 
-void Timer::Restart(uint32_t timeoutMs, Type type) {
-    Stop();
-    Start(timeoutMs, type);
-}
 
 } // namespace FW

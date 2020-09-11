@@ -54,7 +54,7 @@ static char const * const internalEvtName[] = {
     "DONE",
     "DATA_RDY",
     "DMA_RECV",
-    "OVERFLOW",
+    "FIFO_OVERFLOW",
     "HW_FAIL",
 };
 
@@ -111,7 +111,6 @@ void UartIn::DisableRxInt() {
 }
 
 void UartIn::CleanInvalidateCache(uint32_t addr, uint32_t len) {
-    //SCB_CleanInvalidateDCache();
     // Cache not available on this platform.
     //SCB_CleanInvalidateDCache_by_Addr(reinterpret_cast<uint32_t *>(ROUND_DOWN_32(addr)), ROUND_UP_32(addr + len) - ROUND_DOWN_32(addr));
     (void)addr;
@@ -288,7 +287,7 @@ QState UartIn::Normal(UartIn * const me, QEvt const * const e) {
             uint32_t dmaRxCount = me->m_fifo->GetDiff(dmaCurrIndex, me->m_fifo->GetWriteIndex());
             if (dmaRxCount > 0) {
                 if (dmaRxCount > me->m_fifo->GetAvailCount()) {
-                    Evt  *evt = new Evt(OVERFLOW, GET_HSMN());
+                    Evt  *evt = new Evt(FIFO_OVERFLOW, GET_HSMN());
                     me->PostSync(evt);
                 } else {
                     me->m_fifo->CacheOp(UartIn::CleanInvalidateCache, dmaRxCount);
@@ -304,7 +303,7 @@ QState UartIn::Normal(UartIn * const me, QEvt const * const e) {
             status = Q_TRAN(&UartIn::Inactive);
             break;
         }
-        // TODO - OVERFLOW handling
+        // TODO - FIFO_OVERFLOW handling
         default: {
             status = Q_SUPER(&UartIn::Started);
             break;

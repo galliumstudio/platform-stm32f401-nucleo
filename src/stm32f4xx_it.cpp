@@ -103,7 +103,7 @@ extern "C" void SysTick_Handler(void){
   HAL_SYSTICK_IRQHandler();
   /* USER CODE BEGIN SysTick_IRQn 1 */
   QXK_ISR_ENTRY();
-  QP::QF::tickX_(0);
+  QP::QF::tickX_(TICK_RATE_BSP);
   QXK_ISR_EXIT();
   /* USER CODE END SysTick_IRQn 1 */
 }

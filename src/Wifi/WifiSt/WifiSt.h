@@ -78,8 +78,8 @@ protected:
         OUT_FIFO_ORDER = 9,
         IN_FIFO_ORDER = 11,
     };
-    uint8_t m_outFifoStor[1 << OUT_FIFO_ORDER];
-    uint8_t m_inFifoStor[1 << IN_FIFO_ORDER];
+    uint8_t m_outFifoStor[ROUND_UP_32(1 << OUT_FIFO_ORDER)] __attribute__((aligned(32)));
+    uint8_t m_inFifoStor[ROUND_UP_32(1 << IN_FIFO_ORDER)] __attribute__((aligned(32)));
     Fifo m_outFifo;
     Fifo m_inFifo;
 

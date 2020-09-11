@@ -60,6 +60,10 @@
     #define QF_EQUEUE_CTR_SIZE 1
 #endif
 
+// Gallium
+namespace FW {
+    class Timer;
+}
 
 namespace QP {
 
@@ -253,12 +257,6 @@ public:
         return m_frontEvt == static_cast<QEvt const *>(0);
     }
 
-    // Gallium - Added for use by FW::Timer.
-    QEvt const **getStor(QEQueueCtr *count) {
-        if (count) { *count = m_end; }
-        return m_ring;
-    }
-
 private:
     //! disallow copying of QEQueue
     QEQueue(QEQueue const &);
@@ -273,6 +271,8 @@ private:
 #ifdef Q_UTEST
     friend class QS;
 #endif // Q_UTEST
+    // Gallium
+    friend class FW::Timer;
 };
 
 } // namespace QP

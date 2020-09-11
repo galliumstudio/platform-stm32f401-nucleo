@@ -37,6 +37,7 @@
  ******************************************************************************/
 
 #include <string.h>
+#include <stdio.h>
 #include "qpcpp.h"
 #include "bsp.h"
 
@@ -80,11 +81,14 @@ static void WriteUart(char const *buf, uint32_t len) {
 }
 
 void BspInit() {
-    // STM32F7xx HAL library initialization
+    // STM32 HAL library initialization
     HAL_Init();
 #ifdef ENABLE_BSP_PRINT
     InitUart();
 #endif // ENABLE_BSP_PRINT
+
+    char const *testStr = "BspInit success\n\r";
+    BspWrite(testStr, strlen(testStr));
 }
 
 void BspWrite(char const *buf, uint32_t len) {
@@ -106,6 +110,13 @@ extern "C" void BspTrace(char const *buf, uint32_t len) {
 
 uint32_t GetSystemMs() {
     return HAL_GetTick() * BSP_MSEC_PER_TICK;
+}
+
+// Delay for short periods only. It should be used for testing or assert handling only.
+void DelayMs(uint32_t ms) {
+    // Note wrap around is okay.
+    uint32_t endMs = GetSystemMs() + ms;
+    while ((int32_t)(endMs - GetSystemMs()) > 0);
 }
 
 uint32_t GetIdleCnt() {
@@ -182,6 +193,9 @@ extern "C" void Q_onAssert(char const * const module, int loc) {
     // NOTE: add here your application-specific error handling
     //
     // Gallium
+    // Short delay for pending debug messages to be flushed.
+    DelayMs(200);
+    // Reinitializes uart and output assert message in direct mode (not INT or DMA).
     InitUart();
     char buf[100];
     snprintf(buf, sizeof(buf), "ASSERT FAILED in %s at line %d\n\r", module, loc);
