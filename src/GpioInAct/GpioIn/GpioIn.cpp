@@ -213,6 +213,7 @@ GpioIn::GpioIn() :
             break;
         }
     }
+    FW_ASSERT(i < ARRAY_COUNT(CONFIG));
     // Save hsmn to pin mapping.
     SavePin(GetHsm().GetHsmn(), m_config->pin);
     IncCurrHsmn();
