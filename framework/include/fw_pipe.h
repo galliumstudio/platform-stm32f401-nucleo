@@ -117,16 +117,10 @@ public:
         QF_CRIT_EXIT(crit);
     }
     void IncWriteIndexNoCrit(uint32_t count) {
-        QF_CRIT_STAT_TYPE crit;
-        QF_CRIT_ENTRY(crit);
         IncIndex(m_writeIndex, count);
-        QF_CRIT_EXIT(crit);
     }
     void IncReadIndexNoCrit(uint32_t count) {
-        QF_CRIT_STAT_TYPE crit;
-        QF_CRIT_ENTRY(crit);
         IncIndex(m_readIndex, count);
-        QF_CRIT_EXIT(crit);
     }
 
     // Return written count. If not enough space to write all, return 0 (i.e. no partial write).
@@ -166,6 +160,16 @@ public:
         return count;
     }
 
+    // Writes a single entry without critical section.
+    bool WriteNoCrit(Type const &s) {
+        if (GetAvailCountNoCrit() == 0) {
+            return false;
+        }
+        m_stor[m_writeIndex] = s;
+        IncIndex(m_writeIndex, 1);
+        return true;
+    }
+
     // Return actual read count. Okay if data in pipe < count.
     uint32_t Read(Type *dest, uint32_t count, bool *status = NULL) {
         QF_CRIT_STAT_TYPE crit;
@@ -196,6 +200,16 @@ public:
             }
         }
         return count;
+    }
+
+    // Reads a single entry without critical section.
+    bool ReadNoCrit(Type &d) {
+        if (IsEmpty()) {
+            return false;
+        }
+        d = m_stor[m_readIndex];
+        IncIndex(m_readIndex, 1);
+        return true;
     }
 
     // Performs the cache operation passed in on the read buffer for the specified count (in unit of T).
